@@ -181,13 +181,14 @@
 .lb-hint b { color:var(--accent); }
 
 /* กระดานวงจร */
-.lb-board { display:flex; align-items:stretch; gap:.35rem; padding:.7rem .6rem;
+.lb-board { --cell:3.2rem;
+  display:flex; align-items:stretch; gap:.35rem; padding:.7rem .6rem;
   border:1px solid var(--rule); border-radius:10px; background:#fff; width:max-content; min-width:100%; }
-.lb-wires { display:grid; grid-template-rows:repeat(3,3.2rem); flex:none; }
+.lb-wires { display:grid; grid-template-rows:repeat(3,var(--cell)); flex:none; }
 .lb-wires span { display:flex; align-items:center; justify-content:flex-end; padding-right:.25rem;
   font-weight:800; font-size:.9rem; color:var(--ink-soft); }
 .lb-cells { position:relative; display:grid;
-  grid-template-columns:repeat(var(--cols),3.2rem); grid-template-rows:repeat(3,3.2rem); }
+  grid-template-columns:repeat(var(--cols),var(--cell)); grid-template-rows:repeat(3,var(--cell)); }
 .lb-cell { position:relative; font:inherit; padding:0; border:0; background:transparent;
   cursor:pointer; color:var(--accent); }
 .lb-cell::before { content:""; position:absolute; left:0; right:0; top:50%;
@@ -218,3 +219,36 @@
 .lb-fb .bad { color:var(--bad); font-weight:800; }
 .lb-fb .good { color:var(--good); font-weight:800; }
 .lb-fb .circuit svg { display:block; margin:.5rem auto 0; }
+
+/* จอแคบ: ย่อช่องให้เห็นครบ 6 คอลัมน์ในจอเดียว — ต้องไม่ให้เลื่อนซ้ายขวาระหว่างวาง gate
+   (2.6rem ≈ 42px ยังกดด้วยนิ้วได้ · ปุ่มในคลัง gate ยังสูง 2.9rem เท่าเดิม) */
+@media (max-width:27rem) {
+  .lb-board { --cell:2.6rem; padding:.6rem .4rem; }
+  .lb-wires span { font-size:.82rem; }
+}
+
+/* 🔴 ตารางเทียบผลเป็นตัวเลขหลักเดียวล้วน — ห้ามให้กฎพับการ์ดของ table.cmp (@max-width:34rem)
+   จับ ไม่งั้น 4 คอลัมน์ × 4 แถวจะกลายเป็น 16 บล็อกยาวเป็นหน้าจอ อ่านไม่รู้เรื่อง
+   จึงต้อง reset ทุก property ที่กฎนั้นทับไว้ กลับเป็นตารางจริง */
+@media (max-width:34rem) {
+  table.cmp.lb-tt { display:table; }
+  table.cmp.lb-tt thead { display:table-header-group; }
+  table.cmp.lb-tt tbody { display:table-row-group; }
+  table.cmp.lb-tt tr { display:table-row; border:0; border-radius:0; margin:0; padding:0; }
+  table.cmp.lb-tt td { display:table-cell; width:auto; text-align:center;
+    border-bottom:1px solid var(--rule); padding:.45rem .3rem; }
+  table.cmp.lb-tt td::before { content:none; }
+  table.cmp.lb-tt th { padding:.45rem .3rem; }
+  table.cmp.lb-tt, table.cmp.lb-tt th, table.cmp.lb-tt td { font-size:.82rem; }
+}
+table.cmp.lb-tt th { text-align:center; }
+table.cmp.lb-tt td { text-align:center; white-space:nowrap; }
+
+/* ---------- ⭐ star.html — จอแคบ: ป้าย crow ขึ้นบรรทัดบน วงจะได้ไม่โดนบีบ ---------- */
+@media (max-width: 560px) {
+  .star .crow { flex-wrap: wrap; gap: .5rem; }
+  .star .crow .lab { flex: 0 0 100%; min-width: 0; text-align: left;
+    padding: 0 0 .1rem; line-height: 1.45; }
+  .star .scrollx { overflow-x: visible; }
+  .star .scrollx .crow { max-width: 100% !important; }
+}

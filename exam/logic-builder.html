@@ -39,7 +39,6 @@
         <div class="lb-cells" id="lb-cells"></div>
       </div>
     </div>
-    <p class="scroll-hint">← เลื่อนดูได้</p>
 
     <div class="lb-actions">
       <button type="button" class="primary" id="lb-check">ตรวจคำตอบ</button>
@@ -461,8 +460,8 @@ function lbDiagnose(bad, gate) {
       if (g1[0] !== e1[0] || g1[1] !== e1[1] || g1[2] !== e1[2]) c1bad = true;
     }
 
-    return "<table class=\"cmp\"><thead><tr><th>a, b</th><th>" + keepHead + " ที่ออกมา</th>" +
-      "<th>" + oc + " ที่ได้</th><th>" + oc + " ที่ควรได้</th></tr></thead><tbody>" +
+    return "<table class=\"cmp lb-tt\"><thead><tr><th>a, b</th><th>" + keepHead + " ที่ออก</th>" +
+      "<th>" + oc + " ที่ได้</th><th>ที่ควรได้</th></tr></thead><tbody>" +
       rows + "</tbody></table>" +
       (c1bad ? "<p class=\"src\">⚠️ ตารางนี้คือกรณี <code class=\"code\">c</code> เริ่มที่ |0⟩ เท่านั้น — " +
         "วงจรนี้ยัง<b>พังตอน c เริ่มที่ |1⟩</b> ด้วย" +
