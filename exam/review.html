@@ -79,8 +79,246 @@
   <section class="page" data-page="lec05">
     <p class="kicker">Lec05</p>
     <h2>Arithmetic &amp; Logic</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 08 จะเติมส่วนนี้</p></div>
+    <p class="lead">แกนของคาบนี้: เอาเลขคณิตแบบดิจิทัลมาทำบน qubit register ที่อยู่ใน superposition (การซ้อนทับ) โดยไม่ละเมิดกฎ 2 ข้อของ QPU — แล้วปิดท้ายด้วยการแปลง logic gate ดิจิทัลทั้ง 6 ตัวให้เป็นวงจรควอนตัม</p>
+
+    <div class="box why" id="lec05-rules"><span class="tag">กติกา 2 ข้อ ที่ทุกอย่างในคาบนี้ต้องเคารพ</span>
+      <p><b>① ก๊อป qubit ไม่ได้</b> (no-cloning) → operator <code class="code">=</code> ใช้ assign ค่าจาก qubit หนึ่งไปอีก qubit หนึ่ง<b>ไม่ได้</b> · QPU <i>ย้าย</i> qubit ได้ด้วย exchange/SWAP แต่ไม่มี QPU ตัวไหน implement คำสั่ง COPY</p>
+      <p><b>② ทุก operation ที่ไม่ใช่ READ ต้อง reversible (ย้อนกลับได้)</b> — READ เป็น operation เดียวที่ irreversible · ถ้าใช้ READ เยอะเพื่อเลี่ยงข้อนี้ การคำนวณจะกลายเป็นคลาสสิกและเสีย quantum advantage ไปหมด</p>
+      <p>ทางลัดที่ใช้ได้เสมอ: แปลงวงจรดิจิทัลให้เหลือแต่ประตูที่ reversible (เช่น Toffoli) แล้วค่อยยกไปลงบน quantum register</p>
+    </div>
+
+    <div class="part"><h2><span class="n">1</span> เลขคณิตพื้นฐานบน qubit register</h2></div>
+
+    <h3>increment (+1) — จริงๆ แล้วมันคือ "การทดเลข"</h3>
+    <p>ใช้ register 4 qubit (qunibble) ป้ายสาย <code class="code">0x1</code> = บิตต่ำสุดอยู่<b>บนสุด</b> · <code class="code">0x8</code> = บิตสูงสุดอยู่ล่างสุด</p>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x4,0x8"
+           data-groups="0-3:increment"
+           data-ops="CTRL:0,1,2 + X:3; CCNOT:0,1,2; CNOT:0,1; X:0"
+           data-out="0-3:a + 1"
+           data-cap="increment-by-1 — ไล่จาก gate ที่มี control เยอะสุด ไปหาน้อยสุด จบที่ NOT เดี่ยวบน 0x1"
+           data-alt="วงจร increment 4 qubit"></div>
+    </div>
+    <div class="box aha"><span class="tag">อ่านวงจรนี้ยังไง</span>
+      <p>คอลัมน์แรกคือ CNOT ที่มี control 3 จุด แปลว่า <i>"ถ้าบิตล่างทั้งหมดเป็น 1 หมด ค่อยพลิกบิตบนสุด"</i> — <b>นี่คือการทดเลข (carry) ของเลขคณิตแบบเดิมเป๊ะๆ</b> แล้วทำซ้ำโดยลด control ทีละตัวจนเหลือ NOT เดี่ยวที่บิตต่ำสุด</p>
+      <p>ทำไมต้องไล่จากบิตสูงลงบิตต่ำ? เพราะถ้าพลิกบิตต่ำก่อน เงื่อนไข carry ของบิตสูงจะอ่านค่าที่เปลี่ยนไปแล้ว → ผิด</p>
+    </div>
+    <p><b>decrement (−1)</b> = <b>วงจรเดียวกันแต่กลับลำดับ gate ทั้งหมด</b> (<code class="code">X:0</code> → <code class="code">CNOT:0,1</code> → <code class="code">CCNOT:0,1,2</code> → 3-control) — ไม่ต้องจำวงจรใหม่ จำแค่ว่า "กลับหลัง" <a href="#code-subtract-1">→ ดูโค้ด</a></p>
+
+    <h3>add(12) — ตัวเลขต่างกัน วงจรก็ต่างกัน</h3>
+    <p>ไม่ต้องวาดใหม่ทั้งชุด — <code class="code">a.add(12)</code> ใช้แค่ <b>2 คอลัมน์</b> คือ <code class="code">X:2</code> แล้ว <code class="code">CNOT:2,3</code> เพราะ 12 = <code class="code">1100₂</code> แตะแค่บิตบน (ลำดับสำคัญ: X ก่อน CNOT ถ้าสลับจะได้ 1→5 ซึ่งผิด)</p>
+    <div class="box warn"><span class="tag">overflow = wrap รอบ mod 16</span>
+      <p>register 4 บิตเก็บได้ 0–15 · <code class="code">1 + 12 = 13</code> ✓ แต่ <code class="code">5 + 12 = 17 → 17 mod 16 = 1</code> · เฟส (phase) ของแต่ละค่าติดตามค่าไปด้วย — <code class="code">|5⟩</code> ที่มีเข็ม 45° กลายเป็น <code class="code">|1⟩</code> ที่มีเข็ม 45°</p>
+      <p>จุดสังเกตเชิงแนวคิด: <code class="code">add(12)</code> เป็นเลขคณิตระหว่างค่า<b>ดิจิทัลคงที่</b>กับค่า<b>ควอนตัม</b> — เปลี่ยนตัวเลขทีต้องเปลี่ยนชุด gate ที</p>
+    </div>
+
+    <h3>ทำไม <code class="code">c = a + b</code> ใช้ไม่ได้</h3>
+    <div class="box warn" id="lec05-no-c-equals"><span class="tag">ละเมิดกติกาทั้ง 2 ข้อพร้อมกัน</span>
+      <p><b>เสีย reversibility</b> — ค่าเดิมที่อยู่ใน <code class="code">c</code> ถูกเขียนทับหายไป ย้อนกลับไม่ได้</p>
+      <p><b>เสีย no-copying</b> — ถ้า <code class="code">c = a + b</code> ทำได้ เราก็ทำ <code class="code">b = c − a</code> ต่อได้ → จบลงด้วยสำเนา superposition ของ <code class="code">a</code> สองชุด ซึ่งขัด no-cloning</p>
+      <p>ทางออก: ใช้ <code class="code">+=</code> คือบวกเลขตัวหนึ่ง<b>ลงบน</b>อีกตัวโดยตรง ไม่สร้าง register ใหม่</p>
+    </div>
+
+    <h3><code class="code">a += b</code> — บวก quantum integer สองตัว</h3>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="6" data-names="a,a,a,a,b,b"
+           data-wire-labels="0x1,0x2,0x4,0x8,0x1,0x2"
+           data-groups="0-3:รอบของ b·0x1; 4-6:รอบของ b·0x2"
+           data-ops="CTRL:0,1,2,4 + X:3; CTRL:0,1,4 + X:2; CCNOT:0,4,1; CNOT:4,0; CTRL:1,2,5 + X:3; CCNOT:1,5,2; CNOT:5,1"
+           data-out="0-3:a + b"
+           data-cap="a += b — ต่างจาก add(ค่าคงที่) ตรงที่ไม่ต้องเปลี่ยน gate เมื่อ input เปลี่ยน"
+           data-alt="วงจร a += b 6 สาย"></div>
+    </div>
+    <div class="box aha"><span class="tag">สูตรจำ</span>
+      <p><code class="code">a += b</code> = <b>เอาวงจร increment ของ a มาซ้ำ 1 รอบต่อบิตของ b โดยพ่วง control จากบิตนั้นเข้าไปทุก gate</b></p>
+      <p>รอบที่ 1 (คอลัมน์ ①–④) พ่วง <code class="code">b·0x1</code> เป็น control เพิ่ม แล้วไล่จาก <code class="code">a·0x8</code> ลงมา <code class="code">a·0x1</code> = "ถ้า b บิต 0 ติด ให้ a += 1"</p>
+      <p>รอบที่ 2 (คอลัมน์ ⑤–⑦) พ่วง <code class="code">b·0x2</code> แล้ว<b>เริ่มที่ a·0x2 แทน</b> (เลื่อนขึ้น 1 บิตตามน้ำหนัก 2 ของบิตนั้น) = "ถ้า b บิต 1 ติด ให้ a += 2"</p>
+    </div>
+    <p><b><code class="code">a -= b</code></b> = <b>ชุด gate เดิมรันย้อนลำดับ</b> (⑦⑥⑤④③②①) ไม่วาดใหม่ · กล่อง <code class="code">prepare</code> ในสไลด์มีไว้ป้อน input ทดสอบเท่านั้น ไม่ใช่ส่วนหนึ่งของ operation <a href="#code-add-b">→ ดูโค้ด</a></p>
+
+    <h3>จำนวนเต็มลบ — two's complement</h3>
+    <p>แบ่งค่าที่เป็นไปได้ครึ่งหนึ่งให้จำนวนลบ อีกครึ่งให้จำนวนบวก · register 3 บิตจึงแทน −4, −3, −2, −1, 0, 1, 2, 3</p>
+    <table class="cmp">
+      <thead><tr><th>ค่า</th><th>ไบนารี 3 บิต</th><th>บิตสูงสุด = เครื่องหมาย</th></tr></thead>
+      <tbody>
+        <tr><td data-label="ค่า">0</td><td data-label="ไบนารี 3 บิต"><code class="code">000</code></td><td data-label="บิตสูงสุด">0 = บวก</td></tr>
+        <tr><td data-label="ค่า">1</td><td data-label="ไบนารี 3 บิต"><code class="code">001</code></td><td data-label="บิตสูงสุด">0 = บวก</td></tr>
+        <tr><td data-label="ค่า">2</td><td data-label="ไบนารี 3 บิต"><code class="code">010</code></td><td data-label="บิตสูงสุด">0 = บวก</td></tr>
+        <tr><td data-label="ค่า">3</td><td data-label="ไบนารี 3 บิต"><code class="code">011</code></td><td data-label="บิตสูงสุด">0 = บวก</td></tr>
+        <tr><td data-label="ค่า">−4</td><td data-label="ไบนารี 3 บิต"><code class="code">100</code></td><td data-label="บิตสูงสุด">1 = ลบ</td></tr>
+        <tr><td data-label="ค่า">−3</td><td data-label="ไบนารี 3 บิต"><code class="code">101</code></td><td data-label="บิตสูงสุด">1 = ลบ</td></tr>
+        <tr><td data-label="ค่า">−2</td><td data-label="ไบนารี 3 บิต"><code class="code">110</code></td><td data-label="บิตสูงสุด">1 = ลบ</td></tr>
+        <tr><td data-label="ค่า">−1</td><td data-label="ไบนารี 3 บิต"><code class="code">111</code></td><td data-label="บิตสูงสุด">1 = ลบ</td></tr>
+      </tbody>
+    </table>
+    <div class="box aha"><span class="tag">ทำไมถึงเลือกแบบนี้</span>
+      <p>เพราะ<b>วิธีบวก/ลบที่คิดไว้สำหรับจำนวนบวก ใช้กับ two's complement ได้เลยโดยไม่ต้องแก้อะไร</b> — วงจร increment ตัวเดียวกันเป๊ะ · และบิตสูงสุดกลายเป็นตัวบอกเครื่องหมายฟรีๆ</p>
+      <p>วิธีคิดเร็ว: <b>กลับทุกบิต แล้ว +1</b> · ระวังตอนอ่านผล — <code class="code">111</code> แปลว่า 7 หรือ −1 ขึ้นกับว่าตกลงกันไว้ว่าใช้ two's complement หรือเปล่า</p>
+    </div>
+
+    <h3>วงจร negate (<code class="code">a = -a</code>)</h3>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x4,0x8"
+           data-groups="0-0:NOT; 1-4:+1"
+           data-ops="X:0 + X:1 + X:2 + X:3; CTRL:0,1,2 + X:3; CCNOT:0,1,2; CNOT:0,1; X:0"
+           data-out="0-3:-a"
+           data-cap="two's complement negation — flip ทุกบิต แล้วต่อด้วยวงจร increment ตัวเดิม"
+           data-alt="วงจร negate two's complement"></div>
+    </div>
+    <div class="box warn" id="lec05-abs-trap"><span class="tag">🎯 กับดักที่ออกสอบได้ — abs(−4) = −4</span>
+      <p>ใน 3 บิตเก็บได้แค่ −4…3 · negate ของ <code class="code">100</code> (= −4) คือ flip → <code class="code">011</code> แล้ว +1 → <code class="code">100</code> = <b>−4 เหมือนเดิม</b></p>
+      <p>ดูเหมือนบั๊ก แต่เป็น<b>คำตอบที่ถูก</b> เพราะ +4 อยู่นอกช่วงที่ 3 บิตเก็บได้ — ตรงกับ <code class="code">abs(INT_MIN)</code> ในภาษา C ที่คืนค่าลบเหมือนกัน</p>
+      <p>กับดักคำตอบผิดที่มักเลือก: <code class="code">011</code> (ลืม +1) หรือ <code class="code">000</code></p>
+    </div>
+
+    <h3>🎯 <code class="code">b²</code> — สูตรทั่วไป (ข้อสอบเปลี่ยนจำนวนบิตได้)</h3>
+    <p>สไลด์กางไว้แค่เคส 2 บิต ถ้าโดนถาม 3 บิตต้องกางเองได้ · แกนของมันมีบรรทัดเดียว:</p>
+    <p class="eq">b<sub>i</sub>² = b<sub>i</sub> &nbsp;(เพราะบิตมีแค่ 0 กับ 1: 0²=0, 1²=1)</p>
+    <p>ตั้ง <code class="code">b = Σ 2ⁱ·bᵢ</code> แล้วกระจายกำลังสอง จะได้เทอม 2 แบบ:</p>
+    <div class="work">
+      <div class="step"><span class="lbl">เทอมเดี่ยว</span> (2ⁱbᵢ)² = 2<sup>2i</sup>·bᵢ² = <b>2<sup>2i</sup>·bᵢ</b></div>
+      <div class="step"><span class="lbl">เทอมคู่ i&lt;j</span> 2·(2ⁱbᵢ)(2ʲbⱼ) = <b>2<sup>i+j+1</sup>·bᵢbⱼ</b></div>
+    </div>
+    <p><b>กาง 2 บิต</b> (b = b₀ + 2b₁):</p>
+    <p class="eq">b² = b₀ + 4b₁ + 4b₀b₁</p>
+    <p><b>กาง 3 บิต</b> (b = b₀ + 2b₁ + 4b₂):</p>
+    <p class="eq">b² = b₀ + 4b₁ + 16b₂ + 4b₀b₁ + 8b₀b₂ + 16b₁b₂</p>
+    <div class="box aha"><span class="tag">วิธีเช็กเร็วในห้องสอบ — แทนค่า</span>
+      <p><b>b = 5</b> = <code class="code">101₂</code> → b₀=1, b₁=0, b₂=1 → 1 + 0 + 16 + 0 + 8 + 0 = <b>25</b> ✓</p>
+      <p><b>b = 7</b> = <code class="code">111₂</code> → ทุกบิต = 1 → 1 + 4 + 16 + 4 + 8 + 16 = <b>49</b> ✓</p>
+      <p>แทน 2 ค่านี้ผ่านแล้วมั่นใจได้เลยว่ากางถูก</p>
+    </div>
+    <p>วงจร <code class="code">a.addSquared(b)</code> ในสไลด์ (12 คอลัมน์) ก็คือการแปลสูตร 2 บิตนี้เป็น gate ตรงๆ: <code class="code">b₀</code> เป็น control → a += 1 · <code class="code">b₀∧b₁</code> เป็น control → a += 2 <b>ทำสองรอบ</b> (= +4) · <code class="code">b₁</code> เป็น control → a += 4</p>
+    <div class="box warn"><span class="tag">ทำไม <code class="code">b = b*b</code> ทำไม่ได้ แต่ <code class="code">a += b*b</code> ได้</span>
+      <p><code class="code">b = b*b</code> — ไม่มีชุด operation ที่ reversible ชุดไหนทำได้เลย เพราะ<b>เสีย sign bit (บิตเครื่องหมาย) ไปเสมอ</b> (b และ −b ให้ผลเดียวกัน → ย้อนกลับแยกไม่ออก)</p>
+      <p><code class="code">a += b*b</code> — ไม่มีปัญหา เพราะตัวย้อนกลับของมันคือ <code class="code">a -= b*b</code> เฉยๆ และ <code class="code">b</code> ยังอยู่ครบไม่ถูกแตะ</p>
+    </div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">register 3 บิตแบบ two's complement · หลังรันวงจร negate กับค่า <code class="code">100</code> จะได้อะไร?</div>
+      <button class="opt"><code class="code">011</code> (= 3)</button>
+      <button class="opt"><code class="code">100</code> (= −4 เท่าเดิม)</button>
+      <button class="opt"><code class="code">000</code> (= 0)</button>
+      <div class="fb ok" data-for="ok">ถูก — flip ได้ <code class="code">011</code> แล้ว +1 กลับมาเป็น <code class="code">100</code> · +4 ล้นช่วงของ 3 บิต ผลจึงค้างที่ −4</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — flip ทุกบิตได้ <code class="code">011</code> แต่ยังต้อง <b>+1</b> ต่ออีก → <code class="code">100</code> = −4</div>
+    </div>
+
+    <div class="part"><h2><span class="n">2</span> ครึ่งหลัง — เอาแค่ไอเดีย</h2></div>
+    <p class="lead">4 หัวข้อนี้ต่อยอดจากของข้างบน จับแก่นให้ได้ก็พอ ไม่ต้องเดินวงจรทีละสเต็ป</p>
+
+    <h3>Quantum-Conditional Execution</h3>
+    <p>คลาสสิก: CPU ต้อง<b>อ่านค่า</b>ก่อน แล้วค่อยตัดสินใจว่าจะรัน logic หรือไม่ · QPU: ค่าหนึ่ง<b>เป็นทั้งเซ็ตและไม่เซ็ตพร้อมกันได้</b> → operation ที่ขึ้นกับค่านั้นจึง<b>ทั้งรันและไม่รันพร้อมกันใน superposition</b> — ใช้ได้ถึงระดับรัน digital logic ก้อนใหญ่แบบมีเงื่อนไข</p>
+    <div class="box aha"><span class="tag">ทริกที่ต้องจำ — <code class="code">b.not(~1)</code></span>
+      <p>ปัญหา: control (●) อ่านได้แค่ "บิตนี้เป็น 1" · แต่เงื่อนไข <code class="code">b == 1</code> คือ <code class="code">01₂</code> ซึ่งมีเลข 0 ปนอยู่</p>
+      <p>ทริก: พลิกบิตที่ควรเป็น 0 ให้เป็น 1 ก่อน (<code class="code">b.not(~1)</code> = พลิกทุกบิตยกเว้น <code class="code">0x1</code>) → เงื่อนไขกลายเป็น "ทุกบิตของ b เป็น 1" ใช้ทุกบิตเป็น control ได้เลย → ใช้เสร็จแล้ว<b>พลิกกลับคืน</b> <a href="#code-not-mask">→ ดูโค้ด</a></p>
+    </div>
+
+    <h3>Phase-Encoded Results</h3>
+    <p>ย้ายผลลัพธ์ของการคำนวณไปเก็บใน <b>relative phase (เฟสสัมพัทธ์)</b> ของ register อินพุตเดิม แทนที่จะเก็บใน magnitude — สิ่งที่บิตธรรมดาทำไม่ได้เลย · <b>magnitude ไม่ขยับสักวง แต่เข็มบางวงกลับด้าน</b></p>
+    <p>นี่คือรากของ oracle ในอัลกอริทึมยุคหลัง (เช่น Grover) และเป็นทักษะที่ทำให้คำตอบ "รอด" การ READ ได้</p>
+
+    <h3>Scratch qubit &amp; <code class="code">abs(a)</code></h3>
+    <p><code class="code">abs</code> จับคู่หลายอินพุตไปเอาต์พุตเดียว (−3 และ 3 → 3) = ไม่ 1-ต่อ-1 = ไม่ reversible → ทำตรงๆ ไม่ได้ ต้องเพิ่ม <b>scratch qubit (คิวบิตทด)</b> เข้ามารับข้อมูลที่จะหาย (ในที่นี้คือ sign bit)</p>
+    <div class="box warn" id="lec05-scratch"><span class="tag">scratch ไม่ใช่การ copy</span>
+      <p>อ่านจาก circle notation: ถ้าไม่มี scratch ผังจะมีแค่<b>แถวเดียว</b> การย้ายวงของค่าลบไปทับช่องค่าบวกจะทำลาย magnitude/phase ที่อยู่ตรงนั้นอยู่แล้ว · scratch เพิ่ม<b>อีกแถวหนึ่ง</b> ให้ย้ายลงไปได้โดยของเดิมไม่ถูกแตะ</p>
+      <p>ผลข้างเคียง: scratch จะ <b>entangled (พัวพัน)</b> กับ output register เสมอ — ไม่ใช่สำเนาแยกอิสระ · จึง READ ทิ้งไม่ได้ (จะทำลาย output ที่มันช่วยสร้าง) และมันแทบไม่เคยกลับไป <code class="code">|0⟩</code> เอง</p>
+    </div>
+
+    <h3>Uncomputing</h3>
+    <p class="eq">compute → use → uncompute</p>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-names="a,scratch,b"
+           data-ops="WRITE:1; BOX:0,1:compute:3; _; _; BOX:1,2:use:2; _; BOX:0,1:uncompute:4; _; _; _"
+           data-out="1:กลับเป็น |0⟩"
+           data-cap="ผังย่อของ uncomputation — ผลลัพธ์ถูก 'ใช้' ก่อน แล้วค่อยล้าง scratch"
+           data-alt="ผังย่อ compute use uncompute"></div>
+    </div>
+    <div class="box aha"><span class="tag">ทำไมคำตอบไม่หายไปตอน uncompute</span>
+      <p>ถ้า uncompute ทันทีหลัง compute → ได้ scratch คืนก็จริง แต่<b>ล้างคำตอบทิ้งไปด้วย</b> · กุญแจคือต้อง <b>ใช้ผลลัพธ์ก่อน</b> (เช่น <code class="code">b += abs(a)</code> หรือใช้ CNOT ก๊อปเข้าไปที่ <code class="code">b</code> ซึ่งเริ่มที่ 0) แล้วค่อย uncompute</p>
+      <p>ผลรวม: operation ก้อนใหญ่ทั้งก้อน<b>ยัง reversible</b> ทั้งที่ <code class="code">abs</code> เองไม่ reversible · scratch กลับเป็น <code class="code">|0⟩</code> ที่ disentangled แล้ว เอาไปใช้ต่อได้</p>
+      <p>ถ้าผลถูกเก็บไว้ใน relative phase ของ output register เฟสนั้นจะรอดจาก uncompute (เพราะขั้น uncompute ไม่ไปยุ่งกับเฟส)</p>
+    </div>
+
+    <div class="part"><h2><span class="n">3</span> Toffoli &amp; ประตูลอจิก 6 ตัว</h2></div>
+
+    <h3>Toffoli = NAND ของโลกควอนตัม</h3>
+    <p>ในโลกดิจิทัล มี NAND ตัวเดียวก็สร้าง AND/OR/NOT/XOR ได้หมด · ในโลกควอนตัมตัวที่รับบทนี้คือ <b>multiple-condition CNOT = Toffoli</b> — เหมือน NAND ตรงที่<b>เพิ่ม/ลดจำนวน condition input ได้</b></p>
+    <div class="circuit" data-wires="3" data-names="a,b,c"
+         data-ops="CCNOT:0,1,2"
+         data-cap="Toffoli — ● ที่ a, ● ที่ b, ⊕ ที่ c"
+         data-alt="วงจร Toffoli 3 สาย"></div>
+    <p class="eq">c = c XOR (a AND b)</p>
+    <div class="box aha"><span class="tag">ต่างจาก NAND ตรงไหน</span>
+      <p>NAND <b>เขียนทับ output ทิ้ง</b> → input หาย → irreversible · Toffoli เอาผล <code class="code">a AND b</code> ไป <b>XOR ใส่ค่า c ที่มีอยู่เดิม</b> และ <code class="code">a</code>, <code class="code">b</code> ยังวิ่งออกมาเหมือนเดิมครบ → ย้อนกลับได้</p>
+      <p>ผลข้างเคียงของ "XOR ใส่ค่าเดิม": วงจรทำ <code class="code">c = c XOR f(a,b)</code> เสมอ จึงเท่ากับ <code class="code">c = f(a,b)</code> <b>ก็ต่อเมื่อ c เริ่มที่ <code class="code">|0⟩</code></b> — นี่แหละคือที่มาของ scratch qubit ในตารางข้างล่าง</p>
+      <p>เกร็ดจากสไลด์ p56: <b>NAND ที่มี input ขาเดียว = NOT</b> (ทรง AND + bubble ขาเดียว)</p>
+    </div>
+
+    <h3>🎯 ตาราง 6 ประตูลอจิก — ดิจิทัล ∣ ควอนตัม ∣ scratch</h3>
+    <p>ทุกวงจรเรียงสายบนลงล่าง = <code class="code">a</code>, <code class="code">b</code>, <code class="code">c</code></p>
+    <table class="cmp">
+      <thead><tr><th>สัญลักษณ์ดิจิทัล</th><th>วงจรควอนตัม</th><th>ต้องใช้ scratch?</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="not" data-in="a" data-out="a" data-cap="NOT · a = NOT a" data-alt="ประตู NOT"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="X:0" data-cap="X:0" data-alt="วงจรควอนตัมของ NOT"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ไม่ต้อง</b> — เขียนผลทับสาย input ได้เลย</td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="xor" data-in="a,b" data-out="b" data-cap="XOR · b = a XOR b" data-alt="ประตู XOR"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="CNOT:0,1" data-cap="CNOT:0,1" data-alt="วงจรควอนตัมของ XOR"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ไม่ต้อง</b> — CNOT คือ XOR อยู่แล้วโดยธรรมชาติ</td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="and" data-in="a,b" data-out="c" data-cap="AND · c = a AND b" data-alt="ประตู AND"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="WRITE:2; CCNOT:0,1,2" data-cap="Toffoli ตรงๆ" data-alt="วงจรควอนตัมของ AND"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ต้องมี</b> c = <code class="code">|0⟩</code></td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="or" data-in="a,b" data-out="c" data-cap="OR · c = a OR b" data-alt="ประตู OR"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="WRITE:2; X:0 + X:1; CCNOT:0,1,2; X:0 + X:1 + X:2" data-cap="De Morgan — พลิก a,b → Toffoli → พลิกคืน a,b และพลิก c ด้วย" data-alt="วงจรควอนตัมของ OR"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ต้องมี</b> c = <code class="code">|0⟩</code></td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="nand" data-in="a,b" data-out="c" data-cap="NAND · c = a NAND b" data-alt="ประตู NAND"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="WRITE:2; CCNOT:0,1,2; X:2" data-cap="Toffoli แล้วพลิก c" data-alt="วงจรควอนตัมของ NAND"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ต้องมี</b> c = <code class="code">|0⟩</code></td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="nor" data-in="a,b" data-out="c" data-cap="NOR · c = a NOR b" data-alt="ประตู NOR"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="WRITE:2; X:0 + X:1; CCNOT:0,1,2; X:0 + X:1" data-cap="เหมือน OR แต่คอลัมน์สุดท้ายไม่มี ⊕ บน c" data-alt="วงจรควอนตัมของ NOR"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ต้องมี</b> c = <code class="code">|0⟩</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="box warn"><span class="tag">จุดที่พลาดบ่อยตอนวาด</span>
+      <p>OR กับ NOR ต่างกันแค่<b>คอลัมน์สุดท้าย</b>: OR มี ⊕ ครบ <b>3 สาย</b> (a, b, c) · NOR มีแค่ <b>2 สาย</b> (a, b) ไม่แตะ c</p>
+      <p>ทุกช่อง <code class="code">a</code> กับ <code class="code">b</code> ต้องออกมา<b>เหมือนเดิม</b> (ช่อง OR/NOR ที่พลิก a,b ก็ต้องพลิกกลับคืน)</p>
+      <p>โจทย์ใหญ่จริงของ quantum computing คือ <b>ลดจำนวน scratch qubit</b> เพราะ qubit เป็นทรัพยากรที่แพงมาก</p>
+    </div>
+
+    <div class="quiz" data-answer="2">
+      <div class="q">ถ้าวงจร <code class="code">c = a AND b</code> ถูกรันโดยที่ scratch qubit <code class="code">c</code> ไม่ได้เริ่มที่ <code class="code">|0⟩</code> แต่เริ่มที่ <code class="code">|1⟩</code> จะได้อะไร?</div>
+      <button class="opt">ได้ <code class="code">a AND b</code> เหมือนเดิม</button>
+      <button class="opt">วงจรรันไม่ได้ ต้อง error</button>
+      <button class="opt">ได้ <code class="code">NOT(a AND b)</code></button>
+      <div class="fb ok" data-for="ok">ถูก — วงจรทำ <code class="code">c = c XOR (a AND b)</code> เสมอ · c เริ่มที่ 1 จึงได้ <code class="code">1 XOR (a AND b)</code> = NAND นั่นเอง</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — วงจรทำ <code class="code">c = c XOR (a AND b)</code> เสมอ ไม่เคยเขียนทับ · c เริ่มที่ 1 ผลจึงกลับด้านเป็น <code class="code">NOT(a AND b)</code></div>
+    </div>
+
+    <details class="recall">
+      <summary>ทวนเร็ว: 6 อย่างที่ต้องตอบได้ก่อนเข้าห้องสอบ</summary>
+      <p>① กติกา 2 ข้อของ QPU คืออะไร → ก๊อปไม่ได้ · ทุก op ที่ไม่ใช่ READ ต้อง reversible</p>
+      <p>② increment คืออะไรในภาษาเลขคณิตเดิม → การทดเลข (carry) · decrement = กลับลำดับ</p>
+      <p>③ ทำไม <code class="code">c = a + b</code> ไม่ได้ → เสีย reversibility + แอบก๊อป <code class="code">a</code> ได้</p>
+      <p>④ negate ใน two's complement → flip ทุกบิต แล้ว +1 · <code class="code">abs(−4)</code> ยังเป็น −4</p>
+      <p>⑤ b² สูตรทั่วไป → เทอมเดี่ยว <code class="code">2^(2i)·bᵢ</code> + เทอมคู่ <code class="code">2^(i+j+1)·bᵢbⱼ</code></p>
+      <p>⑥ Toffoli ทำอะไร → <code class="code">c = c XOR (a AND b)</code> · เท่ากับ <code class="code">f(a,b)</code> เมื่อ c เริ่มที่ <code class="code">|0⟩</code></p>
+    </details>
     <button type="button" class="next-btn" data-target="code">บทถัดไป: โค้ด↔วงจร →</button>
   </section>
 
