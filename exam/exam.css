@@ -84,6 +84,61 @@
 .blochrow { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin:1.1rem 0; }
 .blochrow .bloch { margin:0; }
 
+/* ---------- gate-drill.html: เกมซ้อมสัญลักษณ์ ----------
+   🔴 .next-btn ตั้ง display:inline-block ไว้ ซึ่ง "ชนะ" attribute hidden
+   ของ UA stylesheet → ปุ่มที่สั่งซ่อนยังโผล่ จึงต้องบังคับ [hidden] ทับอีกที */
+[hidden] { display:none !important; }
+
+/* เลือกกลุ่มที่จะซ้อม — พื้นที่กดใหญ่พอสำหรับนิ้ว */
+.drill-groups { display:grid; gap:.5rem; margin:.8rem 0 1rem; }
+.drill-groups label { display:flex; align-items:flex-start; gap:.7rem; cursor:pointer;
+  border:1px solid var(--rule); border-radius:10px; background:#fff;
+  padding:.8rem .9rem; min-height:3rem; line-height:1.45; }
+.drill-groups label:hover { border-color:var(--accent); }
+.drill-groups input { width:1.25rem; height:1.25rem; margin:.15rem 0 0; flex:none;
+  accent-color:var(--accent); }
+.drill-groups label span { font-size:.92rem; color:var(--ink-soft); }
+.drill-groups label b { color:var(--ink); }
+.drill-warn { color:var(--bad); font-weight:700; margin:.4rem 0 0; }
+
+/* สนามซ้อม */
+.drill-score { font-weight:800; color:var(--accent); letter-spacing:.02em; margin:0 0 .6rem; }
+.drill-q { font-size:1.15rem; font-weight:800; margin:0 0 1rem; }
+#drill-stage { margin:0 0 1.2rem; }
+#drill-stage .scrollx { border:1px solid var(--rule); border-radius:10px; background:#fff;
+  padding:.8rem; }
+#drill-stage .circuit svg, #drill-stage .logicgate svg { display:block; margin:0 auto; }
+.drill-name { font-size:1.35rem; font-weight:800; text-align:center; color:var(--accent);
+  border:1px solid var(--accent); background:var(--accent-dim); border-radius:10px;
+  padding:1rem .8rem; margin:0; }
+
+/* ตัวเลือก — ปุ่มใหญ่ กดด้วยนิ้วได้ */
+.drill-opts { display:grid; gap:.6rem; }
+.drill-opts button { font:inherit; font-size:1rem; font-weight:700; cursor:pointer;
+  width:100%; min-height:3.25rem; padding:.85rem 1rem; text-align:left;
+  border:1px solid var(--rule); border-radius:10px; background:#fff; color:var(--ink); }
+.drill-opts button:hover:not(:disabled) { border-color:var(--accent); }
+.drill-opts button:disabled { cursor:default; }
+.drill-opts button.pic { padding:.6rem; text-align:center; overflow-x:auto; }
+.drill-opts button.pic .scrollx { overflow-x:visible; }
+.drill-opts button.pic svg { display:block; margin:0 auto; }
+.drill-tag { display:block; font-size:.78rem; font-weight:800; letter-spacing:.04em;
+  color:var(--ink-soft); text-align:left; margin-bottom:.35rem; }
+.drill-opts button.correct { border-color:var(--good); background:var(--good-bg); }
+.drill-opts button.wrong { border-color:var(--bad); background:var(--bad-bg); }
+
+/* เฉลย */
+.drill-fb { border-radius:10px; padding:.8rem 1rem; margin:1rem 0 0; line-height:1.6;
+  font-size:.95rem; }
+.drill-fb.ok { border:1px solid var(--good); background:var(--good-bg); }
+.drill-fb.no { border:1px solid var(--bad); background:var(--bad-bg); }
+
+.drill-reset { display:block; font:inherit; font-size:.9rem; font-weight:700; cursor:pointer;
+  margin:1.2rem 0 0; padding:.6rem 1rem; border-radius:10px;
+  border:1px solid var(--rule); background:#fff; color:var(--ink-soft); }
+.drill-reset:hover { border-color:var(--accent); color:var(--accent); }
+
+@media (min-width:34rem) { .drill-opts { grid-template-columns:1fr 1fr; } }
 /* ไฮไลต์ชั่วคราวตอนกดลิงก์ข้ามหน้ามาลงที่แถว/หัวข้อปลายทาง */
 .anchor-hit { animation: anchorFlash 1.6s ease-out; }
 .anchor-hit > td { background: var(--accent-dim); }
