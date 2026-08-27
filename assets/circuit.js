@@ -18,6 +18,9 @@
      H:w              Hadamard
      X:w[,w2,...]     NOT (⊕) — ใส่หลายสายได้ = ⊕ หลายตัวในคอลัมน์เดียว
      P:w:45           PHASE 45° (φ)
+     Y:w              Pauli-Y (กล่อง Y)
+     RX:w:45          ROTX 45° (กล่อง RX + ป้ายองศา)
+     RY:w:45          ROTY 45° (กล่อง RY + ป้ายองศา)
      Z:w              Z gate (กล่อง Z)
      RNOT:w           root-of-NOT
      CNOT:c,t         control c → target t (⊕)
@@ -144,6 +147,15 @@
       case "H": box(g, x, y[0], "H"); break;
       case "Z": box(g, x, y[0], "Z"); break;
       case "RNOT": box(g, x, y[0], "√X"); break;
+      case "Y": box(g, x, y[0], "Y"); break;
+      case "RX":
+        box(g, x, y[0], "RX");
+        if (arg) g.appendChild(txt(x, angleY, arg + "°", 11, 700));
+        break;
+      case "RY":
+        box(g, x, y[0], "RY");
+        if (arg) g.appendChild(txt(x, angleY, arg + "°", 11, 700));
+        break;
       case "X": y.forEach(function (yy) { xor(g, x, yy); }); break;
       case "CTRL": y.forEach(function (yy) { ctrl(g, x, yy); }); break;
       case "P":
@@ -334,7 +346,14 @@
     }
   }
 
-  function init() { document.querySelectorAll(".circuit").forEach(build); }
+  /* build ซ้ำได้หลัง inject HTML ใหม่ (gate-drill.html) — root ไม่ใส่ = ทั้งหน้า
+     ไม่กระทบ auto-init เดิม (build อ่านจาก dataset อย่างเดียว เรียกซ้ำได้) */
+  function buildAll(root) {
+    (root || document).querySelectorAll(".circuit").forEach(build);
+  }
+  window.buildCircuits = buildAll;
+
+  function init() { buildAll(document); }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else { init(); }

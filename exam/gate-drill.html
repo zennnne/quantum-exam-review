@@ -1,0 +1,304 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ซ้อมสัญลักษณ์ gate — อ่านสอบ Quantum Programming</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/lesson-bits.css">
+<link rel="stylesheet" href="exam.css">
+<script defer src="../assets/circuit.js"></script>
+<script defer src="../assets/logicgate.js"></script>
+
+<div class="wrap">
+
+  <p class="kicker">Exam Review · ซ้อมจำสัญลักษณ์</p>
+  <h1>ซ้อมสัญลักษณ์ gate</h1>
+  <p class="lead">สุ่มถามสองทิศทาง — บางข้อโชว์รูปให้เลือกชื่อ บางข้อโชว์ชื่อให้เลือกรูป
+  ตอบแล้วเฉลยทันที เป้าหมายคือจำ “หน้าตา” ให้ได้ เพราะข้อสอบออกสัญลักษณ์วงจร (สไตล์ QCEngine)</p>
+
+  <!-- ==== ตั้งค่ารอบซ้อม ==== -->
+  <div class="box" id="drill-setup">
+    <span class="tag">เลือกกลุ่มที่จะซ้อม</span>
+    <div class="drill-groups">
+      <label><input type="checkbox" class="drill-grp" value="1" checked>
+        <span><b>1 qubit</b> — NOT/X · HAD/H · Z · PHASE · RNOT · ROTX · ROTY · READ · WRITE</span></label>
+      <label><input type="checkbox" class="drill-grp" value="2" checked>
+        <span><b>หลาย qubit</b> — CNOT · CZ · CPHASE · CCNOT · SWAP · CSWAP · multi-control NOT · CC</span></label>
+      <label><input type="checkbox" class="drill-grp" value="3" checked>
+        <span><b>ลอจิกดิจิทัล</b> — NOT · AND · OR · XOR · NAND · NOR</span></label>
+      <label><input type="checkbox" class="drill-grp" value="4" checked>
+        <span><b>กล่องระดับสูง</b> — increment/decrement · a += b · negate · abs · uncompute</span></label>
+    </div>
+    <p class="drill-warn" id="drill-warn" hidden>ต้องเลือกอย่างน้อย 1 กลุ่มนะ</p>
+    <button type="button" class="next-btn" id="drill-start">เริ่มซ้อม →</button>
+  </div>
+
+  <!-- ==== สนามซ้อม ==== -->
+  <div id="drill-area" hidden>
+    <p class="drill-score" id="drill-score">คะแนนรอบนี้: 0 / 0</p>
+    <p class="drill-q" id="drill-q"></p>
+    <div id="drill-stage"></div>
+    <div class="drill-opts" id="drill-opts"></div>
+    <div class="drill-fb" id="drill-fb" hidden></div>
+    <button type="button" class="next-btn" id="drill-next" hidden>ข้อถัดไป →</button>
+    <button type="button" class="drill-reset" id="drill-reset">เริ่มรอบใหม่ / เปลี่ยนกลุ่ม</button>
+  </div>
+
+  <p style="margin-top:2rem;">
+    <a href="index.html" class="hub-link-btn">← กลับไปหน้า Hub</a>
+  </p>
+
+</div>
+
+<!-- ==== คลัง gate + ตรรกะสุ่มโจทย์ (ล้วนๆ ไม่แตะ DOM — ใช้ตรวจใน node ได้) ==== -->
+<script id="drill-data">
+/* คลัง gate เก็บเป็น array ในไฟล์ (ห้ามแยก JSON แล้ว fetch — file:// โดน CORS)
+   kind: "c" = วาดด้วย circuit.js  ·  "l" = วาดด้วย logicgate.js
+   attrs: key คือชื่อ attribute หลังคำว่า data-  */
+var GATES = [
+
+  /* ---------- กลุ่ม 1 : gate สายเดียว ---------- */
+  { id: "x", g: 1, kind: "c", name: "NOT / X",
+    attrs: { wires: "1", ops: "X:0" },
+    why: "⊕ (วงกลมมีกากบาท) บนสายเดียว = พลิกบิต |0⟩ ↔ |1⟩" },
+  { id: "h", g: 1, kind: "c", name: "HAD / H (Hadamard)",
+    attrs: { wires: "1", ops: "H:0" },
+    why: "กล่องตัว H = สร้าง superposition (การซ้อนทับ) จาก |0⟩ ได้โอกาส 50/50" },
+  { id: "z", g: 1, kind: "c", name: "Z",
+    attrs: { wires: "1", ops: "Z:0" },
+    why: "กล่องตัว Z = พลิกเฟส 180° เฉพาะส่วน |1⟩ โอกาสอ่านได้ไม่เปลี่ยน" },
+  { id: "p", g: 1, kind: "c", name: "PHASE(θ)",
+    attrs: { wires: "1", ops: "P:0:45" },
+    why: "วงกลม φ พร้อมองศากำกับ = หมุนเฟสเฉพาะส่วน |1⟩ ตามมุมที่ระบุ" },
+  { id: "rnot", g: 1, kind: "c", name: "RNOT (√X)",
+    attrs: { wires: "1", ops: "RNOT:0" },
+    why: "กล่อง √X = NOT ครึ่งเดียว ทำสองครั้งติดกันจึงได้ NOT เต็มตัว" },
+  { id: "rotx", g: 1, kind: "c", name: "ROTX(θ)",
+    attrs: { wires: "1", ops: "RX:0:45" },
+    why: "กล่อง RX + องศา = หมุนรอบแกน X ของ Bloch sphere ตามมุมที่ระบุ" },
+  { id: "roty", g: 1, kind: "c", name: "ROTY(θ)",
+    attrs: { wires: "1", ops: "RY:0:45" },
+    why: "กล่อง RY + องศา = หมุนรอบแกน Y ของ Bloch sphere ตามมุมที่ระบุ" },
+  { id: "read", g: 1, kind: "c", name: "READ (วัดค่า)",
+    attrs: { wires: "1", ops: "READ:0; _" },
+    why: "ครึ่งวงกลมคว่ำ = วัดค่า สายหลังจุดนี้จางลงเพราะ qubit ถูกยุบสภาพแล้ว" },
+  { id: "write", g: 1, kind: "c", name: "WRITE (เซตค่าเริ่มต้น)",
+    attrs: { wires: "1", ops: "WRITE:0; _" },
+    why: "สามเหลี่ยม ▷ สีฟ้าหัวสาย = เขียนค่าตั้งต้นลง qubit สายก่อนหน้าจึงจาง" },
+
+  /* ---------- กลุ่ม 2 : gate หลายสาย ---------- */
+  { id: "cnot", g: 2, kind: "c", name: "CNOT",
+    attrs: { wires: "2", ops: "CNOT:0,1" },
+    why: "● = control, ⊕ = target — พลิก target เมื่อ control เป็น 1" },
+  { id: "cz", g: 2, kind: "c", name: "CZ",
+    attrs: { wires: "2", ops: "CZ:0,1" },
+    why: "เส้นตั้งหนาเชื่อม ● ทั้งสองฝั่ง — สมมาตร ไม่มีฝั่งไหนเป็น target" },
+  { id: "cp", g: 2, kind: "c", name: "CPHASE(θ)",
+    attrs: { wires: "2", ops: "CP:0,1:45" },
+    why: "φ ทั้งสองฝั่ง + องศากำกับ = หมุนเฟสเมื่อทั้งสองสายเป็น 1 พร้อมกัน" },
+  { id: "ccnot", g: 2, kind: "c", name: "CCNOT (Toffoli)",
+    attrs: { wires: "3", ops: "CCNOT:0,1,2" },
+    why: "● สองตัว + ⊕ หนึ่งตัว = พลิก target เมื่อ control เป็น 1 ครบทั้งคู่" },
+  { id: "swap", g: 2, kind: "c", name: "SWAP",
+    attrs: { wires: "2", ops: "SWAP:0,1" },
+    why: "× สองตัวเชื่อมด้วยเส้นตั้ง = สลับค่าระหว่างสองสาย" },
+  { id: "cswap", g: 2, kind: "c", name: "CSWAP (Fredkin)",
+    attrs: { wires: "3", ops: "CSWAP:0,1,2" },
+    why: "● หนึ่งตัวคุม × สองตัว = สลับสองสายนั้นเมื่อ control เป็น 1" },
+  { id: "mcnot", g: 2, kind: "c", name: "multi-control NOT",
+    attrs: { wires: "4", "wire-labels": "0x1,0x2,0x4,0x1", names: "a,,,scratch",
+             ops: "CTRL:0,1,3 + X:2" },
+    why: "● ตั้งแต่ 3 ตัวขึ้นไปคุม ⊕ ตัวเดียว = พลิกเมื่อ control เป็น 1 พร้อมกันหมด" },
+  { id: "cc", g: 2, kind: "c", name: "CC (control ด้วยบิตคลาสสิก)",
+    attrs: { wires: "2", ops: "READ:0; CC:0,1 + X:1" },
+    why: "ลูกศรประสีฟ้าจากจุด READ ลงไปคุม gate = ใช้ผลวัดที่เป็นบิตคลาสสิกสั่งงาน" },
+
+  /* ---------- กลุ่ม 3 : ประตูลอจิกดิจิทัล ---------- */
+  { id: "l-not", g: 3, kind: "l", name: "NOT (ลอจิก)",
+    attrs: { gate: "not", in: "a", out: "c" },
+    why: "สามเหลี่ยม + วงกลมเล็กที่ปลาย = กลับค่า 0 ↔ 1" },
+  { id: "l-and", g: 3, kind: "l", name: "AND (ลอจิก)",
+    attrs: { gate: "and", in: "a,b", out: "c" },
+    why: "หน้าโค้งครึ่งวงกลม หลังตรง ไม่มีวงกลม = ออก 1 เมื่อเข้า 1 ทั้งคู่" },
+  { id: "l-or", g: 3, kind: "l", name: "OR (ลอจิก)",
+    attrs: { gate: "or", in: "a,b", out: "c" },
+    why: "รูปกระสุนปลายแหลม หลังเว้า = ออก 1 เมื่อมีตัวใดตัวหนึ่งเป็น 1" },
+  { id: "l-xor", g: 3, kind: "l", name: "XOR (ลอจิก)",
+    attrs: { gate: "xor", in: "a,b", out: "c" },
+    why: "เหมือน OR แต่มีเส้นโค้งซ้อนเพิ่มด้านหลัง = ออก 1 เมื่อเข้าต่างกัน" },
+  { id: "l-nand", g: 3, kind: "l", name: "NAND (ลอจิก)",
+    attrs: { gate: "nand", in: "a,b", out: "c" },
+    why: "AND แล้วมีวงกลมเล็กที่ปลาย = NOT ทับ AND อีกที (Toffoli คือตัวนี้ในเวอร์ชันควอนตัม)" },
+  { id: "l-nor", g: 3, kind: "l", name: "NOR (ลอจิก)",
+    attrs: { gate: "nor", in: "a,b", out: "c" },
+    why: "OR แล้วมีวงกลมเล็กที่ปลาย = NOT ทับ OR อีกที" },
+
+  /* ---------- กลุ่ม 4 : กล่องระดับสูง (BOX) ---------- */
+  { id: "inc", g: 4, kind: "c", name: "increment (a += 1)",
+    attrs: { wires: "3", "wire-labels": "0x1,0x2,0x4", names: "a,,",
+             ops: "BOX:0,2:+1:2; _" },
+    why: "กล่อง +1 คร่อมทุกสายของรีจิสเตอร์ a = บวกหนึ่ง (จริงๆ ข้างในคือ multi-control NOT ไล่จากบิตสูงลงล่าง)" },
+  { id: "dec", g: 4, kind: "c", name: "decrement (a −= 1)",
+    attrs: { wires: "3", "wire-labels": "0x1,0x2,0x4", names: "a,,",
+             ops: "BOX:0,2:−1:2; _" },
+    why: "กล่อง −1 = increment ที่กลับลำดับทั้งหมด (ตัวกลับด้านของ +1)" },
+  { id: "addb", g: 4, kind: "c", name: "a += b (บวกรีจิสเตอร์)",
+    attrs: { wires: "4", "wire-labels": "0x1,0x2,0x1,0x2", names: "a,,b,",
+             ops: "BOX:0,1:+b:2; _" },
+    why: "กล่อง +b คร่อมเฉพาะสายของ a ส่วน b ผ่านไปเฉยๆ = บวกค่า b เข้าไปใน a โดย b ไม่ถูกทำลาย" },
+  { id: "neg", g: 4, kind: "c", name: "negate (a = −a)",
+    attrs: { wires: "3", "wire-labels": "0x1,0x2,0x4", names: "a,,",
+             ops: "BOX:0,2:−a:2; _" },
+    why: "กล่อง −a = ทำ two's complement คือพลิกทุกบิตแล้ว +1" },
+  { id: "abs", g: 4, kind: "c", name: "abs (ค่าสัมบูรณ์ ต้องมี scratch)",
+    attrs: { wires: "4", "wire-labels": "0x1,0x2,0x4,0x1", names: "a,,,scratch",
+             ops: "BOX:0,3:|a|:2; _" },
+    why: "กล่อง |a| ต้องคร่อมสาย scratch ด้วย เพราะต้องพักเครื่องหมายเดิมไว้ (ไม่งั้นไม่ reversible)" },
+  { id: "unc", g: 4, kind: "c", name: "uncompute (ย้อนกล่องเดิมกลับ)",
+    attrs: { wires: "4", "wire-labels": "0x1,0x2,0x4,0x1", names: "a,,,scratch",
+             ops: "BOX:0,3:abs†:2; _" },
+    why: "กล่องเดิมที่มี † = ทำย้อนกลับเพื่อล้าง scratch ให้กลับเป็น |0⟩ ก่อนจบวงจร" },
+];
+
+/* ---------- helper ล้วนๆ ---------- */
+function drillShuffle(a) {
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function drillPool(groups) {
+  return GATES.filter(function (x) { return groups.indexOf(x.g) !== -1; });
+}
+
+/* สร้างโจทย์ 1 ข้อ: คำตอบถูก 1 ตัว + ตัวลวง 3 ตัวที่ไม่ซ้ำกันและไม่ซ้ำคำตอบ */
+function drillQuestion(pool, avoidId) {
+  if (!pool || pool.length < 4) return null;
+  var cand = pool.filter(function (x) { return x.id !== avoidId; });
+  if (cand.length === 0) cand = pool;
+  var ans = cand[Math.floor(Math.random() * cand.length)];
+  var rest = drillShuffle(pool.filter(function (x) { return x.id !== ans.id; }).slice());
+  var opts = drillShuffle([ans].concat(rest.slice(0, 3)));
+  return {
+    dir: Math.random() < 0.5 ? "toName" : "toPic",  /* toName = รูป→ชื่อ, toPic = ชื่อ→รูป */
+    answer: ans,
+    options: opts,
+    correct: opts.indexOf(ans)
+  };
+}
+
+/* markup ของรูป — render สดด้วย circuit.js / logicgate.js ทีหลัง (ไม่มี SVG เขียนมือ) */
+function drillFigure(item) {
+  var s = '<div class="' + (item.kind === "c" ? "circuit" : "logicgate") + '"';
+  for (var k in item.attrs) s += ' data-' + k + '="' + item.attrs[k] + '"';
+  s += ' data-alt="' + item.name + '"></div>';
+  return '<div class="scrollx">' + s + "</div>";
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { GATES: GATES, drillPool: drillPool, drillQuestion: drillQuestion,
+    drillFigure: drillFigure, drillShuffle: drillShuffle };
+}
+</script>
+
+<!-- ==== ต่อสายเข้ากับหน้าเว็บ ==== -->
+<script>
+(function () {
+  var setup = document.getElementById("drill-setup");
+  var area  = document.getElementById("drill-area");
+  var warn  = document.getElementById("drill-warn");
+  var elQ   = document.getElementById("drill-q");
+  var elStg = document.getElementById("drill-stage");
+  var elOpt = document.getElementById("drill-opts");
+  var elFb  = document.getElementById("drill-fb");
+  var elNxt = document.getElementById("drill-next");
+  var elScr = document.getElementById("drill-score");
+
+  var pool = [], cur = null, lastId = null, hit = 0, total = 0, locked = false;
+
+  function selectedGroups() {
+    return [].slice.call(document.querySelectorAll(".drill-grp"))
+      .filter(function (c) { return c.checked; })
+      .map(function (c) { return parseInt(c.value, 10); });
+  }
+
+  function paintScore() {
+    elScr.textContent = "คะแนนรอบนี้: " + hit + " / " + total;
+  }
+
+  function nextQuestion() {
+    cur = drillQuestion(pool, lastId);
+    if (!cur) return;
+    lastId = cur.answer.id;
+    locked = false;
+    elFb.hidden = true;
+    elNxt.hidden = true;
+
+    if (cur.dir === "toName") {
+      elQ.textContent = "รูปนี้คือ gate อะไร?";
+      elStg.innerHTML = drillFigure(cur.answer);
+      elOpt.innerHTML = cur.options.map(function (o, i) {
+        return '<button type="button" data-i="' + i + '">' + o.name + "</button>";
+      }).join("");
+    } else {
+      elQ.textContent = "gate นี้หน้าตาเป็นแบบไหน?";
+      elStg.innerHTML = '<p class="drill-name">' + cur.answer.name + "</p>";
+      elOpt.innerHTML = cur.options.map(function (o, i) {
+        return '<button type="button" class="pic" data-i="' + i + '">' +
+               '<span class="drill-tag">' + "ตัวเลือก " + (i + 1) + "</span>" +
+               drillFigure(o) + "</button>";
+      }).join("");
+    }
+    if (window.buildCircuits) window.buildCircuits(elStg);
+    if (window.buildLogicGates) window.buildLogicGates(elStg);
+    if (window.buildCircuits) window.buildCircuits(elOpt);
+    if (window.buildLogicGates) window.buildLogicGates(elOpt);
+    window.scrollTo(0, 0);
+  }
+
+  function answer(i) {
+    if (locked || !cur) return;
+    locked = true;
+    total++;
+    var ok = i === cur.correct;
+    if (ok) hit++;
+    paintScore();
+    var btns = elOpt.querySelectorAll("button");
+    for (var k = 0; k < btns.length; k++) {
+      btns[k].disabled = true;
+      if (k === cur.correct) btns[k].classList.add("correct");
+      else if (k === i) btns[k].classList.add("wrong");
+    }
+    elFb.className = "drill-fb " + (ok ? "ok" : "no");
+    elFb.innerHTML = "<b>" + (ok ? "ถูกต้อง ✓" : "ยังไม่ใช่ ✗") + "</b> คำตอบคือ <b>" +
+      cur.answer.name + "</b><br>" + cur.answer.why;
+    elFb.hidden = false;
+    elNxt.hidden = false;
+  }
+
+  document.getElementById("drill-start").addEventListener("click", function () {
+    var g = selectedGroups();
+    if (g.length === 0) { warn.hidden = false; return; }
+    warn.hidden = true;
+    pool = drillPool(g);
+    hit = 0; total = 0; lastId = null;
+    paintScore();
+    setup.hidden = true;
+    area.hidden = false;
+    nextQuestion();
+  });
+
+  document.getElementById("drill-reset").addEventListener("click", function () {
+    area.hidden = true;
+    setup.hidden = false;
+    window.scrollTo(0, 0);
+  });
+
+  elNxt.addEventListener("click", nextQuestion);
+
+  elOpt.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("button") : null;
+    if (b && b.dataset.i !== undefined) answer(parseInt(b.dataset.i, 10));
+  });
+})();
+</script>
