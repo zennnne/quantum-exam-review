@@ -70,8 +70,263 @@
   <section class="page" data-page="lec04">
     <p class="kicker">Lec04 · สิทธิ์ "ยาวได้" ทั้งหน้า</p>
     <h2>Teleportation</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 07 จะเติมส่วนนี้ (ใบใหญ่สุด เสี่ยงแตกเป็น 07a/07b)</p></div>
+    <p class="lead">ย้าย <span class="term" title="สถานะควอนตัม = magnitude + relative phase ครบทั้งชุด">state (สถานะ)</span> ของ qubit หนึ่งไปโผล่ที่อีก qubit หนึ่ง โดยไม่ได้ส่งตัว qubit ไปไหนเลย — ใช้ <b>คู่ entangled 1 คู่ + บิตคลาสสิก 2 บิต</b> เท่านั้น</p>
+
+    <div class="box aha"><span class="tag">แกนของบทนี้ — อ่าน 4 บรรทัดนี้ให้เข้าใจก่อน แล้วค่อยเดิน step</span>
+      <ol>
+        <li>CNOT+HAD ฝั่ง Alice = <b>Bell measurement</b> ถามว่า "ความสัมพันธ์ payload–ep เป็นแบบไหนใน 4 แบบ" <b>ไม่ได้ถามว่า payload คืออะไร</b> → ข้อมูลจึงไม่ถูกทำลาย แต่ถูกผลักไปที่ Bob</li>
+        <li><b>HAD จำเป็นเพราะ CNOT อย่างเดียวแยก 4 แบบไม่ออก</b> — ความต่างบางคู่ซ่อนอยู่ในเฟส ซึ่ง READ มองไม่เห็น (โยงกลับ Lec02) · HAD = ตัวแปลง "ความต่างเชิงเฟส → ความต่างที่อ่านได้"</li>
+        <li>READ 2 บิต = สุ่มหยิบ 1 ใน 4 แบบ → qubit ของ Bob = payload ต้นฉบับที่ถูกบิดแบบใดแบบหนึ่ง</li>
+        <li>2 บิตคลาสสิก = ใบสั่งว่าบิดแบบไหน → Bob บิดกลับ → <b>เหตุผลที่ไม่เร็วกว่าแสง</b></li>
+      </ol>
+      <p>ทุกอย่างที่เหลือในหน้านี้คือรายละเอียดของ 4 บรรทัดนี้ ถ้าตอบข้อสอบไม่ได้ ให้ย้อนกลับมาอ่านตรงนี้</p>
+    </div>
+
+    <div class="part"><h2><span class="n">1</span> teleportation คือ / ไม่ใช่อะไร</h2></div>
+
+    <table class="cmp">
+      <thead><tr><th>คือ</th><th>ไม่ใช่</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="คือ">ย้าย <b>สถานะ</b> (magnitude + relative phase ครบทุกหลัก) ไปที่ qubit ปลายทาง</td>
+          <td data-label="ไม่ใช่">ย้าย <b>สสาร</b> / อะตอม / ตัว qubit</td>
+        </tr>
+        <tr>
+          <td data-label="คือ">ต้นฉบับ <b>ถูกทำลาย</b> เสมอ (Alice READ ทิ้งทั้ง payload และ ep)</td>
+          <td data-label="ไม่ใช่">คัดลอก — ถ้าไม่ทำลายต้นฉบับจะละเมิด <span class="term" title="ห้ามคัดลอกสถานะควอนตัมที่ไม่รู้จัก">no-cloning</span> ทันที</td>
+        </tr>
+        <tr>
+          <td data-label="คือ">ต้องมีช่องคลาสสิกส่ง 2 บิต จึงเร็วได้ไม่เกินความเร็วแสง</td>
+          <td data-label="ไม่ใช่">สื่อสารเร็วกว่าแสง — ก่อนได้ 2 บิต Bob ถือของที่ดูเหมือนสุ่มล้วน</td>
+        </tr>
+        <tr>
+          <td data-label="คือ">Alice <b>ไม่จำเป็นต้องรู้</b> ว่า payload คือสถานะอะไร</td>
+          <td data-label="ไม่ใช่">การวัดแล้วบอกค่าไปให้ปลายทางสร้างใหม่ (ทำแบบนั้นไม่ได้ เพราะ state มีข้อมูลต่อเนื่องไม่จำกัด)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box why"><span class="tag">ตัวละคร 3 qubit</span>
+      <p><code class="code">alice</code> = payload (ตัวที่จะถูกส่ง) · <code class="code">ep</code> = ครึ่งหนึ่งของคู่ entangled ที่ Alice ถือ · <code class="code">bob</code> = อีกครึ่งที่ Bob ถือ<br>
+      <b>Alice ถือ 2 ตัว (alice, ep) · Bob ถือ 1 ตัว (bob)</b> — คู่ ep–bob เปรียบเหมือน "สาย LAN ควอนตัม" ที่วางไว้ล่วงหน้า</p>
+    </div>
+
+    <div class="part"><h2><span class="n">2</span> วงจร teleportation ฉบับสมบูรณ์</h2></div>
+
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="alice,ep,bob"
+           data-groups="1-2:entangle; 3-5:prep payload:45°; 6-8:send; 9-10:receive:180°; 11-14:verify:-45°"
+           data-ops="WRITE:0 + WRITE:1 + WRITE:2; H:1; CNOT:1,2; H:0; P:0:45; H:0; CNOT:0,1; H:0; READ:0 + READ:1; CC:1,2 + X:2; CC:0,2 + P:2:180; H:2; P:2:-45; H:2; READ:2"
+           data-cap="วงจรฉบับหนังสือ (สไตล์ QCEngine — ตัวนี้แหละที่ออกสอบ) · <b>ลูกศรประฟ้า = classical control</b>: บิตจาก <b>ep</b> ลงมาคุม ⊕ (NOT) · บิตจาก <b>alice</b> ลงมาคุม φ(180°)"
+           data-alt="วงจร teleportation 3 สาย: entangle, prep payload, send, receive, verify"></div>
+    </div>
+
+    <div class="box"><span class="tag">อ่านวงจรเป็น 5 กล่อง</span>
+      <ol>
+        <li><b>entangle</b> — HAD บน ep แล้ว CNOT(ep→bob) = สร้าง Bell pair</li>
+        <li><b>prep payload 45°</b> — H → φ(45°) → H บน alice เท่านั้น (ในข้อสอบ payload เป็นอะไรก็ได้ ตัวนี้แค่ตัวอย่าง)</li>
+        <li><b>send</b> — CNOT(alice→ep) → HAD(alice) → READ ทั้ง alice และ ep (สายจางลง = ถูกทำลาย)</li>
+        <li><b>receive 180°</b> — บน bob: ⊕ แล้ว φ(180°) ทั้งคู่ถูกคุมด้วยลูกศรประฟ้าจากบิตคลาสสิก</li>
+        <li><b>verify −45°</b> — H → φ(−45°) → H → READ = <b>prep payload แบบย้อนกลับ</b></li>
+      </ol>
+      <p>🔴 สัญลักษณ์ที่ต้องจำไปสอบ: <b>▷ = WRITE</b> ที่หัวสาย · <b>ครึ่งวงกลม = READ</b> · <b>ลูกศรประฟ้าชี้ลง = classical control</b> · กล่องมีชื่อคร่อม gate = การจัดกลุ่มขั้นตอน</p>
+    </div>
+
+    <div class="part"><h2><span class="n">3</span> circle notation 8 วง — สถานะ ณ 5 จุด</h2></div>
+
+    <p>3 qubit → 2³ = <b>8 basis state = 8 วง</b> · <b>น้ำหนักบิต: alice = 1, ep = 2, bob = 4</b><br>
+    เช่น |5⟩ = 101₂ → bob = 1, ep = 0, alice = 1 · พื้นที่วง = ความน่าจะเป็น · เข็ม = phase (<b>ทวนเข็ม = มุมบวก</b>)</p>
+
+    <p><b>จุดที่ 1 — เริ่มต้น</b> (ก่อนทุกอย่าง): ทั้งสามเป็น |0⟩ → มีวงเดียว</p>
+    <div class="crow" data-n="8" data-lab="เริ่มต้น |000⟩" data-mag="1,0,0,0,0,0,0,0" data-hl="0"></div>
+
+    <p><b>จุดที่ 2 — หลัง Bell pair</b> (จบกล่อง entangle): เหลือ |0⟩ กับ |6⟩ อย่างละ 50%</p>
+    <div class="crow" data-n="8" data-lab="หลัง Step 1" data-mag="0.5,0,0,0,0,0,0.5,0" data-hl="0,6"></div>
+    <p class="src">|0⟩ = 000, |6⟩ = 110 → <b>ep กับ bob เท่ากันเสมอ</b> (อ่านได้ 50/50 แต่ตรงกันแน่นอน) ส่วน alice ยังเป็น |0⟩ เดี่ยวๆ</p>
+
+    <p><b>จุดที่ 3 — หลังเตรียม payload</b> (จบกล่อง prep payload): เพิ่มมาเป็น 4 วง</p>
+    <div class="crow" data-n="8" data-lab="หลัง Step 2" data-mag="0.427,0.073,0,0,0,0,0.427,0.073" data-phase="0,-90,0,0,0,0,0,-90" data-hl="1,7"></div>
+    <p class="src">วง alice=1 (|1⟩, |7⟩) เข็มหมุนไป <b>−90°</b> (ตามเข็ม) เทียบกับวง alice=0 · อ่านเฉพาะ alice = <b>85.4% |0⟩ + 14.6% |1⟩ ที่ phase −90°</b> — นี่คือ payload ที่จะส่ง · วง |2⟩|3⟩|4⟩|5⟩ ยังว่าง = ep กับ bob ยังผูกกันอยู่</p>
+
+    <p><b>จุดที่ 4 — หลัง CNOT + HAD</b> (จบ Step 3.2): <b>ครบทั้ง 8 วง</b></p>
+    <div class="crow" data-n="8" data-lab="หลัง Step 3.2" data-mag="0.214,0.214,0.037,0.037,0.037,0.037,0.214,0.214" data-phase="0,0,-90,90,-90,90,0,0"></div>
+    <p class="src">อ่านเป็น <b>คอลัมน์</b>: คอลัมน์หนึ่ง = ค่าคู่ (alice, ep) หนึ่งค่า · ในคอลัมน์นั้น วงบน = bob 0, วงล่าง = bob 1<br>
+    col1 (a=0,ep=0) = |0⟩/|4⟩ · col2 (a=1,ep=0) = |1⟩/|5⟩ · col3 (a=0,ep=1) = |2⟩/|6⟩ · col4 (a=1,ep=1) = |3⟩/|7⟩</p>
+
+    <p><b>จุดที่ 5 — หลัง READ ของ Alice</b> (จบ Step 3.3): เหลือ <b>คอลัมน์เดียว</b> (รูปนี้สุ่มได้ col4: alice=1, ep=1)</p>
+    <div class="crow" data-n="8" data-lab="หลัง Step 3.3" data-mag="0,0,0,0.146,0,0,0,0.854" data-phase="0,0,0,90,0,0,0,0" data-hl="3,7"></div>
+    <p class="src">READ = <b>เลือกคอลัมน์มา 1 คอลัมน์</b> วงนอกคอลัมน์ magnitude เป็นศูนย์หมด แล้ว normalize ใหม่ → กลับมาเป็น 85.4/14.6 เท่าเดิม แค่ <b>สลับหัวท้าย</b> (โดน NOT) และเข็มกลับด้าน (โดน PHASE 180°)</p>
+
+    <div class="part"><h2><span class="n">4</span> เดิน 5 step</h2></div>
+
+    <p><b>Step 1 — สร้าง Bell pair</b> · <code class="code">ep.had(); bob.cnot(ep);</code> <a href="#code-teleport-qasm">→ ดูโค้ด</a><br>
+    HAD+CNOT คู่นี้คือสูตรสร้าง Bell pair เดียวกับ Lec03 → ep กับ bob สุ่ม 50/50 แต่ตรงกันเสมอ</p>
+
+    <p><b>Step 2 — เตรียม payload</b> · <code class="code">alice.write(0); alice.had(); alice.phase(45); alice.had();</code><br>
+    ในงานจริง payload มาจากไหนก็ได้ (คำนวณมา / entangle กับส่วนอื่น) — บทนี้เลือก H–φ45–H เพราะได้ pattern ที่อ่านง่ายในวง</p>
+
+    <p><b>Step 3.1 — เชื่อม payload เข้ากับคู่ entangled</b> · <code class="code">ep.cnot(alice);</code> (control = alice, target = ep)<br>
+    ในภาษาวง = <b>สลับวงในคู่ที่ alice = 1</b> (|1⟩↔|3⟩ และ |5⟩↔|7⟩) · หลังจากนี้เหลือเฉพาะวงที่ <b>XOR ของทั้งสามบิต = 0</b> (000, 011, 101, 110) → จาก entangle 2 ตัว กลายเป็น <b>ก้อน entangled 3 ตัว</b></p>
+
+    <div class="box warn"><span class="tag">⚠️ ตรงนี้คนงงกันเยอะ อ่านช้าๆ</span>
+      <p>ถึงตรงนี้ payload ยัง<b>ไม่ได้</b>ย้ายไปไหน — CNOT แค่ผูกมันเข้ากับอีกสองตัว ส่วนที่ทำให้ข้อมูล "ไหล" ไปหา Bob จริงๆ คือ <b>HAD ใน Step 3.2</b> ต่างหาก ถ้าอ่าน Step 3.2 แล้วยังไม่เข้าใจ ให้ย้อนกลับไปอ่าน "แกน 4 บรรทัด" ข้อ 1–2 อีกรอบก่อน แล้วค่อยกลับมา</p>
+    </div>
+
+    <p><b>Step 3.2 — HAD บน payload</b> · <code class="code">alice.had();</code> ← <b>หัวใจของทั้งบท</b></p>
+    <div class="box why"><span class="tag">ทำไมต้อง HAD ก่อน READ</span>
+      <p>หลัง CNOT อย่างเดียว สถานะที่ Bob "อาจจะได้" มีอยู่ 4 แบบ แต่บางคู่ในนั้น<b>ต่างกันแค่เฟส</b> — และ READ อ่านเฟสไม่เห็นเลย (Lec02: READ เห็นแค่ขนาดวง ไม่เห็นทิศเข็ม) ถ้า Alice READ ตอนนี้ เธอจะแยกไม่ออกว่าเป็นแบบไหน แล้วข้อมูล magnitude+phase ของ payload ก็หายไปเฉยๆ</p>
+      <p><b>HAD คือเครื่องแปลง "ความต่างเชิงเฟส → ความต่างที่อ่านได้"</b> (interference: วงที่เฟสตรงกันเสริมกัน วงที่เฟสตรงข้ามหักล้างกัน) พอผ่าน HAD แล้ว ทั้ง 4 แบบไปอยู่คนละคอลัมน์ที่ READ แยกออก → 2 บิตของ Alice จึงมีความหมายจริง</p>
+      <p>อีกมุมหนึ่ง: <b>CNOT + HAD + READ 2 ตัว = Bell measurement</b> คือการถามว่า "payload กับ ep สัมพันธ์กันแบบไหนใน 4 แบบ" ไม่ใช่ถามว่า "payload คืออะไร" → คำถามที่ไม่แตะเนื้อของ payload ข้อมูลจึงไม่ถูกทำลาย แต่ถูกผลักข้ามไปที่ bob</p>
+    </div>
+
+    <p><b>Step 3.3 — READ ทั้งสองตัวของ Alice</b> · <code class="code">bit_p = alice.read(); bit_n = ep.read();</code><br>
+    ทำลาย qubit ทั้งสองอย่างถาวร — และ<b>ต้อง</b>ทำลาย ไม่งั้นก็เท่ากับ copy สถานะ (ผิด no-cloning) · ผลลัพธ์ = สุ่มเลือก 1 ใน 4 คอลัมน์ ได้ <b>2 บิตคลาสสิก</b> พอดี</p>
+
+    <p><b>Step 4 — Bob รับ 2 บิตแล้วบิดกลับ</b> · <code class="code">if (bit_n) {bob.not();} if (bit_p) {bob.phase(180);}</code> <a href="#code-teleport-fix">→ ดูโค้ด</a><br>
+    ผลลัพธ์: bob กลับมาเป็น payload เดิมเป๊ะ — 85.4% |0⟩ + 14.6% |1⟩ ที่ phase −90°</p>
+    <div class="crow" data-n="2" data-lab="qubit ของ bob หลังบิดกลับ" data-mag="0.854,0.146" data-phase="0,-90" data-sub="85.4%,14.6% @ −90°"></div>
+
+    <p><b>Step 5 — verify</b> · <code class="code">bob.had(); bob.phase(-45); bob.had(); check = bob.read();</code> <a href="#code-teleport-verify">→ ดูโค้ด</a><br>
+    วิธีตรวจ = ให้ Bob รัน <b>ขั้นตอนเตรียม payload แบบย้อนกลับ</b> ถ้า teleport ถูกต้องจริง qubit ต้องกลับไปเป็น |0⟩ เป๊ะ → <code class="code">check</code> ต้องได้ <b>0 เสมอ</b> (ในวงเหลือวงเดียวเต็มวง เข็มชี้ขึ้น) · ถ้าอ่านได้ 1 เมื่อไร = teleport พลาด<br>
+    ⚠️ ข้อจำกัด: ถ้า Bob ได้ของที่ "เกือบถูก" การ verify ก็มักรายงานว่าสำเร็จ → ต้องรันหลายรอบถึงจะมั่นใจ</p>
+
+    <div class="part"><h2><span class="n">5</span> 🎯 ตาราง Bob 4 กรณี — และทำไม X/Z ไม่สลับกัน</h2></div>
+
+    <p>อ่านจากรูป 8 วงที่จุดที่ 4 ทีละคอลัมน์ (วงบน = bob 0, วงล่าง = bob 1) เทียบกับ payload ต้นฉบับ:</p>
+
+    <table class="cmp">
+      <thead><tr><th>บิตที่ Alice อ่านได้</th><th>วงของ bob (คอลัมน์นั้น)</th><th>bob โดนบิดยังไง</th><th>Bob ต้องแก้ด้วย</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="บิตที่ Alice อ่านได้">alice = 0, ep = 0<br><span class="src">col1 = |0⟩/|4⟩</span></td>
+          <td data-label="วงของ bob"><div class="crow" data-n="2" data-mag="0.854,0.146" data-phase="0,-90"></div></td>
+          <td data-label="bob โดนบิดยังไง">ไม่โดนอะไรเลย = payload ตรงเป๊ะ</td>
+          <td data-label="Bob ต้องแก้ด้วย">— (ไม่ต้องทำอะไร)</td>
+        </tr>
+        <tr>
+          <td data-label="บิตที่ Alice อ่านได้">alice = 1, ep = 0<br><span class="src">col2 = |1⟩/|5⟩</span></td>
+          <td data-label="วงของ bob"><div class="crow" data-n="2" data-mag="0.854,0.146" data-phase="0,90"></div></td>
+          <td data-label="bob โดนบิดยังไง">ขนาดวงเท่าเดิม แต่<b>เข็มวงล่างกลับด้าน 180°</b> = โดน PHASE(180)</td>
+          <td data-label="Bob ต้องแก้ด้วย"><b>PHASE(180)</b> (= Z)</td>
+        </tr>
+        <tr>
+          <td data-label="บิตที่ Alice อ่านได้">alice = 0, ep = 1<br><span class="src">col3 = |2⟩/|6⟩</span></td>
+          <td data-label="วงของ bob"><div class="crow" data-n="2" data-mag="0.146,0.854" data-phase="-90,0"></div></td>
+          <td data-label="bob โดนบิดยังไง">วงใหญ่-วงเล็ก<b>สลับที่กัน</b> = โดน NOT</td>
+          <td data-label="Bob ต้องแก้ด้วย"><b>NOT</b> (= X)</td>
+        </tr>
+        <tr>
+          <td data-label="บิตที่ Alice อ่านได้">alice = 1, ep = 1<br><span class="src">col4 = |3⟩/|7⟩</span></td>
+          <td data-label="วงของ bob"><div class="crow" data-n="2" data-mag="0.146,0.854" data-phase="90,0"></div></td>
+          <td data-label="bob โดนบิดยังไง">สลับที่ <b>และ</b> เข็มกลับด้าน</td>
+          <td data-label="Bob ต้องแก้ด้วย"><b>NOT + PHASE(180)</b></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box aha"><span class="tag">ที่มา — ห้ามท่องตารางเปล่าๆ</span>
+      <p>กฎที่ต้องได้คือ <b>บิตจาก ep คุม NOT (X) · บิตจาก alice คุม PHASE(180) (Z)</b> เหตุผลว่าทำไมสลับกันไม่ได้:</p>
+      <ul>
+        <li><b>ep คือฝาแฝดของ bob</b> — ทั้งคู่คือ Bell pair ที่ค่าตรงกันเสมอ (จุดที่ 2: มีแต่วง ep = bob) ดังนั้นข่าวสารว่า "ค่าบิตของ bob ถูกพลิกหรือเปล่า" มีแต่ ep เท่านั้นที่รายงานได้ → <b>ep = ช่องรายงาน bit-flip = คุม X</b></li>
+        <li><b>alice คือตัวที่ผ่าน HAD ก่อน READ</b> — และ HAD คือเครื่องแปลงเฟสให้อ่านได้ (แกนข้อ 2) ดังนั้นบิตของ alice คือผลของการถามว่า "เฟสของสองสายเดิมตรงกันหรือกลับด้าน" → <b>alice = ช่องรายงาน phase-flip = คุม Z</b></li>
+        <li>ดูที่ตารางก็เห็น: แถวที่ <b>ep = 1</b> คือสองแถวที่วง<b>สลับที่</b> (bit-flip) · แถวที่ <b>alice = 1</b> คือสองแถวที่<b>เข็มกลับด้าน</b> (phase-flip) — ไม่ปนกันเลย</li>
+      </ul>
+      <p>ท่องเป็นประโยคเดียว: <b>"ep เป็นฝาแฝดของ bob → รายงานเรื่องบิต (X) · alice ผ่าน HAD → รายงานเรื่องเฟส (Z)"</b></p>
+      <p class="src">เกร็ดที่ช่วยไม่ให้เครียด: ลำดับที่ Bob ทำ X ก่อนหรือ Z ก่อน <b>ไม่มีผล</b> เพราะ XZ กับ ZX ต่างกันแค่ global phase (−1) ซึ่งวัดไม่ได้ · แต่ "บิตไหนคุม gate ไหน" สลับไม่ได้เด็ดขาด</p>
+    </div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">Alice อ่านได้ alice = 0, ep = 1 · Bob ต้องทำอะไรกับ qubit ของเขา?</div>
+      <button class="opt">PHASE(180) อย่างเดียว</button>
+      <button class="opt">NOT อย่างเดียว</button>
+      <button class="opt">ทั้ง NOT และ PHASE(180)</button>
+      <button class="opt">ไม่ต้องทำอะไร</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — ep = 1 คือช่องรายงาน bit-flip → แก้ด้วย NOT (X) · alice = 0 แปลว่าเฟสไม่โดนพลิก จึงไม่ต้อง Z</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — บิตจาก ep คุม NOT (X) เพราะ ep คือฝาแฝดของ bob ที่รายงานเรื่องค่าบิต · ที่นี่ ep = 1 → NOT อย่างเดียว</div>
+    </div>
+
+    <div class="quiz" data-answer="2">
+      <div class="q">ถ้า Alice ข้าม HAD ใน Step 3.2 แล้ว READ เลย จะเกิดอะไรขึ้น?</div>
+      <button class="opt">Bob ได้ payload อยู่ดี แค่ต้องแก้ด้วย gate อื่น</button>
+      <button class="opt">โปรโตคอลเร็วขึ้นเพราะ gate น้อยลง</button>
+      <button class="opt">2 บิตของ Alice แยก 4 กรณีไม่ออก และข้อมูล phase ของ payload หายไปเลย</button>
+      <button class="opt">คู่ entangled จะขาดทันที</button>
+      <div class="fb ok" data-for="ok">ใช่ — ความต่างบางคู่ซ่อนอยู่ในเฟส ซึ่ง READ มองไม่เห็น ต้องให้ HAD แปลงเป็นความต่างที่อ่านได้ก่อน</div>
+      <div class="fb no" data-for="no">ไม่ใช่ — ปัญหาคือ READ เห็นแค่ขนาดวง ไม่เห็นทิศเข็ม ถ้าไม่มี HAD มาแปลงเฟสให้เป็นค่าที่อ่านได้ 2 บิตนั้นก็แยก 4 กรณีไม่ออก</div>
+    </div>
+
+    <div class="part"><h2><span class="n">6</span> QASM ที่รันบน IBM QX</h2></div>
+
+    <p>เป็น<b>โค้ดเดียวในคอร์สที่ไม่ใช่ QCEngine</b> — ใช้ q[0] = alice, q[2] = ep, q[4] = bob (q[1], q[3] ไม่ใช้ เพราะชิป ibmqx4 ต่อ CNOT ได้เฉพาะบางคู่) <a href="#code-teleport-qasm">→ ดูโค้ด</a></p>
+
+    <table class="cmp">
+      <thead><tr><th>คำสั่ง QASM</th><th>สัญลักษณ์วงจร</th><th>ตรงกับ QCEngine</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">h q[0];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="H:0" data-alt="กล่อง H"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.had()</code> — HAD</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">cx q[2], q[4];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="2" data-ops="CNOT:0,1" data-alt="CNOT control บนสายบน"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.cnot()</code> — <b>ตัวแรกคือ control ตัวหลังคือ target</b></td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">x q[0];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="X:0" data-alt="สัญลักษณ์ NOT"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.not()</code> — NOT (bit flip)</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">z q[4];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="Z:0" data-alt="กล่อง Z"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.phase(180)</code> — Z = PHASE(180°)</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">t q[0];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="P:0:45" data-alt="กล่องเฟส 45 องศา"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.phase(45)</code> — T gate = PHASE(45°)</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">tdg q[4];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="P:0:-45" data-alt="กล่องเฟส ลบ 45 องศา"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.phase(-45)</code> — T† = PHASE(−45°) ใช้ตอน verify</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">measure q[0] -&gt; c[0];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="READ:0" data-alt="detector READ"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.read()</code> — READ ลงบิตคลาสสิก c[0]</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">barrier q[0],...;</code></td>
+          <td data-label="สัญลักษณ์วงจร">เส้นประแนวตั้ง (ไม่มีใน QCEngine)</td>
+          <td data-label="ตรงกับ QCEngine">แค่กั้นไม่ให้ compiler จับ gate ไปรวมกัน — <b>ไม่เปลี่ยนสถานะ</b></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box warn"><span class="tag">⚠️ สองเวอร์ชันในสไลด์เดียว — อย่าจำปนกัน</span>
+      <p>วงจรฉบับหนังสือ (p15) เตรียม payload ด้วย <b>H → φ45 → H</b> · แต่โค้ด QASM (p6) ใช้ <b>x → h → t</b> (= NOT → HAD → PHASE 45°) เป็นคนละชุดกัน แต่ละชุดสอดคล้องกับ verify ของตัวเอง (verify = prep แบบย้อนกลับเสมอ) — <b>ตอบตามรูปที่โจทย์ให้มา</b></p>
+      <p>อีกจุด: โค้ด QASM Step 3 เขียน <code class="code">h q0; h q2; cx q2,q0; h q2;</code> ซึ่งดูไม่เหมือนวงจร p15 — เพราะชิป ibmqx4 ต่อ CNOT ได้ทิศเดียว จึงใช้เอกลักษณ์ <b>CNOT(a→b) = (H⊗H)·CNOT(b→a)·(H⊗H)</b> แล้ว H ตัวท้ายหักล้างกับ HAD ที่โปรโตคอลต้องใช้อยู่แล้วพอดี</p>
+    </div>
+
+    <div class="part"><h2><span class="n">7</span> post-selection</h2></div>
+
+    <ol>
+      <li>โค้ด QASM <b>ไม่มี <code class="code">if</code></b> — Bob ทำ <code class="code">x</code> แล้ว <code class="code">z</code> (NOT + PHASE 180°) <b>ทุกครั้ง</b> ไม่ว่า Alice จะอ่านได้อะไร</li>
+      <li>ดังนั้นผลลัพธ์จะถูกต้องเฉพาะรอบที่ Alice บังเอิญอ่านได้ <b>alice = 1 และ ep = 1</b> (คือกรณีที่ต้องแก้ทั้ง NOT และ PHASE พอดี)</li>
+      <li><b>post-selection</b> = ทิ้งรอบอื่นทั้งหมด เก็บมาดูเฉพาะรอบที่ Bob บังเอิญทำถูก แล้วค่อยดูว่า READ ตรวจสอบของ Bob ได้ 0 หรือไม่</li>
+    </ol>
+
+    <div class="box"><span class="tag">ฝึกวาดวงจรต่อ</span>
+      <p>ถ้าอยากซ้อมวาด/ไล่วงจร teleport ทีละคอลัมน์ มีชุดฝึกแยกอยู่แล้ว → <a href="../lessons/extra-teleportation-circuit-drill.html">แบบฝึกวาดวงจร teleportation</a></p>
+    </div>
+
+    <details class="recall"><summary>ทวนเร็ว: เล่า teleportation ให้จบใน 4 ประโยค</summary>
+      <p>1) Alice กับ Bob แชร์คู่ entangled ไว้ล่วงหน้า · 2) Alice ทำ CNOT + HAD กับ payload และครึ่งของเธอ แล้ว READ ได้ 2 บิต — เป็นการถาม "ความสัมพันธ์ 1 ใน 4 แบบ" ไม่ใช่ถามว่า payload คืออะไร · 3) qubit ของ Bob กลายเป็น payload ที่ถูกบิดตาม 1 ใน 4 แบบนั้นทันที · 4) Alice ส่ง 2 บิตทางช่องคลาสสิก (ช้ากว่าแสงเสมอ) Bob ใช้บิตจาก ep คุม NOT และบิตจาก alice คุม PHASE(180) บิดกลับ → ได้ payload เดิมเป๊ะ ส่วนต้นฉบับถูกทำลายไปแล้ว</p>
+    </details>
+
     <button type="button" class="next-btn" data-target="lec05">บทถัดไป: Lec05 →</button>
   </section>
 
