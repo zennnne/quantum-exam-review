@@ -102,7 +102,13 @@
     }
   }
 
-  function init() { document.querySelectorAll(".logicgate").forEach(build); }
+  /* build ซ้ำได้หลัง inject HTML ใหม่ (gate-drill.html) — ไม่กระทบ auto-init เดิม */
+  function buildAll(root) {
+    (root || document).querySelectorAll(".logicgate").forEach(build);
+  }
+  window.buildLogicGates = buildAll;
+
+  function init() { buildAll(document); }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else { init(); }

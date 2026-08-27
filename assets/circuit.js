@@ -14,10 +14,16 @@
 
    ops ที่รองรับ (คั่นด้วย ; — แต่ละ op = 1 คอลัมน์, ใช้ "_" เป็นช่องว่าง):
      ใช้ + เชื่อมถ้าต้องการหลาย gate ใน "คอลัมน์เดียวกัน"  เช่น  H:0 + H:1
+     ⚠ ต้องมีเว้นวรรคขนาบ + เสมอ ("H:0 + H:1" ไม่ใช่ "H:0+H:1")
+       เพราะ + ที่ติดกับตัวอักษรถือเป็นข้อความปกติ — ทำให้ label ของ BOX
+       อย่าง "BOX:0,2:+1:2" (กล่อง +1) ใช้งานได้
 
      H:w              Hadamard
      X:w[,w2,...]     NOT (⊕) — ใส่หลายสายได้ = ⊕ หลายตัวในคอลัมน์เดียว
      P:w:45           PHASE 45° (φ)
+     Y:w              Pauli-Y (กล่อง Y)
+     RX:w:45          ROTX 45° (กล่อง RX + ป้ายองศา)
+     RY:w:45          ROTY 45° (กล่อง RY + ป้ายองศา)
      Z:w              Z gate (กล่อง Z)
      RNOT:w           root-of-NOT
      CNOT:c,t         control c → target t (⊕)
@@ -43,6 +49,9 @@
 (function () {
   var NS = "http://www.w3.org/2000/svg";
   var GAP = 40, TOP = 24, COLW = 52, PAD_R = 18;
+  /* ตัวคั่น gate ใน "คอลัมน์เดียวกัน" = เครื่องหมาย + ที่มีเว้นวรรคขนาบสองข้าง
+     (ต้องมีช่องว่าง ไม่งั้น label ของ BOX อย่าง "BOX:0,2:+1:2" จะโดนหั่นกลางคัน) */
+  var COLSEP = /\s+\+\s+/;
 
   function el(tag, a) {
     var e = document.createElementNS(NS, tag);
@@ -144,6 +153,15 @@
       case "H": box(g, x, y[0], "H"); break;
       case "Z": box(g, x, y[0], "Z"); break;
       case "RNOT": box(g, x, y[0], "√X"); break;
+      case "Y": box(g, x, y[0], "Y"); break;
+      case "RX":
+        box(g, x, y[0], "RX");
+        if (arg) g.appendChild(txt(x, angleY, arg + "°", 11, 700));
+        break;
+      case "RY":
+        box(g, x, y[0], "RY");
+        if (arg) g.appendChild(txt(x, angleY, arg + "°", 11, 700));
+        break;
       case "X": y.forEach(function (yy) { xor(g, x, yy); }); break;
       case "CTRL": y.forEach(function (yy) { ctrl(g, x, yy); }); break;
       case "P":
@@ -229,9 +247,9 @@
           d: "M" + gx + "," + (gy + 12) + " q0,-12 12,-12 H" + (gx + gw - 12) +
              " q12,0 12,12 M" + gx + "," + (gy + gh - 12) + " q0,12 12,12 H" +
              (gx + gw - 12) + " q12,0 12,-12",
-          fill: "none", stroke: "#17808f", "stroke-width": 1.8 }));
+          fill: "none", stroke: "#116370", "stroke-width": 1.8 }));
         var gt = txt(gx + gw / 2, 15, p[1] || "", 12, 700);
-        gt.setAttribute("fill", "#17808f");
+        gt.setAttribute("fill", "#116370");
         svg.appendChild(gt);
         if (p[2]) svg.appendChild(txt(gx + gw / 2, gy + 16, p[2], 11, 800));
       });
@@ -240,7 +258,7 @@
     /* หาจุด write / read ของแต่ละสาย → ช่วงนอกนั้นวาดเป็นเส้นจาง */
     var wCol = [], rCol = [];
     ops.forEach(function (col, j) {
-      col.split("+").forEach(function (spec) {
+      col.split(COLSEP).forEach(function (spec) {
         var q = spec.trim().split(":");
         var nm = q[0].trim().toUpperCase();
         var w = parseInt((q[1] || "").split(",")[0], 10);
@@ -295,7 +313,7 @@
 
     ops.forEach(function (col, j) {
       // "+" = หลาย gate ในคอลัมน์เดียวกัน เช่น "H:0 + H:1"
-      var specs = col.split("+").map(function (spec) {
+      var specs = col.split(COLSEP).map(function (spec) {
         var parts = spec.trim().split(":");
         return {
           name: parts[0].trim().toUpperCase(),
@@ -334,7 +352,14 @@
     }
   }
 
-  function init() { document.querySelectorAll(".circuit").forEach(build); }
+  /* build ซ้ำได้หลัง inject HTML ใหม่ (gate-drill.html) — root ไม่ใส่ = ทั้งหน้า
+     ไม่กระทบ auto-init เดิม (build อ่านจาก dataset อย่างเดียว เรียกซ้ำได้) */
+  function buildAll(root) {
+    (root || document).querySelectorAll(".circuit").forEach(build);
+  }
+  window.buildCircuits = buildAll;
+
+  function init() { buildAll(document); }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else { init(); }

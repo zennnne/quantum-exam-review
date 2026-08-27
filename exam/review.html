@@ -9,6 +9,7 @@
 <script defer src="../assets/circuit.js"></script>
 <script defer src="../assets/logicgate.js"></script>
 <script defer src="../assets/bars.js"></script>
+<script defer src="../assets/bloch.js"></script>
 <div class="wrap">
 
   <p class="kicker">Exam Review · Lec01–05</p>
@@ -37,55 +38,1792 @@
   </nav>
 
   <!-- ==== LEC01 ==== -->
-  <section class="page" data-page="lec01">
-    <p class="kicker">Lec01</p>
-    <h2>QPU คืออะไร</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 03 (<code class="code">/teach</code>) จะเติมส่วนนี้</p></div>
+  <section class="page" id="lec01" data-page="lec01">
+    <p class="kicker">Lec01 · ครึ่งหน้า อ่านจบใน 1 นาที</p>
+    <h2>QPU คืออะไร (และไม่ใช่อะไร)</h2>
+
+    <div class="box aha"><span class="tag">ประโยคแกนของคาบนี้</span>
+      <p>QPU <b>ไม่ใช่</b> “ตัวฆ่าคอมพิวเตอร์เดิม” (conventional computer killer) —
+      คุณค่าของมันคือ <b>ขยายชนิดของปัญหาที่คำนวณไหว</b> มีโจทย์บางกลุ่มที่ QPU ทำได้ง่าย
+      แต่คอมพิวเตอร์ธรรมดา<b>เท่าที่มนุษย์จะสร้างได้</b> ทำไม่ไหวเลย</p></div>
+
+    <h3>QPU = co-processor (หน่วยประมวลผลร่วม)</h3>
+    <p>ในมุมของโปรแกรมเมอร์ คอมพิวเตอร์ควอนตัมคือ
+    <span class="term" title="ชิปเสริมที่ CPU เรียกใช้เฉพาะงานที่มันถนัด">co-processor</span> ตัวหนึ่ง
+    เหมือนที่เคยมี FPU (คำนวณทศนิยม) · DSP (ประมวลผลสัญญาณ) · GPU (กราฟิกเรียลไทม์) มาก่อน</p>
+    <div class="analogy">
+      <div class="cell"><b>CPU</b><br>คุมโปรแกรมหลักทั้งหมด</div>
+      <div class="arrow">→</div>
+      <div class="cell"><b>QPU</b><br>รับเฉพาะงานที่ถนัด แล้วส่งผลกลับ</div>
+    </div>
+    <p>โค้ดส่วนใหญ่ยัง<b>รันบน CPU</b> · CPU เป็นคนสั่ง QPU ให้เริ่มเฉพาะงานที่เหมาะกับมัน แล้วค่อยดึงผลลัพธ์กลับมา
+    — คำว่า “QPU” จึงถูกใช้แทนคำว่าคอมพิวเตอร์ควอนตัมตลอดทั้งวิชา</p>
+    <p>ตอนนี้ยัง<b>ไม่มี QPU อเนกประสงค์เต็มรูปแบบ</b> ให้ใช้จริง เราจึงเรียนผ่าน
+    <b>simulator</b> คือ <code class="code">QCEngine</code> (รันในเบราว์เซอร์ ไม่ต้องลงโปรแกรม
+    และมี circle notation ให้ดูในตัว) — สัญลักษณ์วงจรทั้งวิชาจึงเป็นสไตล์ QCEngine ไม่ใช่ Qiskit</p>
+
+    <h3>QPU vs GPU — ประโยคชุดเดียวกันใช้ได้ทั้งคู่</h3>
+    <p>สไลด์ไล่คุณสมบัติของ QPU มาชุดหนึ่ง แล้วเฉลยตอนท้ายว่า
+    <b>เปลี่ยนคำว่า QPU เป็น GPU ทุกข้อก็ยังจริงหมด</b> — นี่คือ punchline ของคาบนี้
+    (แปลว่าความยากของการเขียนโปรแกรม QPU วิศวกรซอฟต์แวร์เคยเจอมาแล้วกับ GPU)</p>
+    <table class="cmp">
+      <thead><tr><th>คุณสมบัติที่สไลด์ไล่</th><th>จริงกับ QPU</th><th>จริงกับ GPU ด้วยไหม</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="คุณสมบัติ">แทบไม่มีโปรแกรมไหนรันบนมันล้วนๆ — CPU สั่งงานแล้วมารับผลทีหลัง</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">บางงานเหมาะมาก บางงานไม่เหมาะเลย</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">มีนาฬิกา (clock) แยกจาก CPU และมักต่ออุปกรณ์ภายนอกของตัวเอง</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">มีหน่วยความจำของตัวเอง ที่ CPU เข้าถึงได้ไม่คุ้ม</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">คำนวณเสร็จส่งกลับแค่ “ภาพฉาย” ของผล ข้อมูลภายในส่วนใหญ่ถูกทิ้ง</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">debug ยาก ต้องใช้เครื่องมือเฉพาะ · step ทีละบรรทัดแทบไม่ได้ ต้องแก้แล้วดูผล</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">optimize ให้รุ่นหนึ่งเร็วขึ้น อาจทำอีกรุ่นช้าลง</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">ตัวแรกๆ ใหญ่ แพง กินไฟ ต้องระบายความร้อนพิเศษ</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box warn"><span class="tag">misconception ยอดฮิตของคาบนี้</span>
+      <p><b>1.</b> “QPU มาแทน CPU / เร็วกว่าคอมธรรมดาทุกงาน” → ผิด มันเป็น co-processor ที่เก่ง<b>บางงาน</b>เท่านั้น</p>
+      <p><b>2.</b> “ต้องเก่งฟิสิกส์ควอนตัมก่อนถึงจะเขียนโปรแกรมได้” → ผิด สไลด์เทียบตรงๆ ว่า
+      ฟิสิกส์เบื้องหลังทรานซิสเตอร์ก็ยากพอกัน แต่เรียน C++ ไม่ต้องใช้สมการฟิสิกส์สักตัว</p>
+      <p><b>3.</b> “รันบน simulator = ได้ของจริง” → ผิด simulator รันบนคอมธรรมดา จึงจำลองได้แค่ระบบเล็กๆ
+      (และถ้าให้มันสุ่ม ก็ยังเป็นการสุ่มแบบคลาสสิกอยู่ดี — ดูกับดัก QRNG ใน Lec02)</p></div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">ข้อไหนอธิบาย “คุณค่าของ QPU” ได้ตรงกับสไลด์ Lec01 ที่สุด</div>
+      <button class="opt">ทำทุกอย่างที่คอมพิวเตอร์ธรรมดาทำได้ แต่เร็วกว่าหลายเท่า</button>
+      <button class="opt">ขยายชนิดของปัญหาที่คำนวณไหว โดยทำงานเป็น co-processor คู่กับ CPU</button>
+      <button class="opt">แทนที่ CPU ทั้งหมดในอนาคตอันใกล้</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — คำว่า “not a conventional computer killer” คือใจความของคาบนี้</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — สไลด์ย้ำว่า QPU ไม่ได้มาฆ่าคอมเดิม แต่มาขยายขอบเขตปัญหาที่แก้ไหว</div>
+    </div>
+
     <button type="button" class="next-btn" data-target="lec02">บทถัดไป: Lec02 →</button>
   </section>
 
   <!-- ==== LEC02 ==== -->
-  <section class="page" data-page="lec02">
-    <p class="kicker">Lec02</p>
+  <section class="page" id="lec02" data-page="lec02">
+    <p class="kicker">Lec02 · ทวน ไม่ปูใหม่</p>
     <h2>Qubit เดี่ยว &amp; Bloch sphere</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 03 เติมช่วงต้น · ticket 04 เติม Bloch sphere + ที่เหลือ</p></div>
+
+    <h3 id="lec02-qubit">1. bit vs qubit · bra-ket</h3>
+    <p>บิตคลาสสิกเป็นได้แค่ 0 หรือ 1 · qubit เก็บ <b>ส่วนผสม</b> ของทั้งสองไว้ เขียนด้วย
+    <span class="term" title="สัญกรณ์ ⟨bra∣ket⟩ ของ Dirac">bra-ket</span> ว่า
+    <b>∣0⟩</b> กับ <b>∣1⟩</b> (ket = เวกเตอร์สถานะ)</p>
+    <p class="eq">∣ψ⟩ = a∣0⟩ + b∣1⟩ &nbsp;·&nbsp; ∣a∣² + ∣b∣² = 1</p>
+    <div class="box warn"><span class="tag">misconception อันดับ 1</span>
+      <p>“superposition (การซ้อนทับ) = เป็น 0 <b>และ</b> 1 พร้อมกัน อ่านได้ทั้งคู่” → <b>ผิด</b><br>
+      มันคือ “ส่วนผสมที่<b>ยังไม่มีคำตอบ</b>” เหมือนเหรียญที่กำลังหมุนอยู่ ไม่ใช่เหรียญที่มีสองหน้าให้หยิบ
+      — และเมื่ออ่าน (READ) qubit 1 ตัว ได้ออกมาแค่ <b>1 บิตธรรมดา</b> เท่านั้น
+      qubit จึงไม่ใช่ “ที่เก็บข้อมูล 2 เท่าฟรี”</p></div>
+
+    <h3 id="lec02-amp">2. amplitude = magnitude + relative phase</h3>
+    <p>ค่า a, b เรียกว่า <b>amplitude</b> เป็น<b>จำนวนเชิงซ้อน</b> จึงมี <b>2 ลูกบิด</b> ต่อหนึ่งวง</p>
+    <table class="cmp">
+      <thead><tr><th>ลูกบิด</th><th>ความหมายเชิงภาพ</th><th>อ่าน (READ) แล้วเห็นไหม</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="ลูกบิด"><b>magnitude</b> (ขนาด ∣a∣)</td>
+          <td data-label="ความหมาย">ความยาวเข็ม / ขนาดวงในของ circle notation</td>
+          <td data-label="เห็นไหม">เห็น — โอกาสวัดได้ = ∣a∣²</td>
+        </tr>
+        <tr>
+          <td data-label="ลูกบิด"><b>relative phase</b> (เฟสสัมพัทธ์ θ)</td>
+          <td data-label="ความหมาย">ทิศของเข็ม (หมุน) — ไม่เปลี่ยนความยาว</td>
+          <td data-label="เห็นไหม">ไม่เห็นตอนวัดครั้งเดียว แต่เผยตัวตอน <b>interference</b> (การแทรกสอด)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="box mathref"><span class="tag">refresher จำนวนเชิงซ้อน</span>
+      <p>เขียนได้ 2 แบบ: <code class="code">a + bi</code> (พิกัดฉาก) หรือ
+      <code class="code">r·e^(iθ)</code> (พิกัดเชิงขั้ว) — แบบหลังคือแบบที่ตรงกับเข็มนาฬิกา:
+      <b>r = ความยาวเข็ม (magnitude)</b> · <b>θ = ทิศเข็ม (phase)</b><br>
+      ที่ต้องใช้จริงมีแค่: ∣r·e^(iθ)∣² = r² → <b>phase ไม่กระทบโอกาสวัด</b></p></div>
+    <div class="box aha"><span class="tag">global vs relative</span>
+      <p>หมุน<b>ทุกวง</b>ด้วยมุมเท่ากัน = global phase → วัดผลอย่างไรก็เหมือนเดิม <b>ไม่มีความหมาย</b><br>
+      หมุน<b>บางวงเทียบกับวงอื่น</b> = relative phase → <b>มีความหมาย</b>
+      นี่คือเหตุผลที่ PHASE หมุนแค่วง ∣1⟩ ก็พอ</p></div>
+
+    <h3 id="lec02-circle">3. circle notation</h3>
+    <p>1 วง = 1 สถานะฐาน · ในวงมีวงในสีทึบกับเข็มหนึ่งอัน — กติกาที่ออกสอบมี 3 ข้อ</p>
+    <ol>
+      <li><b>รัศมีวงใน = magnitude</b> · <b>พื้นที่วงใน = ความน่าจะเป็น</b> (∣a∣²) — จำเป็น “พื้นที่” ไม่ใช่ “รัศมี”</li>
+      <li><b>ทิศเข็ม = phase</b> · มุมบวก = <b>ทวนเข็มนาฬิกา</b> (convention ของวิชานี้)</li>
+      <li><b>normalization</b>: พื้นที่ของทุกวงรวมกัน = 1 เสมอ</li>
+    </ol>
+    <div class="scrollx">
+      <div class="crow" data-n="2" data-lab="เริ่มที่ ∣0⟩" data-mag="1,0" data-sub="100%,0%"></div>
+      <div class="crow" data-n="2" data-lab="หลัง HAD" data-mag="0.5,0.5" data-sub="50%,50%"></div>
+      <div class="crow" data-n="2" data-lab="H∣1⟩ = ∣−⟩ (เข็มวง ∣1⟩ ชี้ลง = เครื่องหมายลบ)" data-mag="0.5,0.5" data-phase="0,180" data-hl="1"></div>
+    </div>
+
+    <h3 id="lec02-not-had">4. NOT (X) และ HAD (H)</h3>
+    <p><b>NOT / X</b> — สลับวง ∣0⟩ ↔ ∣1⟩ (สลับทั้งขนาดและเข็ม) · เป็น
+    <span class="term" title="ทำสองครั้งกลับที่เดิม">its own inverse</span> (NOT·NOT = ไม่ทำอะไร)</p>
+    <p><b>HAD / H</b> — สร้าง superposition 50/50 จาก ∣0⟩ หรือ ∣1⟩ และเป็น its own inverse เหมือนกัน</p>
+    <p class="eq">H∣0⟩ = (∣0⟩ + ∣1⟩)/√2 &nbsp;·&nbsp; H∣1⟩ = (∣0⟩ − ∣1⟩)/√2</p>
+    <div class="box why"><span class="tag">ทำไม H∣1⟩ ต้องมีเครื่องหมายลบ — 3 เหตุผล</span>
+      <p><b>1. orthogonality (ความตั้งฉาก)</b> — ∣0⟩ กับ ∣1⟩ ตั้งฉากกัน ผลลัพธ์ H∣0⟩ กับ H∣1⟩ ก็ต้องตั้งฉากกันด้วย
+      ลอง inner product: (1·1 + 1·(−1))/2 = 0 ✓ ถ้าเป็นบวกทั้งคู่จะไม่ตั้งฉาก</p>
+      <p><b>2. reversibility (ย้อนกลับได้)</b> — ถ้า H∣0⟩ กับ H∣1⟩ ให้ผลเหมือนกันเป๊ะ ก็ย้อนกลับไม่ได้ว่ามาจากอะไร
+      เครื่องหมายลบคือสิ่งเดียวที่แยกสองเส้นทางนี้ออกจากกัน</p>
+      <p><b>3. interference</b> — พอ H อีกที เทอมบวกกับเทอมลบหักล้างกัน (destructive) เหลือ ∣0⟩ ตัวเดียว
+      → นี่คือเหตุผลที่ <b>H·H = ไม่ทำอะไร</b></p>
+      <p>ทั้งสามเรื่องนี้คือ “เครื่องหมายลบ = เข็มชี้ลง = −1 ในเวกเตอร์ = relative phase 180°” สิ่งเดียวกัน เล่า 3 ภาษา</p></div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="1"
+           data-ops="WRITE:0; X:0; H:0; P:0:45; RNOT:0; Z:0; READ:0"
+           data-cap="สัญลักษณ์ที่ต้องจำ (ซ้าย→ขวา): WRITE ▷ · NOT/X ⊕ · HAD [H] · PHASE ⓕ พร้อมมุม · RNOT [√X] · Z [Z] · READ ครึ่งวงกลม"></div>
+    </div>
+
+    <h3 id="lec02-read-write">5. READ และ WRITE</h3>
+    <table class="cmp">
+      <thead><tr><th>คำสั่ง</th><th>ทำอะไร</th><th>ย้อนกลับได้ไหม</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="คำสั่ง"><b>READ</b></td>
+          <td data-label="ทำอะไร">วัด → สุ่มยุบเหลือ 0 หรือ 1 ตามความน่าจะเป็น · <b>ลบ phase ทิ้งทั้งหมด</b></td>
+          <td data-label="ย้อนกลับ"><b>ไม่ได้</b> — คำสั่งเดียวในวิชานี้ที่ irreversible (และเป็นตัวเดียวที่สุ่ม)</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง"><b>WRITE</b></td>
+          <td data-label="ทำอะไร">ตั้งค่า qubit ให้เป็น ∣0⟩ หรือ ∣1⟩ แบบแน่นอน — <b>ตั้งเป็น superposition ไม่ได้</b></td>
+          <td data-label="ย้อนกลับ">ไม่ได้ เพราะสร้างจาก READ</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="box aha"><span class="tag">WRITE สร้างจาก READ + NOT</span>
+      <p>WRITE ไม่ใช่คำสั่งพื้นฐานจริงๆ — วิธีทำคือ <b>READ ก่อน</b> (บังคับให้เป็น 0 หรือ 1 แน่ๆ)
+      แล้ว<b>ถ้าได้ค่าไม่ตรงที่ต้องการ ค่อย NOT</b> · ที่ WRITE ย้อนกลับไม่ได้ก็เพราะข้างในมี READ อยู่นี่เอง</p></div>
+
+    <h3 id="lec02-qrng">6. QRNG — โปรแกรมควอนตัมตัวแรก <a href="#code-qrng">→ ดูโค้ด</a></h3>
+    <p>วงจรสั้นที่สุดที่มีประโยชน์จริง: <b>WRITE(0) → HAD → READ</b> ได้บิตสุ่มแท้ 1 บิต
+    (ทำ 8 สายขนานกันก็ได้ random byte)</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="1" data-ops="WRITE:0; H:0; READ:0" data-cap="QRNG — เตรียม ∣0⟩ → HAD → READ"></div>
+    </div>
+    <table class="cmp">
+      <thead><tr><th>ประเด็น</th><th>PRNG (คลาสสิก)</th><th>QRNG (ควอนตัม)</th></tr></thead>
+      <tbody>
+        <tr><td data-label="ประเด็น">ที่มาของความสุ่ม</td>
+          <td data-label="PRNG">algorithm + seed (เช่น LCG)</td>
+          <td data-label="QRNG">กฎของธรรมชาติตอน READ — ไม่มี algorithm ไม่มี seed</td></tr>
+        <tr><td data-label="ประเด็น">รู้ seed แล้วทำนายได้ไหม</td>
+          <td data-label="PRNG">ได้ — ลำดับซ้ำเดิมเป๊ะ</td>
+          <td data-label="QRNG">ไม่ได้ แม้รู้ทุกอย่างเกี่ยวกับวงจร</td></tr>
+        <tr><td data-label="ประเด็น">ทำซ้ำได้ไหม</td>
+          <td data-label="PRNG">ได้ (ข้อดีตอน debug)</td>
+          <td data-label="QRNG">ไม่ได้</td></tr>
+      </tbody>
+    </table>
+    <div class="box warn"><span class="tag">กับดักที่ออกสอบง่ายที่สุด (สไลด์ p57)</span>
+      <p>รัน QRNG บน <b>simulator</b> ยังได้เลขจาก PRNG อยู่ดี! เพราะ simulator รันบนคอมคลาสสิก
+      — ต้องรันบน QPU จริงเท่านั้นถึงจะเป็นการสุ่มแท้</p></div>
+
+    <h3 id="lec02-phase">7. PHASE(θ)</h3>
+    <p>หมุนเข็ม<b>เฉพาะวง ∣1⟩</b> ไป θ องศา (ทวนเข็ม = บวก) · <b>ไม่มีผลกับ ∣0⟩ เลย</b>
+    และ<b>ไม่เปลี่ยนโอกาสวัด</b> เพราะขนาดวงเท่าเดิม</p>
+    <div class="scrollx">
+      <div class="crow" data-n="2" data-lab="∣+⟩ ก่อน PHASE" data-mag="0.5,0.5"></div>
+      <div class="crow" data-n="2" data-lab="หลัง PHASE(45°) — หมุนแค่วง ∣1⟩" data-mag="0.5,0.5" data-phase="0,45" data-hl="1"></div>
+    </div>
+    <div class="box warn"><span class="tag">counter-example ที่ต้องจำ</span>
+      <p>PHASE เป็น <b>reversible แต่ไม่ใช่ its own inverse</b> — PHASE(45°) สองที = PHASE(90°) ไม่ใช่กลับที่เดิม
+      ต้องย้อนด้วย <b>PHASE(−θ)</b><br>
+      ข้อยกเว้น: <b>PHASE(180°) = Z</b> ตัวนี้ its own inverse (เพราะ 180+180 = 360 = ครบรอบ)</p></div>
+    <p>สถานะที่มีชื่อ 4 ตัว สร้างจาก HAD แล้วต่อ PHASE: ∣+⟩ (0°) · ∣−⟩ (180°) · ∣+Y⟩ (+90°, เข็มชี้ซ้าย) ·
+    ∣−Y⟩ (−90°, เข็มชี้ขวา)</p>
+
+    <h3 id="lec02-nocloning">8. no-cloning — คำสั่งที่หายไป</h3>
+    <div class="box aha"><span class="tag">the missing operation</span>
+      <p><b>COPY ไม่มีในโลกควอนตัม</b> — ก๊อป qubit ที่เรา<b>ไม่รู้ค่า</b>ของมันไม่ได้เลย
+      (จะรู้ค่าต้อง READ ซึ่งทำลาย state ไปแล้ว)</p>
+      <p>ผลที่ตามมาซึ่งจะเจอทั้งวิชา: ทำ backup state ไว้กันพลาดไม่ได้ ·
+      teleportation (Lec04) จึงเป็นการ “ย้าย” ไม่ใช่ “ก๊อป” ต้นทางต้องเสียไป ·
+      และข้อจำกัดนี้กลับกลายเป็น<b>อาวุธ</b>ของ QKD คือถ้ามีสปายมาดักอ่าน จะทิ้งร่องรอยไว้เสมอ</p></div>
+
+    <div class="quiz" data-answer="2">
+      <div class="q">ทำ PHASE(90°) ต่อกัน 2 ครั้งบน ∣+⟩ แล้วอ่านผล จะได้อะไร</div>
+      <button class="opt">กลับมาเป็น ∣+⟩ เหมือนเดิม เพราะ gate ควอนตัมเป็น its own inverse</button>
+      <button class="opt">โอกาสวัดได้ 1 เพิ่มขึ้นเป็น 100%</button>
+      <button class="opt">กลายเป็น ∣−⟩ (เฟสรวม 180°) แต่โอกาสวัดยัง 50/50 เท่าเดิม</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — PHASE บวกมุมสะสม และไม่แตะขนาดวงเลย โอกาสจึงไม่ขยับ</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — PHASE ไม่ใช่ its own inverse (มุมสะสมเป็น 180°) และ phase ไม่เคยเปลี่ยนโอกาสวัด</div>
+    </div>
+    <div class="quiz" data-answer="0">
+      <div class="q">คำสั่งใดใน Lec02 ที่ <b>ย้อนกลับไม่ได้</b> และลบ phase ทิ้ง</div>
+      <button class="opt">READ</button>
+      <button class="opt">HAD</button>
+      <button class="opt">PHASE(θ)</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — READ เป็น op เดียวที่ irreversible และเป็นตัวเดียวที่สุ่มด้วย</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — HAD กับ PHASE ย้อนกลับได้ทั้งคู่ (H ด้วย H เอง, PHASE ด้วย PHASE(−θ))</div>
+    </div>
+
+    <!-- LEC02-B -->
+
+    <h3 id="lec02-matrix">9. เมทริกซ์ของ gate — X = HZH และ Z = HXH</h3>
+    <p>gate 1 qubit ทุกตัวเขียนเป็น<b>เมทริกซ์ 2×2</b> ได้ · การ “ต่อ gate” = การ<b>คูณเมทริกซ์</b>
+    โดย<b>ตัวที่ทำก่อนอยู่ขวาสุด</b> (อ่านวงจรซ้าย→ขวา แต่เขียนสูตรขวา→ซ้าย)</p>
+    <p class="eq">H =
+      <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+      <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> &nbsp;·&nbsp;
+      Z = <span class="mat"><span>1</span><span>0</span><span>0</span><span>−1</span></span> &nbsp;·&nbsp;
+      X = <span class="mat"><span>0</span><span>1</span><span>1</span><span>0</span></span>
+    </p>
+
+    <div class="work">
+      <div class="step"><b>X = H Z H</b> — คูณคู่ในสุดก่อน</div>
+      <div class="step"><span class="lbl">1)</span> Z·H =
+        <span class="mat"><span>1</span><span>0</span><span>0</span><span>−1</span></span> ·
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>−1</span><span>1</span></span>
+        <span style="color:#3a5aa0;">(แถวล่างโดน −1 คูณ → สลับเครื่องหมายทั้งแถว)</span></div>
+      <div class="step"><span class="lbl">2)</span> H·(ZH) =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> ·
+        <span class="mat"><span>1</span><span>1</span><span>−1</span><span>1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1−1</span><span>1+1</span><span>1+1</span><span>1−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>0</span><span>2</span><span>2</span><span>0</span></span></div>
+      <div class="step"><span class="lbl">3)</span> ดึง ½ เข้าไป =
+        <span class="mat"><span>0</span><span>1</span><span>1</span><span>0</span></span> = <b>X</b> ✔</div>
+    </div>
+
+    <div class="work">
+      <div class="step"><b>Z = H X H</b> — สลับที่ H กับ Z ก็ได้อีกสมการ (สไลด์ p86–90)</div>
+      <div class="step"><span class="lbl">1)</span> X·H =
+        <span class="mat"><span>0</span><span>1</span><span>1</span><span>0</span></span> ·
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>−1</span><span>1</span><span>1</span></span>
+        <span style="color:#3a5aa0;">(X = สลับสองแถว)</span></div>
+      <div class="step"><span class="lbl">2)</span> H·(XH) =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> ·
+        <span class="mat"><span>1</span><span>−1</span><span>1</span><span>1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1+1</span><span>−1+1</span><span>1−1</span><span>−1−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>2</span><span>0</span><span>0</span><span>−2</span></span></div>
+      <div class="step"><span class="lbl">3)</span> ดึง ½ เข้าไป =
+        <span class="mat"><span>1</span><span>0</span><span>0</span><span>−1</span></span> = <b>Z</b> ✔</div>
+    </div>
+
+    <div class="box aha"><span class="tag">อ่านเป็นภาษาคน — ไม่ต้องท่องเมทริกซ์</span>
+      <p><b>H คือตัวสลับมุมมองระหว่างแกน X กับแกน Z</b> (ดูข้อ 11) · เอา H ประกบหน้า-หลัง gate ตัวไหน
+      gate นั้นจะเปลี่ยนไปทำงานบนอีกแกนหนึ่งทันที<br>
+      ผลที่ใช้ได้จริง: <b>QPU ที่ไม่มีปุ่ม NOT ก็ยังพลิกบิตได้</b> ด้วย
+      <code class="code">had() → phase(180) → had()</code></p></div>
+
+    <h3 id="lec02-rnot">10. RNOT (√NOT) — gate ที่โลกคลาสสิกไม่มีวันมี</h3>
+    <p>“ครึ่งหนึ่งของการพลิกบิต” ไม่มีความหมายในโลกบิต แต่มีจริงในควอนตัม เพราะ qubit เดินผ่าน
+    superposition ได้ · <b>RNOT ทีเดียว = หยุดครึ่งทางระหว่าง ∣0⟩ กับ ∣1⟩ (50/50)</b> ·
+    ทำสองที = NOT เต็มตัว</p>
+    <p class="eq">√NOT =
+      <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+      <span class="mat"><span>1+<i>i</i></span><span>1−<i>i</i></span><span>1−<i>i</i></span><span>1+<i>i</i></span></span>
+      &nbsp;·&nbsp; สัญลักษณ์วงจร = กล่อง <b>√X</b></p>
+    <div class="work">
+      <div class="step"><b>ตรวจว่า “ทำสองที = NOT” จริงไหม</b> — กุญแจคือ <b><i>i</i>² = −1</b></div>
+      <div class="step"><span class="lbl">1)</span> ช่องบนซ้าย = ¼[(1+<i>i</i>)² + (1−<i>i</i>)²]
+        · (1+<i>i</i>)² = 1+2<i>i</i>−1 = <b>2<i>i</i></b> · (1−<i>i</i>)² = 1−2<i>i</i>−1 = <b>−2<i>i</i></b>
+        → รวม = <b>0</b></div>
+      <div class="step"><span class="lbl">2)</span> ช่องบนขวา = ¼[(1+<i>i</i>)(1−<i>i</i>) + (1−<i>i</i>)(1+<i>i</i>)]
+        = ¼[2 + 2] = <b>1</b></div>
+      <div class="step"><span class="lbl">3)</span> เมทริกซ์สมมาตร → ช่องล่างได้ 1 กับ 0 เหมือนกัน →
+        <span class="mat"><span>0</span><span>1</span><span>1</span><span>0</span></span> = <b>NOT</b> ✔</div>
+    </div>
+    <div class="work">
+      <div class="step"><b>RNOT = H · PHASE(90°) · H</b> — หน้าตาเดียวกับ X = HZH เป๊ะ แค่เปลี่ยน 180° เป็น 90°</div>
+      <div class="step"><span class="lbl">1)</span> P(90)·H =
+        <span class="mat"><span>1</span><span>0</span><span>0</span><span><i>i</i></span></span> ·
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span><i>i</i></span><span>−<i>i</i></span></span></div>
+      <div class="step"><span class="lbl">2)</span> H·(P(90)H) =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> ·
+        <span class="mat"><span>1</span><span>1</span><span><i>i</i></span><span>−<i>i</i></span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1+<i>i</i></span><span>1−<i>i</i></span><span>1−<i>i</i></span><span>1+<i>i</i></span></span>
+        = <b>√NOT</b> ✔</div>
+      <div class="step"><span class="lbl">3)</span> ทำสองที: RNOT·RNOT = H·P(90)·<b>H·H</b>·P(90)·H
+        → ตรงกลาง <b>H·H = ไม่ทำอะไร หายไป</b> → = H·P(180)·H = HZH = <b>NOT</b> ✔</div>
+    </div>
+    <div class="box warn"><span class="tag">🪤 จุดที่ต่างจาก NOT</span>
+      <p><b>NOT เป็น its own inverse แต่ RNOT ไม่ใช่</b> — ทำสองทีได้ NOT ไม่ใช่กลับที่เดิม ·
+      ตัวย้อนคือ <b>RNOT⁻¹ = H · PHASE(−90°) · H</b><br>
+      และ <b>RNOT ทีเดียวแล้ว READ ได้ 1 ที่ 50%</b> (ไม่ใช่ 0% และไม่ใช่ 100%)</p></div>
+
+    <h3 id="lec02-bloch">11. Bloch sphere — qubit ทั้งตัวในลูกศรอันเดียว</h3>
+    <p class="lead">หัวข้อนี้เขียนยาวกว่าข้ออื่นตั้งใจ เพราะเป็นจุดที่งงกันมากที่สุดของคาบนี้ —
+    อ่านช้าๆ ทีละหัวข้อย่อยได้เลย</p>
+
+    <p><b>ทำไมต้องมีเครื่องมือนี้อีกอัน?</b> circle notation เก่งตอนมีหลาย qubit (2ᴺ วง)
+    แต่ตอนมี qubit เดียว มันเปลืองพื้นที่ไปหน่อย — เพราะ qubit เดียว<b>มีลูกบิดจริงๆ แค่ 2 ตัว</b>
+    ของอย่างนี้วาดเป็น<b>จุดบนทรงกลม</b> ได้พอดี (ลูกโลกก็ใช้ 2 ตัวเลข: ละติจูด + ลองจิจูด)</p>
+
+    <div class="box why"><span class="tag">ทำไม state อยู่บน “ผิว” ทรงกลม ไม่ใช่ข้างใน</span>
+      <p>เริ่มจาก ∣ψ⟩ = a∣0⟩ + b∣1⟩ → a, b เป็นจำนวนเชิงซ้อน = <b>4 ตัวเลขอิสระ</b>
+      แล้วโดนหักออก 2 ข้อ:</p>
+      <p><b>1. normalization</b> ∣a∣² + ∣b∣² = 1 บังคับอยู่แล้ว → หายไป 1 ตัว<br>
+      <b>2. global phase ไม่มีความหมาย</b> (ข้อ 2) → หมุนทั้งคู่พร้อมกันเท่าไรก็เป็น state เดิม → หายไปอีก 1 ตัว</p>
+      <p>เหลือ <b>2 ตัวเลข</b> พอดี = <b>θ (ความสูง) + φ (ลองจิจูด)</b> ซึ่งก็คือ<b>ผิว</b>ของทรงกลมเป๊ะๆ
+      — ไม่มี “ระยะจากจุดศูนย์กลาง” ให้เล่นเลย เพราะ normalization ล็อกความยาวลูกศรไว้ที่ 1 ตลอด<br>
+      <span style="color:#3a5aa0;">(จุดข้างในทรงกลมมีความหมายจริง เรียก mixed state แต่ไม่อยู่ในขอบเขตวิชานี้)</span></p>
+      <p class="eq">∣ψ⟩ = cos(θ/2)∣0⟩ + e<sup><i>i</i>φ</sup> sin(θ/2)∣1⟩</p>
+    </div>
+
+    <h4>11.1 แกนทั้งสามคืออะไร</h4>
+    <div class="scrollx">
+      <div class="bloch" data-theta="0" data-phi="0"
+           data-lab="จุดอ้างอิงทั้ง 6 บนทรงกลม"
+           data-alt="Bloch sphere แสดงแกน X Y Z และจุด ∣0⟩ ∣1⟩ ∣+⟩ ∣−⟩ ∣+Y⟩ ∣−Y⟩ ลูกศรชี้ที่ ∣0⟩"
+           data-cap="ลูกศรม่วง = state ปัจจุบัน (รูปนี้อยู่ที่ ∣0⟩ ขั้วเหนือ) · เส้นประ = เส้นศูนย์สูตร (ครึ่งหลังเป็นเส้นประ)"></div>
+    </div>
+    <table class="cmp">
+      <thead><tr><th>แกน</th><th>ขั้วบวก / ขั้วลบ</th><th>คุมอะไร</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="แกน"><b>Z</b> — แกน<b>ตั้ง</b> ⚠️</td>
+          <td data-label="ขั้ว">บน = <b>∣0⟩</b> · ล่าง = <b>∣1⟩</b></td>
+          <td data-label="คุมอะไร"><b>ความสูง (θ) = โอกาสวัด</b> · P(0) = cos²(θ/2) · P(1) = sin²(θ/2)</td>
+        </tr>
+        <tr>
+          <td data-label="แกน"><b>X</b> — แกนนอน (ยื่นเข้าหาเรา)</td>
+          <td data-label="ขั้ว">+X = <b>∣+⟩</b> · −X = <b>∣−⟩</b></td>
+          <td data-label="คุมอะไร">อยู่บนเส้นศูนย์สูตร → 50/50 ทั้งคู่ ต่างกันแค่ phase (0° กับ 180°)</td>
+        </tr>
+        <tr>
+          <td data-label="แกน"><b>Y</b> — แกนนอน (ซ้าย-ขวา)</td>
+          <td data-label="ขั้ว">+Y = <b>∣+Y⟩</b> · −Y = <b>∣−Y⟩</b></td>
+          <td data-label="คุมอะไร">บนเส้นศูนย์สูตรเหมือนกัน → 50/50 · phase +90° กับ −90°</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><b>อ่านลูกศรเป็น 2 ตัวเลขเสมอ:</b> <b>θ</b> = มุมกดลงจากขั้วเหนือ (ความสูง → <b>โอกาสวัด</b>) ·
+    <b>φ</b> = หันไปทางไหนรอบแกนตั้ง (ลองจิจูด → <b>relative phase</b>)</p>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx blochrow">
+      <div class="bloch" data-r="66" data-theta="0" data-phi="0" data-lab="∣0⟩ (θ=0°)"
+           data-alt="ลูกศรชี้ขั้วเหนือ" data-cap="วัดได้ 0 · 100%"></div>
+      <div class="bloch" data-r="66" data-theta="180" data-phi="0" data-lab="∣1⟩ (θ=180°)"
+           data-alt="ลูกศรชี้ขั้วใต้" data-cap="วัดได้ 1 · 100%"></div>
+      <div class="bloch" data-r="66" data-theta="90" data-phi="0" data-lab="∣+⟩ (θ=90°, φ=0°)"
+           data-alt="ลูกศรชี้แกน X บวก" data-cap="50/50 · เข็มวง ∣1⟩ ชี้ขึ้น"></div>
+      <div class="bloch" data-r="66" data-theta="90" data-phi="180" data-lab="∣−⟩ (θ=90°, φ=180°)"
+           data-alt="ลูกศรชี้แกน X ลบ" data-cap="50/50 · เข็มวง ∣1⟩ ชี้ลง (−1)"></div>
+      <div class="bloch" data-r="66" data-theta="90" data-phi="90" data-lab="∣+Y⟩ (θ=90°, φ=+90°)"
+           data-alt="ลูกศรชี้แกน Y บวก" data-cap="50/50 · เข็มหมุน +90°"></div>
+      <div class="bloch" data-r="66" data-theta="90" data-phi="270" data-lab="∣−Y⟩ (θ=90°, φ=−90°)"
+           data-alt="ลูกศรชี้แกน Y ลบ" data-cap="50/50 · เข็มหมุน −90°"></div>
+    </div>
+    <div class="box aha"><span class="tag">insight ที่ออกสอบบ่อย</span>
+      <p><b>ทุกจุดบนเส้นศูนย์สูตรวัดได้ 50/50 เท่ากันหมด</b> — ∣+⟩ ∣−⟩ ∣+Y⟩ ∣−Y⟩ แยกกันไม่ออกด้วย READ
+      ครั้งเดียว ต่างกันแค่ φ (phase) ซึ่งจะเผยตัวก็ต่อเมื่อมี gate มาทำ interference ทีหลัง</p></div>
+
+    <h4>11.2 gate = การหมุน (นี่คือหัวใจ)</h4>
+    <p>บนทรงกลม gate ทุกตัวของ 1 qubit คือ <b>“หมุนลูกศรรอบแกนหนึ่ง เป็นมุมหนึ่ง”</b> เท่านั้นเอง
+    · ทิศบวก = <b>ทวนเข็มนาฬิกาเมื่อมองจากปลายแกนบวกย้อนลงมา</b> (กฎมือขวา)</p>
+    <table class="cmp">
+      <thead><tr><th>gate</th><th>หมุนรอบแกน</th><th>โอกาสวัดเปลี่ยนไหม</th><th>อุปมามือ (สไลด์ p72)</th></tr></thead>
+      <tbody>
+        <tr><td data-label="gate"><b>ROTX(θ)</b></td>
+          <td data-label="แกน">แกน <b>X</b> (นอน)</td>
+          <td data-label="โอกาส"><b>เปลี่ยน</b> — ลูกศรไต่ขึ้นลงระหว่างขั้ว</td>
+          <td data-label="อุปมา">เอียงมือ <b>ไปหน้า / มาหลัง</b></td></tr>
+        <tr><td data-label="gate"><b>ROTY(θ)</b></td>
+          <td data-label="แกน">แกน <b>Y</b> (นอน)</td>
+          <td data-label="โอกาส"><b>เปลี่ยน</b></td>
+          <td data-label="อุปมา">เอียงมือ <b>ซ้าย / ขวา</b></td></tr>
+        <tr><td data-label="gate"><b>PHASE(θ) = ROTZ(θ)</b></td>
+          <td data-label="แกน">แกน <b>Z</b> (ตั้ง)</td>
+          <td data-label="โอกาส"><b>ไม่เปลี่ยน</b> — ลูกศรอยู่ละติจูดเดิมตลอด</td>
+          <td data-label="อุปมา">หมุนมือ <b>รอบตัวเอง</b> (มืออยู่ที่เดิม แค่หันคนละทาง)</td></tr>
+        <tr><td data-label="gate"><b>X (NOT)</b></td>
+          <td data-label="แกน">แกน X · <b>180°</b></td>
+          <td data-label="โอกาส">เปลี่ยน — ∣0⟩ ↔ ∣1⟩ (พลิกขั้ว)</td>
+          <td data-label="อุปมา">ตีลังกาหน้า-หลังครึ่งรอบ</td></tr>
+        <tr><td data-label="gate"><b>Z = PHASE(180°)</b></td>
+          <td data-label="แกน">แกน Z · <b>180°</b></td>
+          <td data-label="โอกาส">ไม่เปลี่ยน — ∣+⟩ ↔ ∣−⟩</td>
+          <td data-label="อุปมา">หมุนรอบตัวเองครึ่งรอบ</td></tr>
+        <tr><td data-label="gate"><b>HAD</b></td>
+          <td data-label="แกน">แกนเฉียง <b>(X+Z)/√2</b> · 180°</td>
+          <td data-label="โอกาส">เปลี่ยน — ∣0⟩ ↔ ∣+⟩ , ∣1⟩ ↔ ∣−⟩</td>
+          <td data-label="อุปมา"><b>สลับแกน X ↔ Z เข้าหากัน</b></td></tr>
+        <tr><td data-label="gate"><b>RNOT (√X)</b></td>
+          <td data-label="แกน">แกน X · <b>90°</b> (ครึ่งทางของ NOT)</td>
+          <td data-label="โอกาส">เปลี่ยน — ∣0⟩ → เส้นศูนย์สูตร (50/50)</td>
+          <td data-label="อุปมา">ตีลังกาแค่ครึ่งของครึ่งรอบ</td></tr>
+      </tbody>
+    </table>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx blochrow">
+      <div class="bloch" data-r="70" data-theta="90" data-phi="0" data-hl="y"
+           data-lab="ROTY(90°) บน ∣0⟩ → ∣+⟩" data-alt="หมุนรอบแกน Y ได้ ∣+⟩"
+           data-cap="หมุนรอบ <b>แกน Y</b> (ส้ม) · ลูกศรไต่ลงมาเส้นศูนย์สูตร → 50/50"></div>
+      <div class="bloch" data-r="70" data-theta="90" data-phi="270" data-hl="x"
+           data-lab="ROTX(90°) บน ∣0⟩ → ∣−Y⟩" data-alt="หมุนรอบแกน X ได้ ∣−Y⟩"
+           data-cap="หมุนรอบ <b>แกน X</b> (ส้ม) · ก็ 50/50 เหมือนกัน <b>แต่ phase ต่าง</b>"></div>
+      <div class="bloch" data-r="70" data-theta="90" data-phi="90" data-hl="z"
+           data-lab="PHASE(90°) บน ∣+⟩ → ∣+Y⟩" data-alt="หมุนรอบแกน Z ได้ ∣+Y⟩"
+           data-cap="หมุนรอบ <b>แกน Z</b> (ส้ม) · ลูกศรอยู่ละติจูดเดิม → <b>โอกาสวัดไม่ขยับ</b>"></div>
+    </div>
+    <div class="box aha"><span class="tag">เห็นด้วยตาว่าทำไม PHASE ไม่เปลี่ยนโอกาสวัด</span>
+      <p>แกน Z คือแกนตั้ง หมุนรอบมันแล้วลูกศร<b>อยู่ละติจูดเดิมเสมอ</b> — สูงเท่าเดิม = θ เท่าเดิม =
+      magnitude เท่าเดิม = โอกาสวัดเท่าเดิม เปลี่ยนแค่ “หันไปทางไหน” (φ)<br>
+      ส่วน ROTX / ROTY หมุนรอบแกนนอน ลูกศรเลย<b>ไต่ขึ้นลงระหว่างสองขั้ว</b> → θ เปลี่ยน → โอกาสเปลี่ยน<br>
+      ⇒ กลุ่มที่เปลี่ยนโอกาสวัดได้: <b>HAD · NOT · ROTX · ROTY</b> · กลุ่มที่ไม่เปลี่ยน: <b>PHASE / ROTZ</b></p></div>
+    <div class="box why"><span class="tag">ทำไม H ถึงสลับ X กับ Z ได้ (ย้อนไปข้อ 9)</span>
+      <p>HAD คือการหมุน 180° รอบ<b>แกนเฉียงที่อยู่กึ่งกลางระหว่างแกน X กับแกน Z</b> พอดี
+      ผลของมันคือ<b>สลับแกน X ↔ Z</b> · เพราะงั้น “หมุนรอบ Z” (= Z gate) เมื่อเอา H ประกบหน้า-หลัง
+      ก็กลายเป็น “หมุนรอบ X” (= X gate) เป๊ะ → <b>X = HZH</b> โดยไม่ต้องท่องเมทริกซ์เลย</p></div>
+
+    <div class="box warn"><span class="tag">⚠️ สไลด์ Lec02 เขียนพลาด 2 จุดในหัวข้อนี้</span>
+      <p><b>1) p71 “The Z-axis is a horizontal axis” — ผิด</b> · Z คือแกน<b>ตั้ง</b> (∣0⟩ ขั้วเหนือ → ∣1⟩ ขั้วใต้)
+      มีแค่ X กับ Y ที่เป็นแกนนอน — ถ้า Z นอนจริง ประโยคถัดไปของสไลด์เอง (“ลูกศรอยู่ละติจูดเดิม
+      → magnitude ไม่เปลี่ยน”) จะขัดกันทันที</p>
+      <p><b>2) p69 “ROTX(π/2) เอียง ∣0⟩ ไปเป็น ∣+⟩” — สลับแกน</b> · ของจริง <b>ROTY(π/2)∣0⟩ = ∣+⟩</b>
+      ส่วน <b>ROTX(π/2)∣0⟩ = ∣−Y⟩</b><br>
+      แต่ใจความที่ออกสอบไม่เปลี่ยน: <b>ทั้งคู่ให้ 50/50 เหมือนกัน ต่างกันแค่ phase</b></p>
+      <p><b>วิธีรับมือตอนสอบ:</b> ถ้าโจทย์อ้างสไลด์ตรงๆ ให้<b>ตอบตามสไลด์</b> แต่รู้ของจริงไว้เผื่อโจทย์ถามเชิงเข้าใจ</p></div>
+
+    <h4>11.3 ความสัมพันธ์กับ circle notation</h4>
+    <p>สองภาพนี้เล่าเรื่องเดียวกันคนละภาษา — แปลไปมาได้ตรงๆ</p>
+    <table class="cmp">
+      <thead><tr><th>Bloch sphere</th><th>circle notation</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Bloch">ลูกศร 1 อันบนผิวทรงกลม</td>
+          <td data-label="circle">วง 2 วง (∣0⟩ กับ ∣1⟩)</td></tr>
+        <tr><td data-label="Bloch"><b>θ</b> = ความสูงของลูกศร</td>
+          <td data-label="circle"><b>พื้นที่ทึบของสองวง</b> — สูงขึ้น = วง ∣0⟩ ใหญ่ขึ้น</td></tr>
+        <tr><td data-label="Bloch"><b>φ</b> = ลองจิจูด (หันไปทางไหน)</td>
+          <td data-label="circle"><b>มุมเข็มของวง ∣1⟩ เทียบกับวง ∣0⟩</b> (relative phase)</td></tr>
+        <tr><td data-label="Bloch">หมุนรอบแกน Z (PHASE)</td>
+          <td data-label="circle">เข็มวง ∣1⟩ หมุน แต่ขนาดวงเท่าเดิม</td></tr>
+        <tr><td data-label="Bloch">หมุนรอบแกน X / Y (ROTX/ROTY, HAD, NOT)</td>
+          <td data-label="circle"><b>ย้ายพื้นที่ทึบ</b>ระหว่างสองวง</td></tr>
+        <tr><td data-label="Bloch">🔴 ใช้ได้กับ <b>1 qubit เท่านั้น</b></td>
+          <td data-label="circle">🔴 ขยายไป N qubit ได้ (<b>2ᴺ วง</b>) — นี่คือเหตุผลที่ Lec03 ขึ้นไปใช้ circle notation ล้วน</td></tr>
+      </tbody>
+    </table>
+    <div class="scrollx">
+      <div class="crow" data-n="2" data-lab="∣+⟩ = θ 90° · φ 0°" data-mag="0.5,0.5" data-sub="50%,50%"></div>
+      <div class="crow" data-n="2" data-lab="∣+Y⟩ = θ 90° · φ +90° (เข็มวง ∣1⟩ หมุน 90°)" data-mag="0.5,0.5" data-phase="0,90" data-hl="1"></div>
+      <div class="crow" data-n="2" data-lab="∣−⟩ = θ 90° · φ 180° (เข็มชี้ลง = −1)" data-mag="0.5,0.5" data-phase="0,180" data-hl="1"></div>
+    </div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">qubit อยู่ที่ ∣+Y⟩ แล้วโดน PHASE(180°) ต่อ · หลังจากนั้น READ จะได้ 0 กี่ %</div>
+      <button class="opt">100% เพราะ PHASE(180°) ดันลูกศรกลับขึ้นขั้วเหนือ</button>
+      <button class="opt">50% เพราะ PHASE หมุนรอบแกน Z ลูกศรยังอยู่บนเส้นศูนย์สูตรเหมือนเดิม</button>
+      <button class="opt">0% เพราะเฟส 180° ทำให้ amplitude ของ ∣0⟩ หักล้างหมด</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — หมุนรอบแกนตั้ง = ละติจูดเท่าเดิม (∣+Y⟩ → ∣−Y⟩) โอกาสวัดไม่ขยับเลย</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — PHASE = ROTZ หมุนรอบแกน<b>ตั้ง</b> ลูกศรอยู่ละติจูดเดิม → 50/50 เหมือนเดิม (แค่ย้ายจาก ∣+Y⟩ ไป ∣−Y⟩)</div>
+    </div>
+    <details class="recall"><summary>🧠 ลองเล่าเองก่อนเปิด — “ทำไม PHASE เปลี่ยนโอกาสวัดไม่ได้ ทั้งที่ ROTX เปลี่ยนได้ ทั้งที่หมุนเหมือนกัน”</summary>
+      <p>บน Bloch sphere qubit คือลูกศร 1 อัน · <b>ความสูง (θ) คุม magnitude → คุมโอกาสวัด</b><br>
+      PHASE หมุนรอบ <b>แกน Z ซึ่งเป็นแกนตั้ง</b> → ลูกศรอยู่ละติจูดเดิมตลอด ความสูงไม่ขยับ = โอกาสไม่ขยับ
+      เปลี่ยนแค่ทิศที่หัน (φ = relative phase)<br>
+      ROTX / ROTY หมุนรอบ<b>แกนนอน</b> → ลูกศรไต่ขึ้นลงระหว่างขั้วเหนือ (∣0⟩) กับขั้วใต้ (∣1⟩) ความสูงเปลี่ยน
+      = โอกาสวัดเปลี่ยน<br>
+      แปลเป็น circle notation: PHASE หมุนเข็มของวง ∣1⟩ เฉยๆ ไม่ย้ายพื้นที่ทึบ · ROTX/ROTY ย้ายพื้นที่ทึบระหว่างสองวง</p>
+    </details>
+
+    <h3 id="lec02-spy">12. Quantum Spy Hunter — capstone ของ Lec02 <a href="#code-spy">→ ดูโค้ด</a></h3>
+    <p>เอา <b>no-cloning</b> มาทำเป็นอาวุธ: สายบิตธรรมดา สปายก๊อปผ่านไปเงียบๆ ได้ ·
+    แต่สายควอนตัม <b>สปายก๊อปไม่ได้ ทำได้แค่ READ แล้วส่งตัวใหม่ต่อ</b> — และ READ ยุบ state ทิ้งร่องรอยเสมอ</p>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="1" data-wire-labels="qubit"
+           data-groups="0-2:Alice เตรียม; 3-3:สปาย; 4-5:Bob อ่าน"
+           data-ops="WRITE:0; X:0; H:0; BOX:0,0:SPY:1; H:0; READ:0"
+           data-alt="วงจร Quantum Spy Hunter"
+           data-cap="⊕ ทำ<b>ถ้า send_val = 1</b> · H ตัวแรกทำ<b>ถ้า send_had = 1</b> (ทั้งสองบิตมาจาก QRNG ของ Alice) · กล่อง SPY = สปาย READ แล้วส่ง qubit ตัวใหม่ต่อ · H ตัวหลังทำ<b>ถ้า recv_had = 1</b> (บิตสุ่มของ Bob) แล้วค่อย READ ได้ recv_val"></div>
+    </div>
+    <p>ผลของ 2 บิตสุ่มฝั่ง Alice: qubit ที่ส่งเป็น 1 ใน 4 สถานะ <b>∣0⟩ ∣1⟩ ∣+⟩ ∣−⟩</b> โดยไม่บอกใครว่าตัวไหน ·
+    <b>สปายไม่รู้ว่า Alice ใส่ HAD ไหม</b> เลยไม่รู้ว่าควรอ่านในฐานไหน → เดามั่ว → ส่งของผิดต่อบ่อยๆ</p>
+    <p>หลังส่งครบ Alice กับ Bob คุยกันผ่านสายธรรมดาได้เลย (ไม่ต้องเข้ารหัส) แต่<b>คุยแค่ว่าตาไหน HAD ตรงกัน
+    ไม่บอกค่าจริง</b> — แล้วเทียบผลตามตารางนี้</p>
+    <table class="cmp">
+      <thead><tr><th>send_had = recv_had ?</th><th>send_val = recv_val ?</th><th>ตัดสินยังไง</th><th>ทำไม</th></tr></thead>
+      <tbody>
+        <tr><td data-label="HAD ตรงกัน?"><b>ตรง</b></td>
+          <td data-label="ค่าตรงกัน?"><b>ตรง</b></td>
+          <td data-label="ตัดสิน">✅ ปกติ — <b>เก็บบิตนี้ไปทำกุญแจได้</b></td>
+          <td data-label="ทำไม">Bob ถอดถูกฐาน ผลจึงตรง (ถ้ามีสปายก็แค่บังเอิญเดาถูก ตานี้จับไม่ได้)</td></tr>
+        <tr><td data-label="HAD ตรงกัน?"><b>ตรง</b></td>
+          <td data-label="ค่าตรงกัน?"><b>ไม่ตรง</b></td>
+          <td data-label="ตัดสิน">🚨 <b>Caught a spy!</b></td>
+          <td data-label="ทำไม"><b>ถ้าไม่มีใครยุ่ง HAD ตรงกันแล้วค่าต้องตรง 100%</b> · ไม่ตรง = มีคนไป READ กลางทาง</td></tr>
+        <tr><td data-label="HAD ตรงกัน?">ไม่ตรง</td>
+          <td data-label="ค่าตรงกัน?">ตรง</td>
+          <td data-label="ตัดสิน">🗑️ ทิ้ง — สรุปอะไรไม่ได้</td>
+          <td data-label="ทำไม">คนละฐาน ผลเป็นการสุ่ม 50/50 อยู่แล้ว ตรงกันก็แค่ฟลุก</td></tr>
+        <tr><td data-label="HAD ตรงกัน?">ไม่ตรง</td>
+          <td data-label="ค่าตรงกัน?">ไม่ตรง</td>
+          <td data-label="ตัดสิน">🗑️ ทิ้ง — สรุปอะไรไม่ได้</td>
+          <td data-label="ทำไม">เหตุผลเดียวกัน — ไม่ตรงเป็นเรื่องปกติเมื่อคนละฐาน <b>ห้ามเอามาฟ้องว่ามีสปาย</b></td></tr>
+      </tbody>
+    </table>
+    <div class="box aha"><span class="tag">🎯 ประโยคที่ต้องจำไปสอบ</span>
+      <p><b>ถ้า HAD ตรงกัน แต่ค่าไม่ตรงกัน → มีสปาย!</b><br>
+      โอกาสจับสปายได้ต่อ qubit 1 ตัวที่เอามาตรวจ = <b>25%</b> (ต้อง HAD ตรงกัน ~50% × สปายทำค่าเพี้ยน ~50%)
+      → ตรวจ n ตัว โอกาสที่สปายจะรอด = 0.75ⁿ ยิ่งตรวจเยอะยิ่งเข้าใกล้ศูนย์</p></div>
+    <div class="box warn"><span class="tag">🪤 กับดักของตารางนี้</span>
+      <p>แถวที่ <b>HAD ไม่ตรงกัน</b> ต้อง<b>ทิ้งทุกกรณี</b> — เอามาสรุปว่า “ค่าไม่ตรง = มีสปาย” ไม่ได้เด็ดขาด
+      เพราะคนละฐานยังไงผลก็มั่ว 50/50 อยู่แล้ว</p></div>
+
     <button type="button" class="next-btn" data-target="lec03">บทถัดไป: Lec03 →</button>
   </section>
 
   <!-- ==== LEC03 ==== -->
-  <section class="page" data-page="lec03">
+  <section class="page" id="lec03" data-page="lec03">
     <p class="kicker">Lec03 · ทวนให้ครบ ไม่ปูใหม่</p>
     <h2>Multi-qubit &amp; Entanglement</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 05 เติม circle notation + operator pairs</p></div>
+    <p class="lead">ครึ่งแรก: register หลาย qubit เขียนเป็นวงยังไง และ gate 1 qubit ทำงานใน register ยังไง (<span class="term" title="การจับคู่วงที่ต่างกันเท่าน้ำหนักบิต">operator pairs</span>) — กลไกกลางของทั้งคาบ</p>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 1</div>
+      <h2>register หลาย qubit = 2ᴺ วง</h2>
+    </div>
+
+    <p><strong>N qubit ได้ 2ᴺ วง ไม่ใช่ 2N วง</strong> — หนึ่งวงต่อหนึ่งค่าที่ READ ออกมาได้ ไม่ใช่หนึ่งคู่วงต่อ qubit
+      เหตุผล: ถ้าวาดแยก qubit ละ 2 วง จะบรรยาย superposition (การซ้อนทับ) ของ<em>กลุ่ม</em>ไม่ได้ — มันเก็บได้แค่ "แต่ละตัวเป็นยังไง" ไม่เก็บ "ความสัมพันธ์ระหว่างตัว"</p>
+
+    <div class="box warn"><span class="tag">กับดักเลข</span>
+      <p>2 qubit → 2×2 = 4 และ 2² = 4 <strong>บังเอิญเท่ากัน</strong> ห้ามจำจากเคสนี้
+        3 qubit → 2×3 = 6 แต่ของจริง 2³ = <strong>8</strong> วง</p>
+    </div>
+
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="3 qubit → 8 วง" data-r="16"></div>
+    </div>
+
+    <p>เลข |i⟩ ใต้วง = ค่าของ register ตีความเป็นเลขฐานสอง โดย qubit ที่ยิงชื่อตาม <strong>น้ำหนักบิต</strong> (0x1 = LSB, 0x2, 0x4 …) <a href="#code-qint">→ ดูโค้ด</a></p>
+
+    <table class="cmp">
+      <thead><tr><th>วง</th><th>0x4</th><th>0x2</th><th>0x1</th></tr></thead>
+      <tbody>
+        <tr><td data-label="วง">|0⟩</td><td data-label="0x4">0</td><td data-label="0x2">0</td><td data-label="0x1">0</td></tr>
+        <tr><td data-label="วง">|1⟩</td><td data-label="0x4">0</td><td data-label="0x2">0</td><td data-label="0x1">1</td></tr>
+        <tr><td data-label="วง">|2⟩</td><td data-label="0x4">0</td><td data-label="0x2">1</td><td data-label="0x1">0</td></tr>
+        <tr><td data-label="วง">|3⟩</td><td data-label="0x4">0</td><td data-label="0x2">1</td><td data-label="0x1">1</td></tr>
+        <tr><td data-label="วง">|4⟩</td><td data-label="0x4">1</td><td data-label="0x2">0</td><td data-label="0x1">0</td></tr>
+        <tr><td data-label="วง">|5⟩</td><td data-label="0x4">1</td><td data-label="0x2">0</td><td data-label="0x1">1</td></tr>
+        <tr><td data-label="วง">|6⟩</td><td data-label="0x4">1</td><td data-label="0x2">1</td><td data-label="0x1">0</td></tr>
+        <tr><td data-label="วง">|7⟩</td><td data-label="0x4">1</td><td data-label="0x2">1</td><td data-label="0x1">1</td></tr>
+      </tbody>
+    </table>
+
+    <div class="box aha"><span class="tag">ตารางนี้คือเครื่องมือ</span>
+      <p>ทั้งส่วน operator pairs ข้างล่างใช้ตารางนี้ตัวเดียวจบ — <strong>gate 1 qubit = ทำอะไรบางอย่างกับ "คอลัมน์" ของตัวเอง</strong></p>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 2</div>
+      <h2>แยกเป็น qubit เดี่ยวได้ vs แยกไม่ได้</h2>
+    </div>
+
+    <p><strong>แยกได้ (product state / สถานะแยกร่าง)</strong> — เช่น |0⟩+|2⟩+|4⟩+|6⟩ เท่าๆ กัน
+      สังเกตว่าบิต 0x1 เป็น 0 ทุกวง แปลว่า register นี้ = "0x1 อยู่ที่ |0⟩ แน่นอน" × "0x2, 0x4 อยู่ในซ้อนทับ 50/50" → เขียนแยกทีละ qubit ได้</p>
+
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="แยกได้" data-mag="0.25,0,0.25,0,0.25,0,0.25,0" data-hl="0,2,4,6"></div>
+    </div>
+
+    <p><strong>แยกไม่ได้ = entanglement (การพัวพัน)</strong> — เช่น GHZ state (|000⟩+|111⟩)/√2 คือ |0⟩ กับ |7⟩ อย่างละ 50%</p>
+
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="GHZ — แยกไม่ได้" data-mag="0.5,0,0,0,0,0,0,0.5" data-hl="0,7"></div>
+    </div>
+
+    <p>เหตุผลที่แยกไม่ได้แบบเห็นภาพ: ถ้าทั้ง 3 ตัวต่างคนต่างโยนเหรียญอิสระ ต้องมีโอกาสได้ 010 หรือ 101 บ้าง
+      แต่ state นี้<strong>ไม่เคย</strong>ให้ผลนอกจาก 000 กับ 111 → ผลของแต่ละตัวผูกกันอยู่ ไม่มีคำตอบว่า "qubit ตัวแรกอยู่สถานะอะไร" แยกเดี่ยวๆ</p>
+
+    <div class="box aha"><span class="tag">ประโยคออกสอบ</span>
+      <p><strong>superposition เป็นสมบัติของ qubit เดี่ยว · entanglement เป็นสมบัติของความสัมพันธ์ (ของทั้งระบบ)</strong>
+        — qubit เดี่ยวๆ entangle กับตัวเองไม่ได้ ต้องมีอย่างน้อย 2 ตัว</p>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 3</div>
+      <h2>กติกาการวาด register: ตั้งชื่อสายตามน้ำหนักบิต</h2>
+    </div>
+
+    <p>สายในวงจร<strong>ไม่</strong>ตั้งชื่อ Q1, Q2, Q3 แต่ตั้งเป็น <code class="code">0x1</code>, <code class="code">0x2</code>, <code class="code">0x4</code> … (8 ตัวเรียกรวมว่า <span class="term" title="8 qubit = 1 ไบต์ควอนตัม">qubyte</span> ไปถึง 0x80)</p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-init="0,0,0"
+           data-ops="H:0; H:1; H:2"
+           data-cap="เส้น<strong>บนสุด = 0x1 (LSB)</strong> ไล่ลงล่างไปบิตที่มีน้ำหนักมากขึ้น"></div>
+    </div>
+
+    <div class="box why"><span class="tag">ทำไมต้องแบบนี้</span>
+      <p>เพื่อให้<strong>วงจรกับ circle notation ตรงกันโดยไม่ต้องแปลง</strong> — เห็น <code class="code">0x2</code> บนวงจร
+        ก็เปิดตารางไบนารีดูคอลัมน์ 0x2 ได้ทันทีว่ากระทบวงไหน ถ้าตั้งชื่อ Q1/Q2/Q3 ต้องมานั่งจำอีกชั้นว่า Q2 คือน้ำหนักเท่าไร (แล้วมักสลับ)</p>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 4 · หัวใจของบท</div>
+      <h2>operator pairs — gate 1 qubit ทำงานใน register ยังไง</h2>
+    </div>
+
+    <p>gate 1 qubit ที่ยิงใส่ register ไม่ได้แตะทีละวง แต่แตะทีละ <strong>คู่</strong>:
+      จับวงที่ index <strong>ต่างกันเท่าน้ำหนักบิตของ qubit ที่ยิง</strong> มาเข้าคู่กัน — 8 วง → ได้ 4 คู่เสมอ</p>
+
+    <table class="cmp">
+      <thead><tr><th>ยิงที่</th><th>คู่ของวง</th><th>ในตารางไบนารี</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="ยิงที่">0x1</td>
+          <td data-label="คู่ของวง">(0,1) (2,3) (4,5) (6,7)</td>
+          <td data-label="ในตารางไบนารี">คู่ที่ต่างกันแค่คอลัมน์ 0x1</td>
+        </tr>
+        <tr>
+          <td data-label="ยิงที่">0x2</td>
+          <td data-label="คู่ของวง">(0,2) (1,3) (4,6) (5,7)</td>
+          <td data-label="ในตารางไบนารี">คู่ที่ต่างกันแค่คอลัมน์ 0x2</td>
+        </tr>
+        <tr>
+          <td data-label="ยิงที่">0x4</td>
+          <td data-label="คู่ของวง">(0,4) (1,5) (2,6) (3,7)</td>
+          <td data-label="ในตารางไบนารี">คู่ที่ต่างกันแค่คอลัมน์ 0x4</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box aha"><span class="tag">ทริกไบนารี</span>
+      <p>อย่าไล่จับคู่ทีละวง ให้มองเป็น<strong>คอลัมน์</strong>:
+        <strong>NOT = flip คอลัมน์นั้นทั้งคอลัมน์</strong> (0↔1 ทุกแถว) แล้วดูว่าแต่ละแถวเลื่อนไปเป็นเลขอะไร ·
+        <strong>PHASE = เลือกเฉพาะแถวที่คอลัมน์นั้นเป็น 1</strong> ·
+        <strong>READ = แบ่งตารางเป็นสองฝั่งตามคอลัมน์นั้น</strong></p>
+    </div>
+
+    <h3 id="lec03-worked">worked example — state ตั้งต้นชุดเดียว ใช้ทั้ง 3 แบบ</h3>
+
+    <p>สมมติ register 3 qubit อยู่ที่ |1⟩, |2⟩, |4⟩, |7⟩ อย่างละ <strong>25%</strong> (วงเท่ากัน 4 วง เข็มชี้ขึ้นหมด):</p>
+
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="ตั้งต้น" data-mag="0,0.25,0.25,0,0.25,0,0,0.25"
+           data-hl="1,2,4,7" data-sub=",25%,25%,,25%,,,25%"></div>
+    </div>
+
+    <h4>(ก) NOT ที่ 0x1 — สลับของในแต่ละคู่</h4>
+    <p>คู่ของ 0x1 = (0,1) (2,3) (4,5) (6,7) → ของในวง <strong>สลับที่กัน</strong> ทั้งขนาดและเข็ม
+      ในตารางไบนารีคือ flip คอลัมน์ 0x1: 1→0, 2→3, 4→5, 7→6 <a href="#code-not-reg">→ ดูโค้ด</a></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="X:0"
+           data-cap="NOT ยิงที่สาย 0x1"></div>
+    </div>
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="หลัง NOT 0x1" data-mag="0.25,0,0,0.25,0,0.25,0.25,0"
+           data-hl="0,3,5,6" data-sub="25%,,,25%,,25%,25%,"></div>
+    </div>
+
+    <div class="box warn"><span class="tag">จำคู่กันไว้</span>
+      <p><strong>NOT ขยับของ</strong> (วงย้ายที่) แต่ <strong>PHASE ไม่ขยับของ</strong> (วงอยู่ที่เดิม หมุนแค่เข็ม)
+        → ความน่าจะเป็นของทุกผลลัพธ์หลัง PHASE ยังเท่าเดิมเป๊ะ</p>
+    </div>
+
+    <h4>(ข) PHASE(45°) ที่ 0x2 — หมุนเข็มของ "ฝั่งขวา" ของทุกคู่</h4>
+    <p>คู่ของ 0x2 = (0,2) (1,3) (4,6) (5,7) — สมาชิกที่ index มากกว่าในแต่ละคู่คือตัวที่บิต 0x2 = <strong>1</strong>
+      กลุ่มนั้นคือ |2⟩ |3⟩ |6⟩ |7⟩ ได้เข็มหมุน 45° ทวนเข็ม ที่เหลือไม่แตะ <a href="#code-phase-reg">→ ดูโค้ด</a></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="P:1:45"
+           data-cap="PHASE(45°) ยิงที่สาย 0x2"></div>
+    </div>
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="หลัง PHASE 0x2" data-mag="0,0.25,0.25,0,0.25,0,0,0.25"
+           data-phase="0,0,45,45,0,0,45,45" data-hl="2,3,6,7" data-sub=",25%,25%,,25%,,,25%"></div>
+    </div>
+
+    <div class="box why"><span class="tag">ทำไม PHASE แตะครึ่งหนึ่ง "เสมอ"</span>
+      <p>เพราะทุกวงถูกจับคู่หมด และในทุกคู่มีตัวที่บิตนั้นเป็น 1 อยู่ <strong>ตัวเดียว</strong>
+        → กลุ่ม "บิตนั้น = 1" มี 2ᴺ⁄2 วง = ครึ่งพอดี ไม่ว่ายิงที่ qubit ไหนหรือ register ใหญ่แค่ไหน
+        (ที่ 3 qubit ก็คือ 4 จาก 8 วง แม้บางวงจะว่างอยู่ก็ถือว่าถูกแตะ)</p>
+    </div>
+
+    <h4>(ค) READ ที่ 0x4 — ตัดครึ่งที่ขัดกับผล แล้ว renormalize</h4>
+    <p>READ ไม่ได้ทำทีละคู่แบบ NOT/PHASE แต่ใช้การแบ่งกลุ่มชุดเดียวกัน: ฝั่ง 0x4 = 0 คือ |0⟩–|3⟩ · ฝั่ง 0x4 = 1 คือ |4⟩–|7⟩ <a href="#code-read-reg">→ ดูโค้ด</a></p>
+
+    <div class="work">
+      <div class="step"><span class="lbl">1</span> P(อ่านได้ 0) = ผลรวมพื้นที่ฝั่ง 0x4=0 = |1⟩ 25% + |2⟩ 25% = <strong>50%</strong></div>
+      <div class="step"><span class="lbl">2</span> P(อ่านได้ 1) = |4⟩ 25% + |7⟩ 25% = <strong>50%</strong></div>
+      <div class="step"><span class="lbl">3</span> สมมติอ่านได้ <strong>1</strong> → วงฝั่ง 0x4=0 (|0⟩–|3⟩) <strong>หายหมด</strong></div>
+      <div class="step"><span class="lbl">4</span> renormalize: ที่เหลือรวมได้ 50% ต้องดันกลับเป็น 100% → หารด้วย 0.5 ทุกวง → |4⟩ 50%, |7⟩ 50%</div>
+    </div>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="READ:2"
+           data-cap="READ เฉพาะสาย 0x4"></div>
+    </div>
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="หลัง READ 0x4 = 1" data-mag="0,0,0,0,0.5,0,0,0.5"
+           data-hl="4,7" data-sub=",,,,50%,,,50%"></div>
+    </div>
+
+    <div class="box warn"><span class="tag">ระวัง</span>
+      <p>READ qubit เดียว <strong>ไม่ยุบทั้ง register</strong> — 0x1 กับ 0x2 ยังซ้อนทับอยู่ (|4⟩ กับ |7⟩ ยังต่างกัน)
+        มันแค่ตัดความเป็นไปได้ครึ่งหนึ่งทิ้ง แล้วเกลี่ยส่วนที่เหลือใหม่</p>
+    </div>
+
+    <table class="cmp">
+      <thead><tr><th>gate</th><th>ทำอะไรกับคู่</th><th>แตะกี่วง</th><th>ความน่าจะเป็นเปลี่ยนไหม</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="gate">NOT</td>
+          <td data-label="ทำอะไรกับคู่">สลับของสองฝั่งของทุกคู่</td>
+          <td data-label="แตะกี่วง">ทุกวง (8)</td>
+          <td data-label="ความน่าจะเป็นเปลี่ยนไหม">ย้ายที่ แต่ค่ารวมเท่าเดิม</td>
+        </tr>
+        <tr>
+          <td data-label="gate">PHASE</td>
+          <td data-label="ทำอะไรกับคู่">หมุนเข็มฝั่งที่บิต = 1</td>
+          <td data-label="แตะกี่วง">ครึ่งเดียว (4)</td>
+          <td data-label="ความน่าจะเป็นเปลี่ยนไหม">ไม่เปลี่ยนเลย</td>
+        </tr>
+        <tr>
+          <td data-label="gate">READ</td>
+          <td data-label="ทำอะไรกับคู่">เลือกฝั่งเดียวของทุกคู่ ทิ้งอีกฝั่ง</td>
+          <td data-label="แตะกี่วง">ลบทิ้งครึ่งหนึ่ง (4)</td>
+          <td data-label="ความน่าจะเป็นเปลี่ยนไหม">เปลี่ยน — ต้อง renormalize</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 5</div>
+      <h2>พอ qubit เยอะ ภาพนี้ก็ใช้ไม่ไหว</h2>
+    </div>
+
+    <p>จำนวนวงโตแบบเลขชี้กำลัง — 32 qubit = 2³² = <strong>4,294,967,296 วง</strong> วาดไม่ไหวและตาก็ดูไม่ทัน
+      QCEngine เลยมีโหมด <code class="code">qc_options.color_by_phase = true</code> ที่<strong>เลิกวาดเข็ม</strong>แล้วใช้<strong>สี</strong>แทนเฟส
+      เหลือแค่ขนาดวง + สี → กวาดตาเห็นแพทเทิร์นของ state ใหญ่ๆ ได้ (เป็นแค่วิธี "มองภาพ" ไม่ใช่ฟิสิกส์ใหม่)</p>
+
+    <details class="recall">
+      <summary>ทวนเร็ว: register 4 qubit ยิง PHASE(90°) ที่ 0x8 กระทบกี่วง และวงไหนบ้าง?</summary>
+        <p>4 qubit = 16 วง → กระทบครึ่งหนึ่ง = <strong>8 วง</strong> คือกลุ่มที่บิต 0x8 = 1 นั่นคือ |8⟩ ถึง |15⟩
+          (ค่าตั้งแต่ 8 ขึ้นไปคือค่าที่บิตน้ำหนัก 8 ติดอยู่) — ความน่าจะเป็นทุกวงเท่าเดิม</p>
+    </details>
+
+    <div class="quiz" data-answer="2">
+      <div class="q">register 3 qubit ยิง NOT ที่ 0x4 ตอนตั้งต้นอยู่ที่ |1⟩ 100% จะไปอยู่ที่วงไหน?</div>
+      <button class="opt">|0⟩</button>
+      <button class="opt">|3⟩</button>
+      <button class="opt">|5⟩</button>
+      <button class="opt">|7⟩</button>
+      <div class="fb ok" data-for="ok">ถูก — flip คอลัมน์ 0x4 ของแถว 001 ได้ 101 = |5⟩ (คู่ของ 0x4 คือ (1,5))</div>
+      <div class="fb no" data-for="no">ยัง — NOT ที่ 0x4 จับคู่ (0,4) (1,5) (2,6) (3,7) → |1⟩ ไปที่ |5⟩ (บวก/ลบ 4 นั่นเอง)</div>
+    </div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">state (|000⟩+|111⟩)/√2 อธิบายให้ตรงตามภาษาที่ออกสอบ ควรพูดว่ายังไง?</div>
+      <button class="opt">qubit แต่ละตัวอยู่ใน superposition และแยกเขียนทีละตัวได้</button>
+      <button class="opt">แยกเขียนทีละ qubit ไม่ได้ — เป็น entanglement ซึ่งเป็นสมบัติของความสัมพันธ์</button>
+      <button class="opt">เป็น product state ที่บังเอิญมี 2 วง</button>
+      <button class="opt">ต้องวาด 6 วงเพราะมี 3 qubit</button>
+      <div class="fb ok" data-for="ok">ใช่ — superposition = สมบัติ qubit เดี่ยว / entanglement = สมบัติของทั้งระบบ</div>
+      <div class="fb no" data-for="no">ไม่ใช่ — GHZ ให้ผลได้แค่ 000 กับ 111 ไม่มีทางได้ 010 → แยกทีละ qubit ไม่ได้ = entangle (และ 3 qubit ต้องวาด 8 วงเสมอ)</div>
+    </div>
+
     <!-- LEC03-B -->
-    <div class="box why"><span class="tag">สถานะ (ต่อ)</span>
-      <p>ยังไม่มีเนื้อหา — ticket 06 เติมส่วน gate หลาย qubit ต่อจากตรงนี้</p></div>
+    <div class="part">
+      <div class="n">ส่วนที่ 6</div>
+      <h2>CNOT — gate ตัวแรกที่ทำให้ qubit "รู้จักกัน"</h2>
+    </div>
+
+    <p>gate ที่ผ่านมาทั้งหมดทำ<strong>เหมือนกันทุกคู่</strong> ในตารางไบนารี จึงสร้าง<strong>ความสัมพันธ์</strong>ระหว่าง qubit ไม่ได้เลย
+      — <span class="term" title="multi-qubit operation">multi-qubit operation</span> คือคำตอบ และตัวแรกคือ
+      <strong>CNOT</strong> = <em>ถ้า control เป็น 1 ค่อย NOT ที่ target</em></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2"
+           data-ops="CNOT:1,0"
+           data-cap="CNOT — ● = control (0x2) · ⊕ = target (0x1) · <b>เส้นตั้งเชื่อมสองสัญลักษณ์เข้าด้วยกัน</b>"></div>
+    </div>
+
+    <div class="box warn"><span class="tag">ระวัง</span>
+      <p><strong>● ไม่จำเป็นต้องอยู่เส้นบนเสมอ</strong> — สไลด์ Lec03 หน้า 41–42 วาง target ไว้เส้นบน (0x1) และ control ไว้เส้นล่าง (0x2)
+        ให้ดูที่<strong>รูปสัญลักษณ์</strong> (● หรือ ⊕) ไม่ใช่ตำแหน่งสูงต่ำ · และถ้า<strong>ไม่มีเส้นตั้ง</strong> = ไม่ใช่ CNOT (เป็น NOT สองตัวแยกกัน)</p>
+    </div>
+
+    <h3>CNOT ในภาษา operator pairs</h3>
+    <p>ใช้ภาษาชุดเดิมจากส่วนที่ 4 ได้เลย — <strong>คู่มาจาก target · เงื่อนไขมาจาก control</strong>:
+      CNOT ที่ target 0x1 / control 0x2 ก็ยังจับคู่แบบ NOT 0x1 คือ (0,1) (2,3) (4,5) (6,7)
+      แต่<strong>สลับจริงเฉพาะคู่ที่บิต 0x2 = 1</strong> เหลือแค่ <strong>(2,3) และ (6,7)</strong></p>
+
+    <table class="cmp">
+      <thead><tr><th>gate</th><th>คู่ที่จับ</th><th>สลับจริงกี่คู่</th><th>สัดส่วนที่โดน</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="gate">NOT 0x1</td>
+          <td data-label="คู่ที่จับ">(0,1) (2,3) (4,5) (6,7)</td>
+          <td data-label="สลับจริงกี่คู่">4 คู่ (ทุกคู่)</td>
+          <td data-label="สัดส่วนที่โดน">ทั้งหมด</td>
+        </tr>
+        <tr>
+          <td data-label="gate">CNOT (target 0x1, control 0x2)</td>
+          <td data-label="คู่ที่จับ">(0,1) (2,3) (4,5) (6,7)</td>
+          <td data-label="สลับจริงกี่คู่">2 คู่ — (2,3) (6,7)</td>
+          <td data-label="สัดส่วนที่โดน">ครึ่งหนึ่ง</td>
+        </tr>
+        <tr>
+          <td data-label="gate">CCNOT (target 0x1, control 0x2+0x4)</td>
+          <td data-label="คู่ที่จับ">(0,1) (2,3) (4,5) (6,7)</td>
+          <td data-label="สลับจริงกี่คู่">1 คู่ — (6,7)</td>
+          <td data-label="สัดส่วนที่โดน">หนึ่งในสี่</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="eq">เติม control 1 ตัว → คู่ที่โดนผล<strong>ลดลงครึ่งหนึ่ง</strong> · control k ตัว = 1/2<sup>k+1</sup> ของทั้งหมด</div>
+
+    <p><strong>CNOT เป็น inverse ของตัวเอง</strong> — ยิงสองครั้งติดกันเท่ากับไม่ได้ทำอะไร (สลับแล้วสลับกลับ)</p>
+
+    <h3>control อยู่ใน superposition → เกิด Bell pair <a href="#code-bell-pair">→ ดูโค้ด</a></h3>
+    <p>ถ้า control เป็น 0 หรือ 1 ชัดเจน CNOT ก็แค่ทำ/ไม่ทำ NOT — ธรรมดามาก
+      แต่ถ้า <strong>control อยู่ใน superposition</strong> (โดนย้อม HAD มาก่อน) CNOT จะทำ "ทำ" กับ "ไม่ทำ" <strong>พร้อมกัน</strong> ผลคือ
+      <span class="term" title="Bell pair / EPR pair">Bell pair</span></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="2" data-wire-labels="a(0x1),b(0x2)"
+           data-ops="WRITE:0 + WRITE:1; H:0; CNOT:0,1; READ:0 + READ:1"
+           data-cap="Bell pair — WRITE 0 ทั้งคู่ → HAD ที่ a → CNOT (a คุม b) → READ ทั้งคู่"></div>
+    </div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+
+    <div class="scrollx">
+      <div class="crow" data-n="4" data-lab="หลัง HAD ที่ a" data-mag="0.5,0.5,0,0"
+           data-hl="0,1" data-sub="50%,50%,,"></div>
+      <div class="crow" data-n="4" data-lab="หลัง CNOT (Bell pair)" data-mag="0.5,0,0,0.5"
+           data-hl="0,3" data-sub="50%,,,50%"></div>
+    </div>
+
+    <div class="box aha"><span class="tag">แกนของมัน</span>
+      <p>เหลือแค่ |0⟩ (= 00) กับ |3⟩ (= 11) อย่างละ 50% → <strong>อ่านได้ 00 หรือ 11 เท่านั้น ไม่มีทางได้ 01 หรือ 10</strong>
+        แต่ละตัวยังสุ่ม 50/50 อยู่ · <strong>ความสัมพันธ์</strong>ต่างหากที่ถูกล็อกไว้ นี่คือ
+        <span class="term" title="entanglement">entanglement (ความพัวพัน)</span></p>
+    </div>
+
+    <div class="box warn"><span class="tag">อย่าจำผิด</span>
+      <p><strong>CNOT ไม่ใช่ "ตัวสร้าง entanglement" โดยอัตโนมัติ</strong> — ถ้าลบ HAD ทิ้ง (control เป็น 0 ชัดเจน)
+        ผลจะได้ 00 ทุกรอบ ไม่พัวพันเลย · ตัวที่ทำให้เกิด entanglement คือ <strong>HAD + CNOT ร่วมกัน</strong></p>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 7</div>
+      <h2>Bell's theorem — โครง 4 ขั้นที่ต้องเล่าได้</h2>
+    </div>
+
+    <p>ผลการทดลอง: อ่าน qubit สองตัวที่พัวพันกัน ได้ผล<strong>ตรงกันทุกรอบ</strong> ไม่ว่าจะแยกกันไกลแค่ไหน
+      คำถามคือ "ทำไม" — และคำอธิบายแบบคลาสสิกมี 2 แบบเท่านั้น</p>
+
+    <h3>ขั้น 1 · คำอธิบายแบบคลาสสิก 2 แบบ</h3>
+    <table class="cmp">
+      <thead><tr><th>คำอธิบาย</th><th>ใจความ</th><th>อุปมา</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="คำอธิบาย">สาเหตุร่วม (common cause)</td>
+          <td data-label="ใจความ">คำตอบถูกเขียนลงไปตั้งแต่ตอนสร้างคู่แล้ว เราแค่ยังไม่เปิดดู — คือมี
+            <span class="term" title="local hidden variables">local hidden variables (ตัวแปรซ่อนเฉพาะที่)</span></td>
+          <td data-label="อุปมา">ถุงมือคู่หนึ่ง แยกใส่กล่องส่งไปคนละทวีป เปิดเจอข้างซ้าย = อีกกล่องข้างขวาแน่</td>
+        </tr>
+        <tr>
+          <td data-label="คำอธิบาย">การสื่อสาร (communication)</td>
+          <td data-label="ใจความ">ตอนอ่านตัวแรก มันส่งสัญญาณไปบอกอีกตัวว่าให้ตอบอะไร</td>
+          <td data-label="อุปมา">โทรศัพท์ลับระหว่างสองกล่อง</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>ขั้น 2 · ทำไมทั้งคู่ไม่พอ</h3>
+    <p>ทั้งสองคำอธิบายทำนายผลได้เหมือนกันหมดถ้าวัดแบบเดิมทุกรอบ — แต่พอ<strong>เปลี่ยนมุมที่ใช้วัด</strong>
+      สองภาพนี้ให้ทำนายที่<strong>ต่างกัน</strong> จึงเถียงกันด้วยการทดลองได้จริง ไม่ใช่แค่ปรัชญา</p>
+
+    <h3>ขั้น 3 · Bell inequality</h3>
+    <p>John Bell เขียน<strong>อสมการ</strong>ที่<strong>ทฤษฎีคลาสสิกแบบ local hidden variables ทุกแบบต้องเคารพ</strong>
+      (เป็นเพดานของค่าความสัมพันธ์ที่เป็นไปได้) — แล้วชี้ว่าควอนตัมทำนายค่าที่<strong>เกินเพดานนั้น</strong>
+      · ผลการทดลองจริง <strong>ละเมิดอสมการ</strong> ตามที่ควอนตัมทำนาย</p>
+
+    <h3>ขั้น 4 · สรุป</h3>
+    <ul>
+      <li>ตัดคำอธิบายแบบ local hidden variables ทิ้ง → <strong>ธรรมชาติเป็นควอนตัมจริงๆ</strong> ไม่ใช่คลาสสิกที่เราแค่ไม่รู้ค่า</li>
+      <li><strong>entanglement เป็นทรัพยากร</strong> — เป็นของที่หยิบไปใช้ทำงานได้ (Lec04 teleportation ใช้ตัวนี้เต็มๆ)</li>
+    </ul>
+
+    <div class="box warn"><span class="tag">กับดักอันดับ 1 ของหัวข้อนี้</span>
+      <p><strong>ละเมิด Bell inequality ≠ ส่งข้อมูลเร็วกว่าแสงได้</strong> (สไลด์หน้า 58 เขียนไว้ชัด)
+        เพราะเรา<strong>เลือกผลของตัวเองไม่ได้</strong> — ผลที่อ่านออกมาสุ่ม 50/50 เสมอ
+        สิ่งที่แชร์กันจึงเป็นแค่ <strong>shared randomness</strong> (ความสุ่มชุดเดียวกัน) ไม่ใช่ช่องทางส่งข้อความ</p>
+    </div>
+
+    <div class="analogy">
+      <div class="cell"><b>QRNG</b><br>สุ่ม 1 บิต ที่เครื่องเดียว</div>
+      <div class="arrow">→</div>
+      <div class="cell"><b>Bell pair</b><br>สุ่ม 1 บิต แต่<strong>สองที่ได้เลขเดียวกัน</strong> โดยไม่ต้องคุยกัน</div>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 8</div>
+      <h2>CPHASE / CZ — เงื่อนไขบน PHASE</h2>
+    </div>
+
+    <p>เอา PHASE (ส่วนที่ 4) มาผสมกับแนวคิด "เงื่อนไข" (ส่วนที่ 6) ตรงๆ ไม่มีของใหม่จากอากาศ:
+      <strong>CPHASE(θ)</strong> = หมุนเข็มเฉพาะค่าที่<strong>ทั้งสอง qubit เป็น 1 พร้อมกัน</strong></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2"
+           data-ops="CP:0,1:45"
+           data-cap="CPHASE(45°) — <b>φ ทั้งสองฝั่ง</b> ไม่มีข้างไหนเป็น control เป็นพิเศษ"></div>
+      <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2"
+           data-ops="CZ:0,1"
+           data-cap="CZ = CPHASE(180°) — สัญลักษณ์ย่อคือ <b>●—●</b> จุดทึบทั้งสองข้าง"></div>
+      <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2"
+           data-ops="H:1; CNOT:0,1; H:1"
+           data-cap="CZ = H → CNOT → H (H คร่อม <b>เส้น target เส้นเดียว</b>) — สะท้อน Z = H·X·H"></div>
+    </div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+
+    <div class="box aha"><span class="tag">หัวใจของหัวข้อนี้</span>
+      <p><strong>CPHASE / CZ สมมาตร</strong> — สลับว่าใครเป็น control ใครเป็น target แล้ว<strong>ผลเหมือนเดิมเป๊ะ</strong>
+        เพราะเงื่อนไข "ทั้งคู่เป็น 1" ไม่แยกแยะว่าใครเป็นใคร นี่คือเหตุผลที่สัญลักษณ์เป็น φ—φ และ ●—●
+        (สองข้างหน้าตาเหมือนกัน) ต่างจาก CNOT ที่ ●—⊕ คนละรูป</p>
+    </div>
+
+    <div class="box why"><span class="tag">เงื่อนไข = ตัวกรอง</span>
+      <p>อย่ามอง control ว่า "สั่งให้ทำ" ให้มองว่ามัน<strong>กรองวงออกไปครึ่งหนึ่ง</strong>:
+        PHASE แตะครึ่งหนึ่ง (4 วงจาก 8) → CPHASE เติมเงื่อนไขอีกชั้น เหลือ <strong>1/4</strong> (2 วง) →
+        control k ตัว เหลือ 1/2<sup>k+1</sup> · ตัว gate ไม่เปลี่ยน เปลี่ยนแค่ว่า "แตะใครบ้าง"</p>
+    </div>
+
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="PHASE(45°) ที่ 0x1 — แตะ 4 วง"
+           data-phase="0,45,0,45,0,45,0,45" data-hl="1,3,5,7"></div>
+      <div class="crow" data-n="8" data-lab="CPHASE(45°) ที่ 0x1 &amp; 0x4 — แตะ 2 วง"
+           data-phase="0,0,0,0,0,45,0,45" data-hl="5,7"></div>
+    </div>
+
+    <p>ในภาษาเมทริกซ์ CZ = <code class="code">diag(1, 1, 1, −1)</code> — แตะเฉพาะช่อง |11⟩ ช่องเดียว</p>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 9 · จุดที่คนพลาดเยอะ</div>
+      <h2>Phase kickback</h2>
+    </div>
+
+    <p>เอา CPHASE ใส่เข้าไปโดยตั้งใจจะไปหมุนเฟสของ <strong>register 2</strong> แต่ผลที่โผล่ออกมาคือ
+      เฟสไป<strong>เกาะที่ register 1</strong> แทน — เฟสมัน "เด้งกลับ" (kickback) <a href="#code-kickback">→ ดูโค้ด</a></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-init="0,0,1"
+           data-names="reg1,reg1,reg2"
+           data-ops="H:0 + H:1; CP:2,0:45; CP:2,1:90"
+           data-cap="phase kickback — reg1 (2 qubit) เข้า superposition ครบ 4 ค่า · reg2 = |1⟩ ตลอด · CPHASE ยิงใส่ reg2 โดยมี reg1 เป็นเงื่อนไข"></div>
+    </div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+
+    <div class="scrollx">
+      <div class="crow" data-n="4" data-lab="reg1 หลังจบวงจร" data-mag="0.25,0.25,0.25,0.25"
+           data-phase="0,45,90,135" data-hl="1,2,3" data-sub="0°,45°,90°,135°"></div>
+      <div class="crow" data-n="2" data-lab="reg2 หลังจบวงจร" data-mag="0,1" data-sub=",100% — ไม่ขยับเลย"></div>
+    </div>
+
+    <div class="box why"><span class="tag">ทำไมถึงเป็นอย่างนั้น</span>
+      <p>ผูกกับส่วนที่ 8 ตรงๆ: <strong>CPHASE สมมาตร</strong> จะบอกว่า reg1 คุม reg2 หรือ reg2 คุม reg1 ก็ถูกทั้งคู่
+        · และ reg2 ถูกเซ็ตเป็น <strong>|1⟩ ตลอดเวลา</strong> เงื่อนไขฝั่ง reg2 จึง<strong>จริงเสมอ</strong>
+        เหลือเงื่อนไขขึ้นกับ reg1 ตัวเดียว → เฟสไปเกาะ reg1 · เฟสสะสม = 0° / 45° / 90° / 135° ตามค่าของ reg1</p>
+    </div>
+
+    <div class="box warn"><span class="tag">🔴 จุดที่ออกสอบแล้วคนพลาด</span>
+      <p><strong>phase kickback ไม่เกิด entanglement</strong> — สถานะสุดท้ายยัง
+        <span class="term" title="separable state">separable (แยกเขียนทีละ register ได้)</span> อยู่: reg1 เป็นของ reg1 · reg2 = |1⟩ นิ่งๆ
+        แยกกันได้สนิท</p>
+      <p style="margin-bottom:0">บทเรียนที่ต้องจำ: <strong>ใช้ gate 2 qubit ≠ เกิด entanglement เสมอไป</strong>
+        (สไลด์หน้า 84 พูดชัดว่านี่คือ "algorithmic power without entanglement")</p>
+    </div>
+
+    <p><strong>เงื่อนไข 2 ข้อที่ทำให้ kickback สะอาด:</strong> ① reg2 ต้องเป็น |1⟩ ② reg2 ต้อง<strong>ไม่</strong>อยู่ใน superposition
+      — ถ้าผิดข้อใดข้อหนึ่ง ผลจะปนกันและอาจพัวพันจริง · kickback เป็นเครื่องมือหลักของ QFT / QPE / Grover / Simon</p>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">วงจร phase kickback ข้างบน จบแล้วสถานะของทั้งระบบเป็นแบบไหน?</div>
+      <button class="opt">พัวพัน (entangled) เพราะใช้ CPHASE ซึ่งเป็น 2-qubit gate</button>
+      <button class="opt">ยังแยกได้ (separable) — reg1 มีเฟสติดมา ส่วน reg2 ยังเป็น |1⟩ เฉยๆ</button>
+      <button class="opt">reg2 กลายเป็น superposition 4 ค่า</button>
+      <button class="opt">ทั้งคู่ยุบเป็นค่าคงที่ อ่านได้ค่าเดียว</button>
+      <div class="fb ok" data-for="ok">ถูก — 2-qubit gate ไม่ได้แปลว่า entangle เสมอ · ที่นี่เฟสไปเกาะ reg1 อย่างเดียว แยกเขียนได้</div>
+      <div class="fb no" data-for="no">ไม่ใช่ — เพราะ reg2 = |1⟩ ตลอด เงื่อนไขฝั่งมันจริงเสมอ ผลเลยตกที่ reg1 ล้วน สถานะยัง separable</div>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 10</div>
+      <h2>CCNOT · SWAP · CSWAP</h2>
+    </div>
+
+    <h3>CCNOT (Toffoli) — "ถ้า A และ B ค่อยพลิก C"</h3>
+    <p>เติม control ให้ NOT อีกตัวหนึ่ง · ตัว NOT เหมือนเดิมทุกอย่าง เปลี่ยนแค่ว่า<strong>เลือกมากขึ้น</strong>
+      (คู่ที่โดนผลลดลงครึ่งหนึ่งตามตารางในส่วนที่ 6) · เป็น gate ที่ใช้ทำ logic ได้ครบที่สุด (Lec05 จะกลับมาใช้เต็มๆ)</p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="X:0"
+           data-cap="NOT ที่ 0x1 — สลับ 4 คู่"></div>
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="CNOT:1,0"
+           data-cap="CNOT — สลับ 2 คู่"></div>
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="CCNOT:1,2,0"
+           data-cap="CCNOT (Toffoli) ●●⊕ — สลับ 1 คู่ คือ (6,7)"></div>
+    </div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+
+    <h3>SWAP = CNOT สามตัวสลับทิศ</h3>
+    <p>SWAP ไม่ได้ย้ายตัว qubit — มัน<strong>แลกข้อมูล</strong>ที่อยู่ในสอง qubit ด้วย CNOT 3 ตัวที่<strong>สลับทิศไปมา</strong></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2" data-ops="SWAP:0,1"
+           data-cap="SWAP — ×—×"></div>
+      <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2"
+           data-ops="CNOT:0,1; CNOT:1,0; CNOT:0,1"
+           data-cap="= CNOT 3 ตัว: ลง → ขึ้น → ลง (สังเกตว่าตัวกลางกลับทิศ)"></div>
+    </div>
+
+    <h3>CSWAP (Fredkin) = CCNOT สามตัว</h3>
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="CSWAP:2,0,1"
+           data-cap="CSWAP — ● (control 0x4) + ×—× · สลับ 0x1 กับ 0x2 เมื่อ 0x4 = 1"></div>
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4"
+           data-ops="CCNOT:0,2,1; CCNOT:1,2,0; CCNOT:0,2,1"
+           data-cap="= CCNOT 3 ตัว (เอาสูตร SWAP มาเติม control 0x4 ให้ทุกตัว)"></div>
+    </div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+
+    <div class="box aha"><span class="tag">จุดที่ทำให้ CSWAP มีค่า</span>
+      <p>ถ้า control อยู่ใน <strong>superposition</strong> → เกิดเส้นทาง "<strong>สลับ</strong>" กับ "<strong>ไม่สลับ</strong>" <strong>พร้อมกัน</strong>
+        — นี่คือกลไกที่ swap test ในส่วนถัดไปเอาไปใช้</p>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 11</div>
+      <h2>Swap test — เทียบสองสถานะโดยไม่ทำลาย</h2>
+    </div>
+
+    <p><strong>ปัญหา:</strong> อยากรู้ว่าสองทะเบียน "เหมือนกันไหม" แต่ READ = การวัดแบบทำลาย (superposition ยุบทันที)
+      และเทียบสถานะควอนตัมตรงๆ ก็ทำไม่ได้ในกรณีทั่วไป โดยเฉพาะเมื่อค่าข้างในไม่รู้/ซ้อนกันอยู่</p>
+
+    <p><strong>วิธีแก้ 5 ขั้น:</strong> ancilla = |0⟩ → HAD → CSWAP (ancilla เป็น control สลับ input1↔input2) → HAD → READ ancilla
+      <a href="#code-swap-test">→ ดูโค้ด</a></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="input1,input2,ancilla" data-init="0,0,0"
+           data-ops="_; H:2; CSWAP:2,0,1; H:2; READ:2"
+           data-cap="swap test (เวอร์ชันมาตรฐาน 5 ขั้น) — ancilla ตัวเดียวเสมอ ไม่ว่า input จะกี่ qubit"></div>
+    </div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+
+    <div class="box why"><span class="tag">ทำไมมันได้ผล</span>
+      <p>HAD ตัวแรกทำให้ ancilla เป็น superposition → CSWAP จึงเปิด<strong>สองเส้นทางพร้อมกัน</strong> (สลับ / ไม่สลับ)
+        → HAD ตัวที่สองเอาสองเส้นทางมา<strong>แทรกสอด (interfere)</strong> กัน
+        · input เหมือนกันเป๊ะ = สลับแล้วหน้าตาเดิม สองเส้นทางเหมือนกัน → เสริมกันเต็มที่
+        · input ยิ่งต่าง สองเส้นทางยิ่งไม่เหมือน → โอกาสได้ผลฝั่ง "ต่าง" ยิ่งมาก</p>
+    </div>
+
+    <div class="eq">P(ancilla อ่านได้ 0) = (1 + |⟨a|b⟩|²) / 2</div>
+
+    <div class="box aha"><span class="tag">🎯 ความไม่สมมาตรของการอ่านผล — ข้อสอบชอบถาม</span>
+      <table class="cmp">
+        <thead><tr><th>อ่าน ancilla ได้</th><th>สรุปได้แค่ไหน</th><th>ทำไม</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-label="อ่าน ancilla ได้"><strong>1</strong> (ฝั่ง "ต่าง")</td>
+            <td data-label="สรุปได้แค่ไหน"><strong>ฟันธงทันที: ไม่เหมือนกันเป๊ะแน่นอน</strong> — รอบเดียวพอ</td>
+            <td data-label="ทำไม">ถ้าเหมือนเป๊ะ P(ได้ 1) = 0 พอดี → เจอ 1 แม้ครั้งเดียวก็ตัดทิ้งได้เลย</td>
+          </tr>
+          <tr>
+            <td data-label="อ่าน ancilla ได้"><strong>0</strong> (ฝั่ง "เหมือน")</td>
+            <td data-label="สรุปได้แค่ไหน"><strong>สรุปไม่ได้</strong> — แค่ "น่าจะเหมือน" ต้องรันซ้ำ</td>
+            <td data-label="ทำไม">แม้ต่างกันสุดขั้ว ก็ยังมีโอกาสได้ 0 ถึง 50% ต่อรอบ</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Fidelity — เปลี่ยน "เหมือน/ไม่เหมือน" เป็นตัวเลข</h3>
+    <p><span class="term" title="fidelity">fidelity (ความเหมือน)</span> = ตัวเลข 0–1 วัดว่าสองสถานะ<strong>ซ้อนทับกันแค่ไหน</strong>
+      · <strong>1</strong> = เหมือนกันเป๊ะ · <strong>0</strong> = ตั้งฉากกัน (ต่างสุดขั้ว)
+      · ความน่าจะเป็นของผลลัพธ์ swap test คือ<strong>มาตรวัด fidelity</strong> โดยตรง — รันซ้ำหลายรอบแล้วนับสัดส่วน = ประมาณ fidelity ได้</p>
+
+    <h3>ต้องรันกี่รอบถึงมั่นใจ 99%</h3>
+    <div class="box"><span class="tag">ผลลัพธ์ (ไม่ต้องเดินสูตรในห้องสอบ)</span>
+      <ul>
+        <li>กรณีหลวมที่สุด (แค่อยากตัดกรณี "ต่างสุดขั้ว" ทิ้ง): แต่ละรอบมีโอกาสหลุดรอด 50%
+          → ต้องเห็นผลฝั่ง "เหมือน" <strong>ติดกัน 7 รอบ</strong> ถึงจะมั่นใจ 99% (0.5⁷ ≈ 0.8% &lt; 1%)</li>
+        <li><strong>7 รอบคือพื้นล่างเท่านั้น</strong> — สไลด์หน้า 103 พล็อตไว้ว่า ยิ่ง<strong>เข้มงวด</strong>ว่าต้องเหมือน "เป๊ะ" แค่ไหน
+          จำนวนรอบยิ่ง<strong>พุ่งชันขึ้นเรื่อยๆ</strong> (แกน y = จำนวนรอบ · แกน x = ความเข้มงวดที่ผ่อนลง)</li>
+        <li>ตรงข้ามกันเลย: <strong>ผลฝั่ง "ต่าง" ครั้งเดียว = จบ ไม่ต้องรันต่อ</strong></li>
+      </ul>
+    </div>
+
+    <div class="box warn"><span class="tag">🔴 กับดักตอนสอบ — สไลด์สองหน้าใช้ convention คนละแบบ</span>
+      <p>สไลด์หน้า 94 บอกว่า "ancilla = |0⟩ → เหมือน · |1⟩ → ต่าง" (วงจร 5 ขั้นมาตรฐาน ตามรูปข้างบน)
+        แต่<strong>โค้ดหน้า 97–99 เติม <code class="code">output.not()</code> ต่อท้ายก่อน READ</strong> → ผลสลับด้าน
+        กลายเป็น "result = 1 ถ้า input เหมือนกัน"</p>
+      <p style="margin-bottom:0"><strong>ทั้งคู่ไม่ผิด</strong> — เป็นวงจรคนละอัน ต่างกันแค่มี NOT ปิดท้ายไหม ·
+        วิธีตอบ: <strong>ดูว่าโจทย์มี <code class="code">output.not()</code> ไหม</strong> — มี NOT → 1 = เหมือน · ไม่มี → 0 = เหมือน</p>
+    </div>
+
+    <p><strong>ใช้ที่ไหน:</strong> quantum fingerprinting · ตรวจสถานะใน quantum machine learning / quantum communication ·
+      เช็คว่า subroutine ทำงานถูก</p>
+
+    <div class="quiz" data-answer="3">
+      <div class="q">รัน swap test แล้วได้ผลฝั่ง "ต่าง" มา 1 ครั้ง สรุปอะไรได้ทันที?</div>
+      <button class="opt">ต้องรันซ้ำอีกหลายรอบถึงจะสรุปได้</button>
+      <button class="opt">fidelity ของสองสถานะนี้ = 1</button>
+      <button class="opt">น่าจะเหมือนกันแต่ยังไม่ชัด</button>
+      <button class="opt">ไม่เหมือนกันเป๊ะ แน่นอนแล้ว</button>
+      <div class="fb ok" data-for="ok">ใช่ — ถ้าเหมือนเป๊ะ โอกาสได้ผลฝั่ง "ต่าง" = 0 พอดี เจอครั้งเดียวก็ฟันธงได้ (นี่คือความไม่สมมาตรของ swap test)</div>
+      <div class="fb no" data-for="no">ทิศกลับกัน — ผลฝั่ง "เหมือน" ต่างหากที่สรุปไม่ได้ ส่วนผลฝั่ง "ต่าง" ครั้งเดียวฟันธงได้เลย</div>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 12 · ปิดคาบ</div>
+      <h2>สร้าง conditional operation เอง + remote-controlled randomness</h2>
+    </div>
+
+    <h3>ถ้า QPU ไม่มี CPHASE ให้ใช้ ก็ประกอบเองได้</h3>
+    <p>QPU จริงหลายรุ่นมีแค่ CNOT · CZ · PHASE · <strong>หลักการทั่วไป</strong> (สไลด์หน้า 105):
+      แตก single-qubit op ออกเป็นชิ้นเล็ก แล้วใช้ <strong>CNOT เป็นตัว "ยกเลิกแบบมีเงื่อนไข"</strong>
+      ให้สองครึ่ง<strong>หักล้างกันเมื่อ control = 0</strong> เท่านั้น <a href="#code-custom-cphase">→ ดูโค้ด</a></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2"
+           data-ops="H:0 + H:1; P:1:45; CNOT:0,1; P:1:-45; CNOT:0,1; P:0:45"
+           data-cap="CPHASE(90°) ประกอบเอง = PHASE(45) → CNOT → PHASE(−45) → CNOT → PHASE(45)"></div>
+    </div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+
+    <div class="box why"><span class="tag">กุญแจ 2 ดอก</span>
+      <p>① PHASE แตกครึ่งได้ (PHASE(90) = PHASE(45)·PHASE(45)) และย้อนได้ (PHASE(45)·PHASE(−45) = ไม่ทำอะไร)<br>
+        ② <strong>PHASE เฉยกับ |0⟩</strong> — หมุนเฉพาะฝั่งที่บิตเป็น 1 (ส่วนที่ 4)</p>
+    </div>
+
+    <table class="cmp">
+      <thead><tr><th>input (0x1, 0x2)</th><th>เกิดอะไรระหว่างทาง</th><th>เฟสสุทธิ</th></tr></thead>
+      <tbody>
+        <tr><td data-label="input">(0, 0)</td>
+          <td data-label="เกิดอะไรระหว่างทาง">0x2 เป็น |0⟩ ตลอด → PHASE ทั้งสองตัวไม่แตะ · 0x1 = 0 → PHASE ตัวท้ายก็ไม่แตะ</td>
+          <td data-label="เฟสสุทธิ"><strong>0°</strong></td></tr>
+        <tr><td data-label="input">(0, 1)</td>
+          <td data-label="เกิดอะไรระหว่างทาง">+45 บน 0x2 · CNOT ไม่พลิก (control = 0) · −45 บน 0x2 หักล้างพอดี · 0x1 = 0 ไม่ได้อะไร</td>
+          <td data-label="เฟสสุทธิ"><strong>0°</strong></td></tr>
+        <tr><td data-label="input">(1, 0)</td>
+          <td data-label="เกิดอะไรระหว่างทาง">+45 ไม่เกิด (0x2 = |0⟩) · CNOT พลิก 0x2 เป็น 1 → โดน −45 · CNOT พลิกกลับ · +45 ลงที่ 0x1</td>
+          <td data-label="เฟสสุทธิ">−45 + 45 = <strong>0°</strong></td></tr>
+        <tr><td data-label="input">(1, 1)</td>
+          <td data-label="เกิดอะไรระหว่างทาง">+45 บน 0x2 · CNOT พลิก 0x2 เป็น |0⟩ → −45 <strong>ไม่เกิด</strong> · CNOT พลิกกลับ · +45 ลงที่ 0x1</td>
+          <td data-label="เฟสสุทธิ">45 + 45 = <strong>+90° ✔ ตรงนิยาม CPHASE(90)</strong></td></tr>
+      </tbody>
+    </table>
+
+    <p>สรุปสั้น: <strong>มีแค่ (1,1) เท่านั้นที่ได้ +90°</strong> ที่เหลือหักล้างเป็น 0° หมด = นิยามของ CPHASE(90) เป๊ะ</p>
+
+    <h3>Remote-controlled randomness (capstone ของคาบ)</h3>
+    <p>โปรแกรมสั้นๆ ที่โชว์ว่า อ่าน qubit ตัวหนึ่ง <strong>เปลี่ยนความน่าจะเป็นของอีกตัวทันที</strong> ข้ามระยะทางเท่าไรก็ได้
+      <a href="#code-remote-random">→ ดูโค้ด</a></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="2" data-wire-labels="a(0x1),b(0x2)"
+           data-ops="WRITE:0 + WRITE:1; H:0 + H:1; P:1:45; H:1; CNOT:0,1; READ:0 + READ:1"
+           data-cap="a.had() · b.had() → b.phase(45) → b.had() → b.cnot(a) → READ ทั้งคู่"></div>
+    </div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+
+    <table class="cmp">
+      <thead><tr><th>อ่านตัวแรกได้</th><th>ตัวที่เหลือกลายเป็น</th></tr></thead>
+      <tbody>
+        <tr><td data-label="อ่านตัวแรกได้">0</td><td data-label="ตัวที่เหลือกลายเป็น">85% ได้ 0 · <strong>15%</strong> ได้ 1</td></tr>
+        <tr><td data-label="อ่านตัวแรกได้">1</td><td data-label="ตัวที่เหลือกลายเป็น">15% ได้ 0 · <strong>85%</strong> ได้ 1</td></tr>
+      </tbody>
+    </table>
+
+    <p>อ่านตัวไหนก่อนก็ได้ ตัวแรกสุ่ม 50/50 เสมอ · เลข 15% มาจาก b.phase(45) ก่อน HAD ตัวที่สอง</p>
+
+    <div class="box warn"><span class="tag">no-signaling — ปิดท้ายให้ตรงกับส่วนที่ 7</span>
+      <p>ความน่าจะเป็นของอีกฝั่งเปลี่ยน<strong>ทันที</strong>จริง แต่<strong>สั่งทิศไม่ได้</strong>
+        (ผลของตัวแรกสุ่ม 50/50 เลือกไม่ได้) → <strong>ส่งข้อมูลเร็วกว่าแสงไม่ได้</strong> เหมือนที่สรุปไว้ตอน Bell's theorem</p>
+    </div>
+
+    <div class="box warn"><span class="tag">สไลด์ผิด</span>
+      <p>ตัวหนังสือหน้า 115/116 เขียนว่า b = <strong>70% / 30%</strong> — <strong>ผิด</strong> ของจริงคือ <strong>85% / 15%</strong>
+        (ตรงกับคอมเมนต์ในโค้ดหน้า 113 และขนาดวงในรูปหน้าเดียวกัน) · 70/30 จะถูกก็ต่อเมื่อมุมเป็น ~66° ไม่ใช่ 45°</p>
+    </div>
+
+    <p class="src">พี่ Zen ทำ assignment ตัวนี้ไปแล้ว — ดูงานเดิมที่
+      <code class="code">assignment/Remote-Controlled-Randomness/remote-controlled-randomness.html</code>
+      (ในเครื่อง) หรือทวนบทเรียนเต็มที่
+      <a href="../lessons/0012-building-conditional-ops-remote-randomness.html">บท 0012</a></p>
+
+    <details class="recall">
+      <summary>ทวนเร็วก่อนไป Lec04: CPHASE สมมาตร แล้วทำไม phase kickback ถึงไม่ entangle?</summary>
+      <p>เพราะ reg2 ถูกตรึงไว้ที่ |1⟩ ตลอด เงื่อนไขฝั่งมันจึงจริงเสมอ ผลของ CPHASE เลยตกไปที่ reg1 ล้วน
+        · reg2 ไม่ขยับเลย → แยกเขียนสองทะเบียนได้สนิท = separable ไม่ใช่ entangled
+        · ต่างจาก HAD + CNOT (Bell pair) ที่ผลของสองตัว<strong>ผูกกัน</strong> แยกเขียนไม่ได้</p>
+    </details>
+
+    <div class="quiz" data-answer="0">
+      <div class="q">ข้อความไหน<strong>ผิด</strong>?</div>
+      <button class="opt">CPHASE ต้องระบุให้ชัดว่า qubit ไหนเป็น control เพราะสลับแล้วผลไม่เหมือนเดิม</button>
+      <button class="opt">SWAP สร้างได้จาก CNOT 3 ตัวที่สลับทิศไปมา</button>
+      <button class="opt">CCNOT กระทบคู่วงน้อยกว่า CNOT ครึ่งหนึ่ง</button>
+      <button class="opt">เจอผล swap test ฝั่ง "ต่าง" ครั้งเดียวก็ฟันธงได้ว่าไม่เหมือนเป๊ะ</button>
+      <div class="fb ok" data-for="ok">ใช่ — ข้อนี้ผิด · CPHASE/CZ <strong>สมมาตร</strong> สลับ control/target แล้วผลเหมือนเดิม สัญลักษณ์จึงเป็น φ—φ และ ●—●</div>
+      <div class="fb no" data-for="no">ข้อที่เลือกถูกอยู่แล้ว · ตัวที่ผิดคือข้อแรก — CPHASE/CZ สมมาตร ไม่มีฝั่ง control ฝั่ง target จริงๆ</div>
+    </div>
     <button type="button" class="next-btn" data-target="lec04">บทถัดไป: Lec04 →</button>
   </section>
 
   <!-- ==== LEC04 ==== -->
-  <section class="page" data-page="lec04">
+  <section class="page" id="lec04" data-page="lec04">
     <p class="kicker">Lec04 · สิทธิ์ "ยาวได้" ทั้งหน้า</p>
     <h2>Teleportation</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 07 จะเติมส่วนนี้ (ใบใหญ่สุด เสี่ยงแตกเป็น 07a/07b)</p></div>
+    <p class="lead">ย้าย <span class="term" title="สถานะควอนตัม = magnitude + relative phase ครบทั้งชุด">state (สถานะ)</span> ของ qubit หนึ่งไปโผล่ที่อีก qubit หนึ่ง โดยไม่ได้ส่งตัว qubit ไปไหนเลย — ใช้ <b>คู่ entangled 1 คู่ + บิตคลาสสิก 2 บิต</b> เท่านั้น</p>
+
+    <div class="box aha"><span class="tag">แกนของบทนี้ — อ่าน 4 บรรทัดนี้ให้เข้าใจก่อน แล้วค่อยเดิน step</span>
+      <ol>
+        <li>CNOT+HAD ฝั่ง Alice = <b>Bell measurement</b> ถามว่า "ความสัมพันธ์ payload–ep เป็นแบบไหนใน 4 แบบ" <b>ไม่ได้ถามว่า payload คืออะไร</b> → ข้อมูลจึงไม่ถูกทำลาย แต่ถูกผลักไปที่ Bob</li>
+        <li><b>HAD จำเป็นเพราะ CNOT อย่างเดียวแยก 4 แบบไม่ออก</b> — ความต่างบางคู่ซ่อนอยู่ในเฟส ซึ่ง READ มองไม่เห็น (โยงกลับ Lec02) · HAD = ตัวแปลง "ความต่างเชิงเฟส → ความต่างที่อ่านได้"</li>
+        <li>READ 2 บิต = สุ่มหยิบ 1 ใน 4 แบบ → qubit ของ Bob = payload ต้นฉบับที่ถูกบิดแบบใดแบบหนึ่ง</li>
+        <li>2 บิตคลาสสิก = ใบสั่งว่าบิดแบบไหน → Bob บิดกลับ → <b>เหตุผลที่ไม่เร็วกว่าแสง</b></li>
+      </ol>
+      <p>ทุกอย่างที่เหลือในหน้านี้คือรายละเอียดของ 4 บรรทัดนี้ ถ้าตอบข้อสอบไม่ได้ ให้ย้อนกลับมาอ่านตรงนี้</p>
+    </div>
+
+    <div class="part"><h2><span class="n">1</span> teleportation คือ / ไม่ใช่อะไร</h2></div>
+
+    <table class="cmp">
+      <thead><tr><th>คือ</th><th>ไม่ใช่</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="คือ">ย้าย <b>สถานะ</b> (magnitude + relative phase ครบทุกหลัก) ไปที่ qubit ปลายทาง</td>
+          <td data-label="ไม่ใช่">ย้าย <b>สสาร</b> / อะตอม / ตัว qubit</td>
+        </tr>
+        <tr>
+          <td data-label="คือ">ต้นฉบับ <b>ถูกทำลาย</b> เสมอ (Alice READ ทิ้งทั้ง payload และ ep)</td>
+          <td data-label="ไม่ใช่">คัดลอก — ถ้าไม่ทำลายต้นฉบับจะละเมิด <span class="term" title="ห้ามคัดลอกสถานะควอนตัมที่ไม่รู้จัก">no-cloning</span> ทันที</td>
+        </tr>
+        <tr>
+          <td data-label="คือ">ต้องมีช่องคลาสสิกส่ง 2 บิต จึงเร็วได้ไม่เกินความเร็วแสง</td>
+          <td data-label="ไม่ใช่">สื่อสารเร็วกว่าแสง — ก่อนได้ 2 บิต Bob ถือของที่ดูเหมือนสุ่มล้วน</td>
+        </tr>
+        <tr>
+          <td data-label="คือ">Alice <b>ไม่จำเป็นต้องรู้</b> ว่า payload คือสถานะอะไร</td>
+          <td data-label="ไม่ใช่">การวัดแล้วบอกค่าไปให้ปลายทางสร้างใหม่ (ทำแบบนั้นไม่ได้ เพราะ state มีข้อมูลต่อเนื่องไม่จำกัด)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box why"><span class="tag">ตัวละคร 3 qubit</span>
+      <p><code class="code">alice</code> = payload (ตัวที่จะถูกส่ง) · <code class="code">ep</code> = ครึ่งหนึ่งของคู่ entangled ที่ Alice ถือ · <code class="code">bob</code> = อีกครึ่งที่ Bob ถือ<br>
+      <b>Alice ถือ 2 ตัว (alice, ep) · Bob ถือ 1 ตัว (bob)</b> — คู่ ep–bob เปรียบเหมือน "สาย LAN ควอนตัม" ที่วางไว้ล่วงหน้า</p>
+    </div>
+
+    <div class="part"><h2><span class="n">2</span> วงจร teleportation ฉบับสมบูรณ์</h2></div>
+
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="alice,ep,bob"
+           data-groups="1-2:entangle; 3-5:prep payload:45°; 6-8:send; 9-10:receive:180°; 11-14:verify:-45°"
+           data-ops="WRITE:0 + WRITE:1 + WRITE:2; H:1; CNOT:1,2; H:0; P:0:45; H:0; CNOT:0,1; H:0; READ:0 + READ:1; CC:1,2 + X:2; CC:0,2 + P:2:180; H:2; P:2:-45; H:2; READ:2"
+           data-cap="วงจรฉบับหนังสือ (สไตล์ QCEngine — ตัวนี้แหละที่ออกสอบ) · <b>ลูกศรประฟ้า = classical control</b>: บิตจาก <b>ep</b> ลงมาคุม ⊕ (NOT) · บิตจาก <b>alice</b> ลงมาคุม φ(180°)"
+           data-alt="วงจร teleportation 3 สาย: entangle, prep payload, send, receive, verify"></div>
+    </div>
+
+    <div class="box"><span class="tag">อ่านวงจรเป็น 5 กล่อง</span>
+      <ol>
+        <li><b>entangle</b> — HAD บน ep แล้ว CNOT(ep→bob) = สร้าง Bell pair</li>
+        <li><b>prep payload 45°</b> — H → φ(45°) → H บน alice เท่านั้น (ในข้อสอบ payload เป็นอะไรก็ได้ ตัวนี้แค่ตัวอย่าง)</li>
+        <li><b>send</b> — CNOT(alice→ep) → HAD(alice) → READ ทั้ง alice และ ep (สายจางลง = ถูกทำลาย)</li>
+        <li><b>receive 180°</b> — บน bob: ⊕ แล้ว φ(180°) ทั้งคู่ถูกคุมด้วยลูกศรประฟ้าจากบิตคลาสสิก</li>
+        <li><b>verify −45°</b> — H → φ(−45°) → H → READ = <b>prep payload แบบย้อนกลับ</b></li>
+      </ol>
+      <p>🔴 สัญลักษณ์ที่ต้องจำไปสอบ: <b>▷ = WRITE</b> ที่หัวสาย · <b>ครึ่งวงกลม = READ</b> · <b>ลูกศรประฟ้าชี้ลง = classical control</b> · กล่องมีชื่อคร่อม gate = การจัดกลุ่มขั้นตอน</p>
+    </div>
+
+    <div class="part"><h2><span class="n">3</span> circle notation 8 วง — สถานะ ณ 5 จุด</h2></div>
+
+    <p>3 qubit → 2³ = <b>8 basis state = 8 วง</b> · <b>น้ำหนักบิต: alice = 1, ep = 2, bob = 4</b><br>
+    เช่น |5⟩ = 101₂ → bob = 1, ep = 0, alice = 1 · พื้นที่วง = ความน่าจะเป็น · เข็ม = phase (<b>ทวนเข็ม = มุมบวก</b>)</p>
+
+    <p><b>จุดที่ 1 — เริ่มต้น</b> (ก่อนทุกอย่าง): ทั้งสามเป็น |0⟩ → มีวงเดียว</p>
+    <div class="crow" data-n="8" data-lab="เริ่มต้น |000⟩" data-mag="1,0,0,0,0,0,0,0" data-hl="0"></div>
+
+    <p><b>จุดที่ 2 — หลัง Bell pair</b> (จบกล่อง entangle): เหลือ |0⟩ กับ |6⟩ อย่างละ 50%</p>
+    <div class="crow" data-n="8" data-lab="หลัง Step 1" data-mag="0.5,0,0,0,0,0,0.5,0" data-hl="0,6"></div>
+    <p class="src">|0⟩ = 000, |6⟩ = 110 → <b>ep กับ bob เท่ากันเสมอ</b> (อ่านได้ 50/50 แต่ตรงกันแน่นอน) ส่วน alice ยังเป็น |0⟩ เดี่ยวๆ</p>
+
+    <p><b>จุดที่ 3 — หลังเตรียม payload</b> (จบกล่อง prep payload): เพิ่มมาเป็น 4 วง</p>
+    <div class="crow" data-n="8" data-lab="หลัง Step 2" data-mag="0.427,0.073,0,0,0,0,0.427,0.073" data-phase="0,-90,0,0,0,0,0,-90" data-hl="1,7"></div>
+    <p class="src">วง alice=1 (|1⟩, |7⟩) เข็มหมุนไป <b>−90°</b> (ตามเข็ม) เทียบกับวง alice=0 · อ่านเฉพาะ alice = <b>85.4% |0⟩ + 14.6% |1⟩ ที่ phase −90°</b> — นี่คือ payload ที่จะส่ง · วง |2⟩|3⟩|4⟩|5⟩ ยังว่าง = ep กับ bob ยังผูกกันอยู่</p>
+
+    <p><b>จุดที่ 4 — หลัง CNOT + HAD</b> (จบ Step 3.2): <b>ครบทั้ง 8 วง</b></p>
+    <div class="crow" data-n="8" data-lab="หลัง Step 3.2" data-mag="0.214,0.214,0.037,0.037,0.037,0.037,0.214,0.214" data-phase="0,0,-90,90,-90,90,0,0"></div>
+    <p class="src">อ่านเป็น <b>คอลัมน์</b>: คอลัมน์หนึ่ง = ค่าคู่ (alice, ep) หนึ่งค่า · ในคอลัมน์นั้น วงบน = bob 0, วงล่าง = bob 1<br>
+    col1 (a=0,ep=0) = |0⟩/|4⟩ · col2 (a=1,ep=0) = |1⟩/|5⟩ · col3 (a=0,ep=1) = |2⟩/|6⟩ · col4 (a=1,ep=1) = |3⟩/|7⟩</p>
+
+    <p><b>จุดที่ 5 — หลัง READ ของ Alice</b> (จบ Step 3.3): เหลือ <b>คอลัมน์เดียว</b> (รูปนี้สุ่มได้ col4: alice=1, ep=1)</p>
+    <div class="crow" data-n="8" data-lab="หลัง Step 3.3" data-mag="0,0,0,0.146,0,0,0,0.854" data-phase="0,0,0,90,0,0,0,0" data-hl="3,7"></div>
+    <p class="src">READ = <b>เลือกคอลัมน์มา 1 คอลัมน์</b> วงนอกคอลัมน์ magnitude เป็นศูนย์หมด แล้ว normalize ใหม่ → กลับมาเป็น 85.4/14.6 เท่าเดิม แค่ <b>สลับหัวท้าย</b> (โดน NOT) และเข็มกลับด้าน (โดน PHASE 180°)</p>
+
+    <div class="part"><h2><span class="n">4</span> เดิน 5 step</h2></div>
+
+    <p><b>Step 1 — สร้าง Bell pair</b> · <code class="code">ep.had(); bob.cnot(ep);</code> <a href="#code-teleport-qasm">→ ดูโค้ด</a><br>
+    HAD+CNOT คู่นี้คือสูตรสร้าง Bell pair เดียวกับ Lec03 → ep กับ bob สุ่ม 50/50 แต่ตรงกันเสมอ</p>
+
+    <p><b>Step 2 — เตรียม payload</b> · <code class="code">alice.write(0); alice.had(); alice.phase(45); alice.had();</code><br>
+    ในงานจริง payload มาจากไหนก็ได้ (คำนวณมา / entangle กับส่วนอื่น) — บทนี้เลือก H–φ45–H เพราะได้ pattern ที่อ่านง่ายในวง</p>
+
+    <p><b>Step 3.1 — เชื่อม payload เข้ากับคู่ entangled</b> · <code class="code">ep.cnot(alice);</code> (control = alice, target = ep)<br>
+    ในภาษาวง = <b>สลับวงในคู่ที่ alice = 1</b> (|1⟩↔|3⟩ และ |5⟩↔|7⟩) · หลังจากนี้เหลือเฉพาะวงที่ <b>XOR ของทั้งสามบิต = 0</b> (000, 011, 101, 110) → จาก entangle 2 ตัว กลายเป็น <b>ก้อน entangled 3 ตัว</b></p>
+
+    <div class="box warn"><span class="tag">⚠️ ตรงนี้คนงงกันเยอะ อ่านช้าๆ</span>
+      <p>ถึงตรงนี้ payload ยัง<b>ไม่ได้</b>ย้ายไปไหน — CNOT แค่ผูกมันเข้ากับอีกสองตัว ส่วนที่ทำให้ข้อมูล "ไหล" ไปหา Bob จริงๆ คือ <b>HAD ใน Step 3.2</b> ต่างหาก ถ้าอ่าน Step 3.2 แล้วยังไม่เข้าใจ ให้ย้อนกลับไปอ่าน "แกน 4 บรรทัด" ข้อ 1–2 อีกรอบก่อน แล้วค่อยกลับมา</p>
+    </div>
+
+    <p><b>Step 3.2 — HAD บน payload</b> · <code class="code">alice.had();</code> ← <b>หัวใจของทั้งบท</b></p>
+    <div class="box why"><span class="tag">ทำไมต้อง HAD ก่อน READ</span>
+      <p>หลัง CNOT อย่างเดียว สถานะที่ Bob "อาจจะได้" มีอยู่ 4 แบบ แต่บางคู่ในนั้น<b>ต่างกันแค่เฟส</b> — และ READ อ่านเฟสไม่เห็นเลย (Lec02: READ เห็นแค่ขนาดวง ไม่เห็นทิศเข็ม) ถ้า Alice READ ตอนนี้ เธอจะแยกไม่ออกว่าเป็นแบบไหน แล้วข้อมูล magnitude+phase ของ payload ก็หายไปเฉยๆ</p>
+      <p><b>HAD คือเครื่องแปลง "ความต่างเชิงเฟส → ความต่างที่อ่านได้"</b> (interference: วงที่เฟสตรงกันเสริมกัน วงที่เฟสตรงข้ามหักล้างกัน) พอผ่าน HAD แล้ว ทั้ง 4 แบบไปอยู่คนละคอลัมน์ที่ READ แยกออก → 2 บิตของ Alice จึงมีความหมายจริง</p>
+      <p>อีกมุมหนึ่ง: <b>CNOT + HAD + READ 2 ตัว = Bell measurement</b> คือการถามว่า "payload กับ ep สัมพันธ์กันแบบไหนใน 4 แบบ" ไม่ใช่ถามว่า "payload คืออะไร" → คำถามที่ไม่แตะเนื้อของ payload ข้อมูลจึงไม่ถูกทำลาย แต่ถูกผลักข้ามไปที่ bob</p>
+    </div>
+
+    <p><b>Step 3.3 — READ ทั้งสองตัวของ Alice</b> · <code class="code">bit_p = alice.read(); bit_n = ep.read();</code><br>
+    ทำลาย qubit ทั้งสองอย่างถาวร — และ<b>ต้อง</b>ทำลาย ไม่งั้นก็เท่ากับ copy สถานะ (ผิด no-cloning) · ผลลัพธ์ = สุ่มเลือก 1 ใน 4 คอลัมน์ ได้ <b>2 บิตคลาสสิก</b> พอดี</p>
+
+    <p><b>Step 4 — Bob รับ 2 บิตแล้วบิดกลับ</b> · <code class="code">if (bit_n) {bob.not();} if (bit_p) {bob.phase(180);}</code> <a href="#code-teleport-fix">→ ดูโค้ด</a><br>
+    ผลลัพธ์: bob กลับมาเป็น payload เดิมเป๊ะ — 85.4% |0⟩ + 14.6% |1⟩ ที่ phase −90°</p>
+    <div class="crow" data-n="2" data-lab="qubit ของ bob หลังบิดกลับ" data-mag="0.854,0.146" data-phase="0,-90" data-sub="85.4%,14.6% @ −90°"></div>
+
+    <p><b>Step 5 — verify</b> · <code class="code">bob.had(); bob.phase(-45); bob.had(); check = bob.read();</code> <a href="#code-teleport-verify">→ ดูโค้ด</a><br>
+    วิธีตรวจ = ให้ Bob รัน <b>ขั้นตอนเตรียม payload แบบย้อนกลับ</b> ถ้า teleport ถูกต้องจริง qubit ต้องกลับไปเป็น |0⟩ เป๊ะ → <code class="code">check</code> ต้องได้ <b>0 เสมอ</b> (ในวงเหลือวงเดียวเต็มวง เข็มชี้ขึ้น) · ถ้าอ่านได้ 1 เมื่อไร = teleport พลาด<br>
+    ⚠️ ข้อจำกัด: ถ้า Bob ได้ของที่ "เกือบถูก" การ verify ก็มักรายงานว่าสำเร็จ → ต้องรันหลายรอบถึงจะมั่นใจ</p>
+
+    <div class="part"><h2><span class="n">5</span> 🎯 ตาราง Bob 4 กรณี — และทำไม X/Z ไม่สลับกัน</h2></div>
+
+    <p>อ่านจากรูป 8 วงที่จุดที่ 4 ทีละคอลัมน์ (วงบน = bob 0, วงล่าง = bob 1) เทียบกับ payload ต้นฉบับ:</p>
+
+    <table class="cmp">
+      <thead><tr><th>บิตที่ Alice อ่านได้</th><th>วงของ bob (คอลัมน์นั้น)</th><th>bob โดนบิดยังไง</th><th>Bob ต้องแก้ด้วย</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="บิตที่ Alice อ่านได้">alice = 0, ep = 0<br><span class="src">col1 = |0⟩/|4⟩</span></td>
+          <td data-label="วงของ bob"><div class="crow" data-n="2" data-mag="0.854,0.146" data-phase="0,-90"></div></td>
+          <td data-label="bob โดนบิดยังไง">ไม่โดนอะไรเลย = payload ตรงเป๊ะ</td>
+          <td data-label="Bob ต้องแก้ด้วย">— (ไม่ต้องทำอะไร)</td>
+        </tr>
+        <tr>
+          <td data-label="บิตที่ Alice อ่านได้">alice = 1, ep = 0<br><span class="src">col2 = |1⟩/|5⟩</span></td>
+          <td data-label="วงของ bob"><div class="crow" data-n="2" data-mag="0.854,0.146" data-phase="0,90"></div></td>
+          <td data-label="bob โดนบิดยังไง">ขนาดวงเท่าเดิม แต่<b>เข็มวงล่างกลับด้าน 180°</b> = โดน PHASE(180)</td>
+          <td data-label="Bob ต้องแก้ด้วย"><b>PHASE(180)</b> (= Z)</td>
+        </tr>
+        <tr>
+          <td data-label="บิตที่ Alice อ่านได้">alice = 0, ep = 1<br><span class="src">col3 = |2⟩/|6⟩</span></td>
+          <td data-label="วงของ bob"><div class="crow" data-n="2" data-mag="0.146,0.854" data-phase="-90,0"></div></td>
+          <td data-label="bob โดนบิดยังไง">วงใหญ่-วงเล็ก<b>สลับที่กัน</b> = โดน NOT</td>
+          <td data-label="Bob ต้องแก้ด้วย"><b>NOT</b> (= X)</td>
+        </tr>
+        <tr>
+          <td data-label="บิตที่ Alice อ่านได้">alice = 1, ep = 1<br><span class="src">col4 = |3⟩/|7⟩</span></td>
+          <td data-label="วงของ bob"><div class="crow" data-n="2" data-mag="0.146,0.854" data-phase="90,0"></div></td>
+          <td data-label="bob โดนบิดยังไง">สลับที่ <b>และ</b> เข็มกลับด้าน</td>
+          <td data-label="Bob ต้องแก้ด้วย"><b>NOT + PHASE(180)</b></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box aha"><span class="tag">ที่มา — ห้ามท่องตารางเปล่าๆ</span>
+      <p>กฎที่ต้องได้คือ <b>บิตจาก ep คุม NOT (X) · บิตจาก alice คุม PHASE(180) (Z)</b> เหตุผลว่าทำไมสลับกันไม่ได้:</p>
+      <ul>
+        <li><b>ep คือฝาแฝดของ bob</b> — ทั้งคู่คือ Bell pair ที่ค่าตรงกันเสมอ (จุดที่ 2: มีแต่วง ep = bob) ดังนั้นข่าวสารว่า "ค่าบิตของ bob ถูกพลิกหรือเปล่า" มีแต่ ep เท่านั้นที่รายงานได้ → <b>ep = ช่องรายงาน bit-flip = คุม X</b></li>
+        <li><b>alice คือตัวที่ผ่าน HAD ก่อน READ</b> — และ HAD คือเครื่องแปลงเฟสให้อ่านได้ (แกนข้อ 2) ดังนั้นบิตของ alice คือผลของการถามว่า "เฟสของสองสายเดิมตรงกันหรือกลับด้าน" → <b>alice = ช่องรายงาน phase-flip = คุม Z</b></li>
+        <li>ดูที่ตารางก็เห็น: แถวที่ <b>ep = 1</b> คือสองแถวที่วง<b>สลับที่</b> (bit-flip) · แถวที่ <b>alice = 1</b> คือสองแถวที่<b>เข็มกลับด้าน</b> (phase-flip) — ไม่ปนกันเลย</li>
+      </ul>
+      <p>ท่องเป็นประโยคเดียว: <b>"ep เป็นฝาแฝดของ bob → รายงานเรื่องบิต (X) · alice ผ่าน HAD → รายงานเรื่องเฟส (Z)"</b></p>
+      <p class="src">เกร็ดที่ช่วยไม่ให้เครียด: ลำดับที่ Bob ทำ X ก่อนหรือ Z ก่อน <b>ไม่มีผล</b> เพราะ XZ กับ ZX ต่างกันแค่ global phase (−1) ซึ่งวัดไม่ได้ · แต่ "บิตไหนคุม gate ไหน" สลับไม่ได้เด็ดขาด</p>
+    </div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">Alice อ่านได้ alice = 0, ep = 1 · Bob ต้องทำอะไรกับ qubit ของเขา?</div>
+      <button class="opt">PHASE(180) อย่างเดียว</button>
+      <button class="opt">NOT อย่างเดียว</button>
+      <button class="opt">ทั้ง NOT และ PHASE(180)</button>
+      <button class="opt">ไม่ต้องทำอะไร</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — ep = 1 คือช่องรายงาน bit-flip → แก้ด้วย NOT (X) · alice = 0 แปลว่าเฟสไม่โดนพลิก จึงไม่ต้อง Z</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — บิตจาก ep คุม NOT (X) เพราะ ep คือฝาแฝดของ bob ที่รายงานเรื่องค่าบิต · ที่นี่ ep = 1 → NOT อย่างเดียว</div>
+    </div>
+
+    <div class="quiz" data-answer="2">
+      <div class="q">ถ้า Alice ข้าม HAD ใน Step 3.2 แล้ว READ เลย จะเกิดอะไรขึ้น?</div>
+      <button class="opt">Bob ได้ payload อยู่ดี แค่ต้องแก้ด้วย gate อื่น</button>
+      <button class="opt">โปรโตคอลเร็วขึ้นเพราะ gate น้อยลง</button>
+      <button class="opt">2 บิตของ Alice แยก 4 กรณีไม่ออก และข้อมูล phase ของ payload หายไปเลย</button>
+      <button class="opt">คู่ entangled จะขาดทันที</button>
+      <div class="fb ok" data-for="ok">ใช่ — ความต่างบางคู่ซ่อนอยู่ในเฟส ซึ่ง READ มองไม่เห็น ต้องให้ HAD แปลงเป็นความต่างที่อ่านได้ก่อน</div>
+      <div class="fb no" data-for="no">ไม่ใช่ — ปัญหาคือ READ เห็นแค่ขนาดวง ไม่เห็นทิศเข็ม ถ้าไม่มี HAD มาแปลงเฟสให้เป็นค่าที่อ่านได้ 2 บิตนั้นก็แยก 4 กรณีไม่ออก</div>
+    </div>
+
+    <div class="part"><h2><span class="n">6</span> QASM ที่รันบน IBM QX</h2></div>
+
+    <p>เป็น<b>โค้ดเดียวในคอร์สที่ไม่ใช่ QCEngine</b> — ใช้ q[0] = alice, q[2] = ep, q[4] = bob (q[1], q[3] ไม่ใช้ เพราะชิป ibmqx4 ต่อ CNOT ได้เฉพาะบางคู่) <a href="#code-teleport-qasm">→ ดูโค้ด</a></p>
+
+    <table class="cmp">
+      <thead><tr><th>คำสั่ง QASM</th><th>สัญลักษณ์วงจร</th><th>ตรงกับ QCEngine</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">h q[0];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="H:0" data-alt="กล่อง H"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.had()</code> — HAD</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">cx q[2], q[4];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="2" data-ops="CNOT:0,1" data-alt="CNOT control บนสายบน"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.cnot()</code> — <b>ตัวแรกคือ control ตัวหลังคือ target</b></td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">x q[0];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="X:0" data-alt="สัญลักษณ์ NOT"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.not()</code> — NOT (bit flip)</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">z q[4];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="Z:0" data-alt="กล่อง Z"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.phase(180)</code> — Z = PHASE(180°)</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">t q[0];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="P:0:45" data-alt="กล่องเฟส 45 องศา"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.phase(45)</code> — T gate = PHASE(45°)</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">tdg q[4];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="P:0:-45" data-alt="กล่องเฟส ลบ 45 องศา"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.phase(-45)</code> — T† = PHASE(−45°) ใช้ตอน verify</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">measure q[0] -&gt; c[0];</code></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="READ:0" data-alt="detector READ"></div></td>
+          <td data-label="ตรงกับ QCEngine"><code class="code">.read()</code> — READ ลงบิตคลาสสิก c[0]</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง QASM"><code class="code">barrier q[0],...;</code></td>
+          <td data-label="สัญลักษณ์วงจร">เส้นประแนวตั้ง (ไม่มีใน QCEngine)</td>
+          <td data-label="ตรงกับ QCEngine">แค่กั้นไม่ให้ compiler จับ gate ไปรวมกัน — <b>ไม่เปลี่ยนสถานะ</b></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box warn"><span class="tag">⚠️ สองเวอร์ชันในสไลด์เดียว — อย่าจำปนกัน</span>
+      <p>วงจรฉบับหนังสือ (p15) เตรียม payload ด้วย <b>H → φ45 → H</b> · แต่โค้ด QASM (p6) ใช้ <b>x → h → t</b> (= NOT → HAD → PHASE 45°) เป็นคนละชุดกัน แต่ละชุดสอดคล้องกับ verify ของตัวเอง (verify = prep แบบย้อนกลับเสมอ) — <b>ตอบตามรูปที่โจทย์ให้มา</b></p>
+      <p>อีกจุด: โค้ด QASM Step 3 เขียน <code class="code">h q0; h q2; cx q2,q0; h q2;</code> ซึ่งดูไม่เหมือนวงจร p15 — เพราะชิป ibmqx4 ต่อ CNOT ได้ทิศเดียว จึงใช้เอกลักษณ์ <b>CNOT(a→b) = (H⊗H)·CNOT(b→a)·(H⊗H)</b> แล้ว H ตัวท้ายหักล้างกับ HAD ที่โปรโตคอลต้องใช้อยู่แล้วพอดี</p>
+    </div>
+
+    <div class="part"><h2><span class="n">7</span> post-selection</h2></div>
+
+    <ol>
+      <li>โค้ด QASM <b>ไม่มี <code class="code">if</code></b> — Bob ทำ <code class="code">x</code> แล้ว <code class="code">z</code> (NOT + PHASE 180°) <b>ทุกครั้ง</b> ไม่ว่า Alice จะอ่านได้อะไร</li>
+      <li>ดังนั้นผลลัพธ์จะถูกต้องเฉพาะรอบที่ Alice บังเอิญอ่านได้ <b>alice = 1 และ ep = 1</b> (คือกรณีที่ต้องแก้ทั้ง NOT และ PHASE พอดี)</li>
+      <li><b>post-selection</b> = ทิ้งรอบอื่นทั้งหมด เก็บมาดูเฉพาะรอบที่ Bob บังเอิญทำถูก แล้วค่อยดูว่า READ ตรวจสอบของ Bob ได้ 0 หรือไม่</li>
+    </ol>
+
+    <div class="box"><span class="tag">ฝึกวาดวงจรต่อ</span>
+      <p>ถ้าอยากซ้อมวาด/ไล่วงจร teleport ทีละคอลัมน์ มีชุดฝึกแยกอยู่แล้ว → <a href="../lessons/extra-teleportation-circuit-drill.html">แบบฝึกวาดวงจร teleportation</a></p>
+    </div>
+
+    <details class="recall"><summary>ทวนเร็ว: เล่า teleportation ให้จบใน 4 ประโยค</summary>
+      <p>1) Alice กับ Bob แชร์คู่ entangled ไว้ล่วงหน้า · 2) Alice ทำ CNOT + HAD กับ payload และครึ่งของเธอ แล้ว READ ได้ 2 บิต — เป็นการถาม "ความสัมพันธ์ 1 ใน 4 แบบ" ไม่ใช่ถามว่า payload คืออะไร · 3) qubit ของ Bob กลายเป็น payload ที่ถูกบิดตาม 1 ใน 4 แบบนั้นทันที · 4) Alice ส่ง 2 บิตทางช่องคลาสสิก (ช้ากว่าแสงเสมอ) Bob ใช้บิตจาก ep คุม NOT และบิตจาก alice คุม PHASE(180) บิดกลับ → ได้ payload เดิมเป๊ะ ส่วนต้นฉบับถูกทำลายไปแล้ว</p>
+    </details>
+
     <button type="button" class="next-btn" data-target="lec05">บทถัดไป: Lec05 →</button>
   </section>
 
   <!-- ==== LEC05 ==== -->
-  <section class="page" data-page="lec05">
+  <section class="page" id="lec05" data-page="lec05">
     <p class="kicker">Lec05</p>
     <h2>Arithmetic &amp; Logic</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 08 จะเติมส่วนนี้</p></div>
+    <p class="lead">แกนของคาบนี้: เอาเลขคณิตแบบดิจิทัลมาทำบน qubit register ที่อยู่ใน superposition (การซ้อนทับ) โดยไม่ละเมิดกฎ 2 ข้อของ QPU — แล้วปิดท้ายด้วยการแปลง logic gate ดิจิทัลทั้ง 6 ตัวให้เป็นวงจรควอนตัม</p>
+
+    <div class="box why" id="lec05-rules"><span class="tag">กติกา 2 ข้อ ที่ทุกอย่างในคาบนี้ต้องเคารพ</span>
+      <p><b>① ก๊อป qubit ไม่ได้</b> (no-cloning) → operator <code class="code">=</code> ใช้ assign ค่าจาก qubit หนึ่งไปอีก qubit หนึ่ง<b>ไม่ได้</b> · QPU <i>ย้าย</i> qubit ได้ด้วย exchange/SWAP แต่ไม่มี QPU ตัวไหน implement คำสั่ง COPY</p>
+      <p><b>② ทุก operation ที่ไม่ใช่ READ ต้อง reversible (ย้อนกลับได้)</b> — READ เป็น operation เดียวที่ irreversible · ถ้าใช้ READ เยอะเพื่อเลี่ยงข้อนี้ การคำนวณจะกลายเป็นคลาสสิกและเสีย quantum advantage ไปหมด</p>
+      <p>ทางลัดที่ใช้ได้เสมอ: แปลงวงจรดิจิทัลให้เหลือแต่ประตูที่ reversible (เช่น Toffoli) แล้วค่อยยกไปลงบน quantum register</p>
+    </div>
+
+    <div class="part"><h2><span class="n">1</span> เลขคณิตพื้นฐานบน qubit register</h2></div>
+
+    <h3>increment (+1) — จริงๆ แล้วมันคือ "การทดเลข"</h3>
+    <p>ใช้ register 4 qubit (qunibble) ป้ายสาย <code class="code">0x1</code> = บิตต่ำสุดอยู่<b>บนสุด</b> · <code class="code">0x8</code> = บิตสูงสุดอยู่ล่างสุด</p>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x4,0x8"
+           data-groups="0-3:increment"
+           data-ops="CTRL:0,1,2 + X:3; CCNOT:0,1,2; CNOT:0,1; X:0"
+           data-out="0-3:a + 1"
+           data-cap="increment-by-1 — ไล่จาก gate ที่มี control เยอะสุด ไปหาน้อยสุด จบที่ NOT เดี่ยวบน 0x1"
+           data-alt="วงจร increment 4 qubit"></div>
+    </div>
+    <div class="box aha"><span class="tag">อ่านวงจรนี้ยังไง</span>
+      <p>คอลัมน์แรกคือ CNOT ที่มี control 3 จุด แปลว่า <i>"ถ้าบิตล่างทั้งหมดเป็น 1 หมด ค่อยพลิกบิตบนสุด"</i> — <b>นี่คือการทดเลข (carry) ของเลขคณิตแบบเดิมเป๊ะๆ</b> แล้วทำซ้ำโดยลด control ทีละตัวจนเหลือ NOT เดี่ยวที่บิตต่ำสุด</p>
+      <p>ทำไมต้องไล่จากบิตสูงลงบิตต่ำ? เพราะถ้าพลิกบิตต่ำก่อน เงื่อนไข carry ของบิตสูงจะอ่านค่าที่เปลี่ยนไปแล้ว → ผิด</p>
+    </div>
+    <p><b>decrement (−1)</b> = <b>วงจรเดียวกันแต่กลับลำดับ gate ทั้งหมด</b> (<code class="code">X:0</code> → <code class="code">CNOT:0,1</code> → <code class="code">CCNOT:0,1,2</code> → 3-control) — ไม่ต้องจำวงจรใหม่ จำแค่ว่า "กลับหลัง" <a href="#code-subtract-1">→ ดูโค้ด</a></p>
+
+    <h3>add(12) — ตัวเลขต่างกัน วงจรก็ต่างกัน</h3>
+    <p>ไม่ต้องวาดใหม่ทั้งชุด — <code class="code">a.add(12)</code> ใช้แค่ <b>2 คอลัมน์</b> คือ <code class="code">X:2</code> แล้ว <code class="code">CNOT:2,3</code> เพราะ 12 = <code class="code">1100₂</code> แตะแค่บิตบน (ลำดับสำคัญ: X ก่อน CNOT ถ้าสลับจะได้ 1→5 ซึ่งผิด)</p>
+    <div class="box warn"><span class="tag">overflow = wrap รอบ mod 16</span>
+      <p>register 4 บิตเก็บได้ 0–15 · <code class="code">1 + 12 = 13</code> ✓ แต่ <code class="code">5 + 12 = 17 → 17 mod 16 = 1</code> · เฟส (phase) ของแต่ละค่าติดตามค่าไปด้วย — <code class="code">|5⟩</code> ที่มีเข็ม 45° กลายเป็น <code class="code">|1⟩</code> ที่มีเข็ม 45°</p>
+      <p>จุดสังเกตเชิงแนวคิด: <code class="code">add(12)</code> เป็นเลขคณิตระหว่างค่า<b>ดิจิทัลคงที่</b>กับค่า<b>ควอนตัม</b> — เปลี่ยนตัวเลขทีต้องเปลี่ยนชุด gate ที</p>
+    </div>
+
+    <h3>ทำไม <code class="code">c = a + b</code> ใช้ไม่ได้</h3>
+    <div class="box warn" id="lec05-no-c-equals"><span class="tag">ละเมิดกติกาทั้ง 2 ข้อพร้อมกัน</span>
+      <p><b>เสีย reversibility</b> — ค่าเดิมที่อยู่ใน <code class="code">c</code> ถูกเขียนทับหายไป ย้อนกลับไม่ได้</p>
+      <p><b>เสีย no-copying</b> — ถ้า <code class="code">c = a + b</code> ทำได้ เราก็ทำ <code class="code">b = c − a</code> ต่อได้ → จบลงด้วยสำเนา superposition ของ <code class="code">a</code> สองชุด ซึ่งขัด no-cloning</p>
+      <p>ทางออก: ใช้ <code class="code">+=</code> คือบวกเลขตัวหนึ่ง<b>ลงบน</b>อีกตัวโดยตรง ไม่สร้าง register ใหม่</p>
+    </div>
+
+    <h3><code class="code">a += b</code> — บวก quantum integer สองตัว</h3>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="6" data-names="a,a,a,a,b,b"
+           data-wire-labels="0x1,0x2,0x4,0x8,0x1,0x2"
+           data-groups="0-3:รอบของ b·0x1; 4-6:รอบของ b·0x2"
+           data-ops="CTRL:0,1,2,4 + X:3; CTRL:0,1,4 + X:2; CCNOT:0,4,1; CNOT:4,0; CTRL:1,2,5 + X:3; CCNOT:1,5,2; CNOT:5,1"
+           data-out="0-3:a + b"
+           data-cap="a += b — ต่างจาก add(ค่าคงที่) ตรงที่ไม่ต้องเปลี่ยน gate เมื่อ input เปลี่ยน"
+           data-alt="วงจร a += b 6 สาย"></div>
+    </div>
+    <div class="box aha"><span class="tag">สูตรจำ</span>
+      <p><code class="code">a += b</code> = <b>เอาวงจร increment ของ a มาซ้ำ 1 รอบต่อบิตของ b โดยพ่วง control จากบิตนั้นเข้าไปทุก gate</b></p>
+      <p>รอบที่ 1 (คอลัมน์ ①–④) พ่วง <code class="code">b·0x1</code> เป็น control เพิ่ม แล้วไล่จาก <code class="code">a·0x8</code> ลงมา <code class="code">a·0x1</code> = "ถ้า b บิต 0 ติด ให้ a += 1"</p>
+      <p>รอบที่ 2 (คอลัมน์ ⑤–⑦) พ่วง <code class="code">b·0x2</code> แล้ว<b>เริ่มที่ a·0x2 แทน</b> (เลื่อนขึ้น 1 บิตตามน้ำหนัก 2 ของบิตนั้น) = "ถ้า b บิต 1 ติด ให้ a += 2"</p>
+    </div>
+    <p><b><code class="code">a -= b</code></b> = <b>ชุด gate เดิมรันย้อนลำดับ</b> (⑦⑥⑤④③②①) ไม่วาดใหม่ · กล่อง <code class="code">prepare</code> ในสไลด์มีไว้ป้อน input ทดสอบเท่านั้น ไม่ใช่ส่วนหนึ่งของ operation <a href="#code-add-b">→ ดูโค้ด</a></p>
+
+    <h3>จำนวนเต็มลบ — two's complement</h3>
+    <p>แบ่งค่าที่เป็นไปได้ครึ่งหนึ่งให้จำนวนลบ อีกครึ่งให้จำนวนบวก · register 3 บิตจึงแทน −4, −3, −2, −1, 0, 1, 2, 3</p>
+    <table class="cmp">
+      <thead><tr><th>ค่า</th><th>ไบนารี 3 บิต</th><th>บิตสูงสุด = เครื่องหมาย</th></tr></thead>
+      <tbody>
+        <tr><td data-label="ค่า">0</td><td data-label="ไบนารี 3 บิต"><code class="code">000</code></td><td data-label="บิตสูงสุด">0 = บวก</td></tr>
+        <tr><td data-label="ค่า">1</td><td data-label="ไบนารี 3 บิต"><code class="code">001</code></td><td data-label="บิตสูงสุด">0 = บวก</td></tr>
+        <tr><td data-label="ค่า">2</td><td data-label="ไบนารี 3 บิต"><code class="code">010</code></td><td data-label="บิตสูงสุด">0 = บวก</td></tr>
+        <tr><td data-label="ค่า">3</td><td data-label="ไบนารี 3 บิต"><code class="code">011</code></td><td data-label="บิตสูงสุด">0 = บวก</td></tr>
+        <tr><td data-label="ค่า">−4</td><td data-label="ไบนารี 3 บิต"><code class="code">100</code></td><td data-label="บิตสูงสุด">1 = ลบ</td></tr>
+        <tr><td data-label="ค่า">−3</td><td data-label="ไบนารี 3 บิต"><code class="code">101</code></td><td data-label="บิตสูงสุด">1 = ลบ</td></tr>
+        <tr><td data-label="ค่า">−2</td><td data-label="ไบนารี 3 บิต"><code class="code">110</code></td><td data-label="บิตสูงสุด">1 = ลบ</td></tr>
+        <tr><td data-label="ค่า">−1</td><td data-label="ไบนารี 3 บิต"><code class="code">111</code></td><td data-label="บิตสูงสุด">1 = ลบ</td></tr>
+      </tbody>
+    </table>
+    <div class="box aha"><span class="tag">ทำไมถึงเลือกแบบนี้</span>
+      <p>เพราะ<b>วิธีบวก/ลบที่คิดไว้สำหรับจำนวนบวก ใช้กับ two's complement ได้เลยโดยไม่ต้องแก้อะไร</b> — วงจร increment ตัวเดียวกันเป๊ะ · และบิตสูงสุดกลายเป็นตัวบอกเครื่องหมายฟรีๆ</p>
+      <p>วิธีคิดเร็ว: <b>กลับทุกบิต แล้ว +1</b> · ระวังตอนอ่านผล — <code class="code">111</code> แปลว่า 7 หรือ −1 ขึ้นกับว่าตกลงกันไว้ว่าใช้ two's complement หรือเปล่า</p>
+    </div>
+
+    <h3>วงจร negate (<code class="code">a = -a</code>)</h3>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x4,0x8"
+           data-groups="0-0:NOT; 1-4:+1"
+           data-ops="X:0 + X:1 + X:2 + X:3; CTRL:0,1,2 + X:3; CCNOT:0,1,2; CNOT:0,1; X:0"
+           data-out="0-3:-a"
+           data-cap="two's complement negation — flip ทุกบิต แล้วต่อด้วยวงจร increment ตัวเดิม"
+           data-alt="วงจร negate two's complement"></div>
+    </div>
+    <div class="box warn" id="lec05-abs-trap"><span class="tag">🎯 กับดักที่ออกสอบได้ — abs(−4) = −4</span>
+      <p>ใน 3 บิตเก็บได้แค่ −4…3 · negate ของ <code class="code">100</code> (= −4) คือ flip → <code class="code">011</code> แล้ว +1 → <code class="code">100</code> = <b>−4 เหมือนเดิม</b></p>
+      <p>ดูเหมือนบั๊ก แต่เป็น<b>คำตอบที่ถูก</b> เพราะ +4 อยู่นอกช่วงที่ 3 บิตเก็บได้ — ตรงกับ <code class="code">abs(INT_MIN)</code> ในภาษา C ที่คืนค่าลบเหมือนกัน</p>
+      <p>กับดักคำตอบผิดที่มักเลือก: <code class="code">011</code> (ลืม +1) หรือ <code class="code">000</code></p>
+    </div>
+
+    <h3>🎯 <code class="code">b²</code> — สูตรทั่วไป (ข้อสอบเปลี่ยนจำนวนบิตได้)</h3>
+    <p>สไลด์กางไว้แค่เคส 2 บิต ถ้าโดนถาม 3 บิตต้องกางเองได้ · แกนของมันมีบรรทัดเดียว:</p>
+    <p class="eq">b<sub>i</sub>² = b<sub>i</sub> &nbsp;(เพราะบิตมีแค่ 0 กับ 1: 0²=0, 1²=1)</p>
+    <p>ตั้ง <code class="code">b = Σ 2ⁱ·bᵢ</code> แล้วกระจายกำลังสอง จะได้เทอม 2 แบบ:</p>
+    <div class="work">
+      <div class="step"><span class="lbl">เทอมเดี่ยว</span> (2ⁱbᵢ)² = 2<sup>2i</sup>·bᵢ² = <b>2<sup>2i</sup>·bᵢ</b></div>
+      <div class="step"><span class="lbl">เทอมคู่ i&lt;j</span> 2·(2ⁱbᵢ)(2ʲbⱼ) = <b>2<sup>i+j+1</sup>·bᵢbⱼ</b></div>
+    </div>
+    <p><b>กาง 2 บิต</b> (b = b₀ + 2b₁):</p>
+    <p class="eq">b² = b₀ + 4b₁ + 4b₀b₁</p>
+    <p><b>กาง 3 บิต</b> (b = b₀ + 2b₁ + 4b₂):</p>
+    <p class="eq">b² = b₀ + 4b₁ + 16b₂ + 4b₀b₁ + 8b₀b₂ + 16b₁b₂</p>
+    <div class="box aha"><span class="tag">วิธีเช็กเร็วในห้องสอบ — แทนค่า</span>
+      <p><b>b = 5</b> = <code class="code">101₂</code> → b₀=1, b₁=0, b₂=1 → 1 + 0 + 16 + 0 + 8 + 0 = <b>25</b> ✓</p>
+      <p><b>b = 7</b> = <code class="code">111₂</code> → ทุกบิต = 1 → 1 + 4 + 16 + 4 + 8 + 16 = <b>49</b> ✓</p>
+      <p>แทน 2 ค่านี้ผ่านแล้วมั่นใจได้เลยว่ากางถูก</p>
+    </div>
+    <p>วงจร <code class="code">a.addSquared(b)</code> ในสไลด์ (12 คอลัมน์) ก็คือการแปลสูตร 2 บิตนี้เป็น gate ตรงๆ: <code class="code">b₀</code> เป็น control → a += 1 · <code class="code">b₀∧b₁</code> เป็น control → a += 2 <b>ทำสองรอบ</b> (= +4) · <code class="code">b₁</code> เป็น control → a += 4</p>
+    <div class="box warn"><span class="tag">ทำไม <code class="code">b = b*b</code> ทำไม่ได้ แต่ <code class="code">a += b*b</code> ได้</span>
+      <p><code class="code">b = b*b</code> — ไม่มีชุด operation ที่ reversible ชุดไหนทำได้เลย เพราะ<b>เสีย sign bit (บิตเครื่องหมาย) ไปเสมอ</b> (b และ −b ให้ผลเดียวกัน → ย้อนกลับแยกไม่ออก)</p>
+      <p><code class="code">a += b*b</code> — ไม่มีปัญหา เพราะตัวย้อนกลับของมันคือ <code class="code">a -= b*b</code> เฉยๆ และ <code class="code">b</code> ยังอยู่ครบไม่ถูกแตะ</p>
+    </div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">register 3 บิตแบบ two's complement · หลังรันวงจร negate กับค่า <code class="code">100</code> จะได้อะไร?</div>
+      <button class="opt"><code class="code">011</code> (= 3)</button>
+      <button class="opt"><code class="code">100</code> (= −4 เท่าเดิม)</button>
+      <button class="opt"><code class="code">000</code> (= 0)</button>
+      <div class="fb ok" data-for="ok">ถูก — flip ได้ <code class="code">011</code> แล้ว +1 กลับมาเป็น <code class="code">100</code> · +4 ล้นช่วงของ 3 บิต ผลจึงค้างที่ −4</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — flip ทุกบิตได้ <code class="code">011</code> แต่ยังต้อง <b>+1</b> ต่ออีก → <code class="code">100</code> = −4</div>
+    </div>
+
+    <div class="part"><h2><span class="n">2</span> ครึ่งหลัง — เอาแค่ไอเดีย</h2></div>
+    <p class="lead">4 หัวข้อนี้ต่อยอดจากของข้างบน จับแก่นให้ได้ก็พอ ไม่ต้องเดินวงจรทีละสเต็ป</p>
+
+    <h3 id="lec05-cond">Quantum-Conditional Execution</h3>
+    <p>คลาสสิก: CPU ต้อง<b>อ่านค่า</b>ก่อน แล้วค่อยตัดสินใจว่าจะรัน logic หรือไม่ · QPU: ค่าหนึ่ง<b>เป็นทั้งเซ็ตและไม่เซ็ตพร้อมกันได้</b> → operation ที่ขึ้นกับค่านั้นจึง<b>ทั้งรันและไม่รันพร้อมกันใน superposition</b> — ใช้ได้ถึงระดับรัน digital logic ก้อนใหญ่แบบมีเงื่อนไข</p>
+    <div class="box aha"><span class="tag">ทริกที่ต้องจำ — <code class="code">b.not(~1)</code></span>
+      <p>ปัญหา: control (●) อ่านได้แค่ "บิตนี้เป็น 1" · แต่เงื่อนไข <code class="code">b == 1</code> คือ <code class="code">01₂</code> ซึ่งมีเลข 0 ปนอยู่</p>
+      <p>ทริก: พลิกบิตที่ควรเป็น 0 ให้เป็น 1 ก่อน (<code class="code">b.not(~1)</code> = พลิกทุกบิตยกเว้น <code class="code">0x1</code>) → เงื่อนไขกลายเป็น "ทุกบิตของ b เป็น 1" ใช้ทุกบิตเป็น control ได้เลย → ใช้เสร็จแล้ว<b>พลิกกลับคืน</b> <a href="#code-not-mask">→ ดูโค้ด</a></p>
+    </div>
+
+    <h3>Phase-Encoded Results</h3>
+    <p>ย้ายผลลัพธ์ของการคำนวณไปเก็บใน <b>relative phase (เฟสสัมพัทธ์)</b> ของ register อินพุตเดิม แทนที่จะเก็บใน magnitude — สิ่งที่บิตธรรมดาทำไม่ได้เลย · <b>magnitude ไม่ขยับสักวง แต่เข็มบางวงกลับด้าน</b></p>
+    <p>นี่คือรากของ oracle ในอัลกอริทึมยุคหลัง (เช่น Grover) และเป็นทักษะที่ทำให้คำตอบ "รอด" การ READ ได้</p>
+
+    <h3>Scratch qubit &amp; <code class="code">abs(a)</code></h3>
+    <p><code class="code">abs</code> จับคู่หลายอินพุตไปเอาต์พุตเดียว (−3 และ 3 → 3) = ไม่ 1-ต่อ-1 = ไม่ reversible → ทำตรงๆ ไม่ได้ ต้องเพิ่ม <b>scratch qubit (คิวบิตทด)</b> เข้ามารับข้อมูลที่จะหาย (ในที่นี้คือ sign bit)</p>
+    <div class="box warn" id="lec05-scratch"><span class="tag">scratch ไม่ใช่การ copy</span>
+      <p>อ่านจาก circle notation: ถ้าไม่มี scratch ผังจะมีแค่<b>แถวเดียว</b> การย้ายวงของค่าลบไปทับช่องค่าบวกจะทำลาย magnitude/phase ที่อยู่ตรงนั้นอยู่แล้ว · scratch เพิ่ม<b>อีกแถวหนึ่ง</b> ให้ย้ายลงไปได้โดยของเดิมไม่ถูกแตะ</p>
+      <p>ผลข้างเคียง: scratch จะ <b>entangled (พัวพัน)</b> กับ output register เสมอ — ไม่ใช่สำเนาแยกอิสระ · จึง READ ทิ้งไม่ได้ (จะทำลาย output ที่มันช่วยสร้าง) และมันแทบไม่เคยกลับไป <code class="code">|0⟩</code> เอง</p>
+    </div>
+
+    <h3 id="lec05-uncompute">Uncomputing</h3>
+    <p class="eq">compute → use → uncompute</p>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-names="a,scratch,b"
+           data-ops="WRITE:1; BOX:0,1:compute:3; _; _; BOX:1,2:use:2; _; BOX:0,1:uncompute:4; _; _; _"
+           data-out="1:กลับเป็น |0⟩"
+           data-cap="ผังย่อของ uncomputation — ผลลัพธ์ถูก 'ใช้' ก่อน แล้วค่อยล้าง scratch"
+           data-alt="ผังย่อ compute use uncompute"></div>
+    </div>
+    <div class="box aha"><span class="tag">ทำไมคำตอบไม่หายไปตอน uncompute</span>
+      <p>ถ้า uncompute ทันทีหลัง compute → ได้ scratch คืนก็จริง แต่<b>ล้างคำตอบทิ้งไปด้วย</b> · กุญแจคือต้อง <b>ใช้ผลลัพธ์ก่อน</b> (เช่น <code class="code">b += abs(a)</code> หรือใช้ CNOT ก๊อปเข้าไปที่ <code class="code">b</code> ซึ่งเริ่มที่ 0) แล้วค่อย uncompute</p>
+      <p>ผลรวม: operation ก้อนใหญ่ทั้งก้อน<b>ยัง reversible</b> ทั้งที่ <code class="code">abs</code> เองไม่ reversible · scratch กลับเป็น <code class="code">|0⟩</code> ที่ disentangled แล้ว เอาไปใช้ต่อได้</p>
+      <p>ถ้าผลถูกเก็บไว้ใน relative phase ของ output register เฟสนั้นจะรอดจาก uncompute (เพราะขั้น uncompute ไม่ไปยุ่งกับเฟส)</p>
+    </div>
+
+    <div class="part"><h2><span class="n">3</span> Toffoli &amp; ประตูลอจิก 6 ตัว</h2></div>
+
+    <h3 id="lec05-toffoli">Toffoli = NAND ของโลกควอนตัม</h3>
+    <p>ในโลกดิจิทัล มี NAND ตัวเดียวก็สร้าง AND/OR/NOT/XOR ได้หมด · ในโลกควอนตัมตัวที่รับบทนี้คือ <b>multiple-condition CNOT = Toffoli</b> — เหมือน NAND ตรงที่<b>เพิ่ม/ลดจำนวน condition input ได้</b></p>
+    <div class="circuit" data-wires="3" data-names="a,b,c"
+         data-ops="CCNOT:0,1,2"
+         data-cap="Toffoli — ● ที่ a, ● ที่ b, ⊕ ที่ c"
+         data-alt="วงจร Toffoli 3 สาย"></div>
+    <p class="eq">c = c XOR (a AND b)</p>
+    <div class="box aha"><span class="tag">ต่างจาก NAND ตรงไหน</span>
+      <p>NAND <b>เขียนทับ output ทิ้ง</b> → input หาย → irreversible · Toffoli เอาผล <code class="code">a AND b</code> ไป <b>XOR ใส่ค่า c ที่มีอยู่เดิม</b> และ <code class="code">a</code>, <code class="code">b</code> ยังวิ่งออกมาเหมือนเดิมครบ → ย้อนกลับได้</p>
+      <p>ผลข้างเคียงของ "XOR ใส่ค่าเดิม": วงจรทำ <code class="code">c = c XOR f(a,b)</code> เสมอ จึงเท่ากับ <code class="code">c = f(a,b)</code> <b>ก็ต่อเมื่อ c เริ่มที่ <code class="code">|0⟩</code></b> — นี่แหละคือที่มาของ scratch qubit ในตารางข้างล่าง</p>
+      <p>เกร็ดจากสไลด์ p56: <b>NAND ที่มี input ขาเดียว = NOT</b> (ทรง AND + bubble ขาเดียว)</p>
+    </div>
+
+    <h3>🎯 ตาราง 6 ประตูลอจิก — ดิจิทัล ∣ ควอนตัม ∣ scratch</h3>
+    <p>ทุกวงจรเรียงสายบนลงล่าง = <code class="code">a</code>, <code class="code">b</code>, <code class="code">c</code></p>
+    <table class="cmp">
+      <thead><tr><th>สัญลักษณ์ดิจิทัล</th><th>วงจรควอนตัม</th><th>ต้องใช้ scratch?</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="not" data-in="a" data-out="a" data-cap="NOT · a = NOT a" data-alt="ประตู NOT"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="X:0" data-cap="X:0" data-alt="วงจรควอนตัมของ NOT"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ไม่ต้อง</b> — เขียนผลทับสาย input ได้เลย</td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="xor" data-in="a,b" data-out="b" data-cap="XOR · b = a XOR b" data-alt="ประตู XOR"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="CNOT:0,1" data-cap="CNOT:0,1" data-alt="วงจรควอนตัมของ XOR"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ไม่ต้อง</b> — CNOT คือ XOR อยู่แล้วโดยธรรมชาติ</td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="and" data-in="a,b" data-out="c" data-cap="AND · c = a AND b" data-alt="ประตู AND"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="WRITE:2; CCNOT:0,1,2" data-cap="Toffoli ตรงๆ" data-alt="วงจรควอนตัมของ AND"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ต้องมี</b> c = <code class="code">|0⟩</code></td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="or" data-in="a,b" data-out="c" data-cap="OR · c = a OR b" data-alt="ประตู OR"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="WRITE:2; X:0 + X:1; CCNOT:0,1,2; X:0 + X:1 + X:2" data-cap="De Morgan — พลิก a,b → Toffoli → พลิกคืน a,b และพลิก c ด้วย" data-alt="วงจรควอนตัมของ OR"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ต้องมี</b> c = <code class="code">|0⟩</code></td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="nand" data-in="a,b" data-out="c" data-cap="NAND · c = a NAND b" data-alt="ประตู NAND"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="WRITE:2; CCNOT:0,1,2; X:2" data-cap="Toffoli แล้วพลิก c" data-alt="วงจรควอนตัมของ NAND"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ต้องมี</b> c = <code class="code">|0⟩</code></td>
+        </tr>
+        <tr>
+          <td data-label="สัญลักษณ์ดิจิทัล"><div class="logicgate" data-gate="nor" data-in="a,b" data-out="c" data-cap="NOR · c = a NOR b" data-alt="ประตู NOR"></div></td>
+          <td data-label="วงจรควอนตัม"><div class="circuit" data-wires="3" data-names="a,b,c" data-ops="WRITE:2; X:0 + X:1; CCNOT:0,1,2; X:0 + X:1" data-cap="เหมือน OR แต่คอลัมน์สุดท้ายไม่มี ⊕ บน c" data-alt="วงจรควอนตัมของ NOR"></div></td>
+          <td data-label="ต้องใช้ scratch?"><b>ต้องมี</b> c = <code class="code">|0⟩</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="box warn"><span class="tag">จุดที่พลาดบ่อยตอนวาด</span>
+      <p>OR กับ NOR ต่างกันแค่<b>คอลัมน์สุดท้าย</b>: OR มี ⊕ ครบ <b>3 สาย</b> (a, b, c) · NOR มีแค่ <b>2 สาย</b> (a, b) ไม่แตะ c</p>
+      <p>ทุกช่อง <code class="code">a</code> กับ <code class="code">b</code> ต้องออกมา<b>เหมือนเดิม</b> (ช่อง OR/NOR ที่พลิก a,b ก็ต้องพลิกกลับคืน)</p>
+      <p>โจทย์ใหญ่จริงของ quantum computing คือ <b>ลดจำนวน scratch qubit</b> เพราะ qubit เป็นทรัพยากรที่แพงมาก</p>
+    </div>
+
+    <div class="quiz" data-answer="2">
+      <div class="q">ถ้าวงจร <code class="code">c = a AND b</code> ถูกรันโดยที่ scratch qubit <code class="code">c</code> ไม่ได้เริ่มที่ <code class="code">|0⟩</code> แต่เริ่มที่ <code class="code">|1⟩</code> จะได้อะไร?</div>
+      <button class="opt">ได้ <code class="code">a AND b</code> เหมือนเดิม</button>
+      <button class="opt">วงจรรันไม่ได้ ต้อง error</button>
+      <button class="opt">ได้ <code class="code">NOT(a AND b)</code></button>
+      <div class="fb ok" data-for="ok">ถูก — วงจรทำ <code class="code">c = c XOR (a AND b)</code> เสมอ · c เริ่มที่ 1 จึงได้ <code class="code">1 XOR (a AND b)</code> = NAND นั่นเอง</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — วงจรทำ <code class="code">c = c XOR (a AND b)</code> เสมอ ไม่เคยเขียนทับ · c เริ่มที่ 1 ผลจึงกลับด้านเป็น <code class="code">NOT(a AND b)</code></div>
+    </div>
+
+    <details class="recall">
+      <summary>ทวนเร็ว: 6 อย่างที่ต้องตอบได้ก่อนเข้าห้องสอบ</summary>
+      <p>① กติกา 2 ข้อของ QPU คืออะไร → ก๊อปไม่ได้ · ทุก op ที่ไม่ใช่ READ ต้อง reversible</p>
+      <p>② increment คืออะไรในภาษาเลขคณิตเดิม → การทดเลข (carry) · decrement = กลับลำดับ</p>
+      <p>③ ทำไม <code class="code">c = a + b</code> ไม่ได้ → เสีย reversibility + แอบก๊อป <code class="code">a</code> ได้</p>
+      <p>④ negate ใน two's complement → flip ทุกบิต แล้ว +1 · <code class="code">abs(−4)</code> ยังเป็น −4</p>
+      <p>⑤ b² สูตรทั่วไป → เทอมเดี่ยว <code class="code">2^(2i)·bᵢ</code> + เทอมคู่ <code class="code">2^(i+j+1)·bᵢbⱼ</code></p>
+      <p>⑥ Toffoli ทำอะไร → <code class="code">c = c XOR (a AND b)</code> · เท่ากับ <code class="code">f(a,b)</code> เมื่อ c เริ่มที่ <code class="code">|0⟩</code></p>
+    </details>
     <button type="button" class="next-btn" data-target="code">บทถัดไป: โค้ด↔วงจร →</button>
   </section>
 
   <!-- ==== CODE ==== -->
-  <section class="page" data-page="code">
+  <section class="page" id="code" data-page="code">
     <p class="kicker">รวมไว้ที่เดียว</p>
     <h2>โค้ด ↔ สัญลักษณ์วงจร</h2>
     <p class="lead">ทุกหัวข้อในสรุปที่มีโค้ด จะมีลิงก์ "→ ดูโค้ด" เด้งมาที่แถวของตัวเองในตารางนี้</p>
@@ -93,25 +1831,359 @@
       <thead><tr><th>คำสั่ง (QCEngine / QASM)</th><th>สัญลักษณ์วงจร</th><th>ทำอะไร</th></tr></thead>
       <tbody id="code-table-body">
         <!-- แถวจากใบอื่นแทรกที่นี่ — ทุกแถวต้องมี id="code-xxx" ให้หน้าอื่นลิงก์กลับได้ -->
+        <tr id="code-qrng">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(1);   // เตรียม 1 qubit เป็น |0⟩
+qc.write(0);   // WRITE ค่า 0
+qc.had();      // HAD (ไม่ระบุ qubit = ทำทุกตัว)
+qc.read();     // READ ได้บิตสุ่มแท้</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="WRITE:0; H:0; READ:0"></div></td>
+          <td data-label="ทำอะไร"><b>QRNG</b> — สุ่มบิตแท้ 1 บิต (50/50)<br>
+          ทำหลายสายพร้อมกัน = random byte · ⚠️ บน simulator ยังเป็น PRNG อยู่<br>
+          <a href="#lec02">↩ กลับไปหัวข้อ Lec02</a></td>
+        </tr>
+        <tr id="code-spy">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// Alice สุ่ม 2 บิตลับด้วย QRNG
+var send_val = random_bit();
+var send_had = random_bit();
+
+qc.reset(1);
+qc.write(0);
+if (send_val) qc.not();     // ⊕
+if (send_had) qc.had();     // [H]
+// ---- ส่งข้ามสายไปหา Bob (สปายอาจดักตรงนี้) ----
+var recv_had = random_bit();
+if (recv_had) qc.had();     // [H] ของ Bob
+var recv_val = qc.read();
+
+if (send_had == recv_had)      // ฐานตรงกัน
+  if (send_val != recv_val)    // แต่ค่าไม่ตรง
+    qc.print('Caught a spy!');</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-wire-labels="qubit"
+            data-ops="WRITE:0; X:0; H:0; BOX:0,0:SPY:1; H:0; READ:0"></div></td>
+          <td data-label="ทำอะไร"><b>Quantum Spy Hunter (QKD)</b> — ⊕ และ H ตัวแรกทำตามบิตสุ่มของ Alice ·
+          H ตัวหลังทำตามบิตสุ่มของ Bob<br>
+          🎯 <b>HAD ตรงกันแต่ค่าไม่ตรง = มีสปาย</b> (โอกาสจับได้ 25% ต่อ qubit ที่ตรวจ)<br>
+          <a href="#lec02-spy">↩ กลับไปหัวข้อ Lec02 ข้อ 12</a></td>
+        </tr>
+        <tr id="code-qint">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(3);
+var reg = qint.new(3, 'reg');
+reg.write(0);</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="WRITE:0 + WRITE:1 + WRITE:2"></div></td>
+          <td data-label="ทำอะไร">สร้าง register 3 qubit (8 วง) แล้วเซ็ตค่าเริ่มเป็น 0 — สายชื่อตามน้ำหนักบิต</td>
+        </tr>
+        <tr id="code-not-reg">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">reg.not(0x1);</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="X:0"></div></td>
+          <td data-label="ทำอะไร">NOT ที่ qubit 0x1 — สลับของในทุกคู่ (0,1) (2,3) (4,5) (6,7)</td>
+        </tr>
+        <tr id="code-phase-reg">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">reg.phase(45, 0x2);</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="P:1:45"></div></td>
+          <td data-label="ทำอะไร">PHASE 45° ที่ qubit 0x2 — หมุนเข็มเฉพาะครึ่งที่บิต 0x2 = 1 (|2⟩ |3⟩ |6⟩ |7⟩)</td>
+        </tr>
+        <tr id="code-read-reg">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">var v = reg.read(0x4);</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="READ:2"></div></td>
+          <td data-label="ทำอะไร">READ เฉพาะ qubit 0x4 — ตัดครึ่งที่ขัดกับผลทิ้งแล้ว renormalize (ไม่ยุบทั้ง register)</td>
+        </tr>
+        <tr id="code-bell-pair">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(2);
+var a = qint.new(1, 'a');
+var b = qint.new(1, 'b');
+qc.write(0);
+a.had();
+b.cnot(a);      // target = b, control = a
+var ra = a.read();
+var rb = b.read();</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="2" data-wire-labels="a(0x1),b(0x2)" data-ops="WRITE:0 + WRITE:1; H:0; CNOT:0,1; READ:0 + READ:1"></div></td>
+          <td data-label="ทำอะไร"><b>Bell pair</b> — อ่านได้ 00 หรือ 11 เท่านั้น อย่างละ 50%<br>
+            ⚠️ <code class="code">b.cnot(a)</code> ตัวหน้าจุด = <b>target</b><br>
+            <a href="#lec03">↩ กลับไปหัวข้อ Lec03</a></td>
+        </tr>
+        <tr id="code-kickback">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(3);
+var reg1 = qint.new(2, 'Register 1');
+var reg2 = qint.new(1, 'Register 2');
+reg1.write(0);
+reg2.write(1);            // ต้องเป็น |1⟩
+reg1.had();
+qc.phase(45, 0x4, 0x1);   // CPHASE(45) ระหว่าง 0x4 กับ 0x1
+qc.phase(90, 0x4, 0x2);   // CPHASE(90) ระหว่าง 0x4 กับ 0x2</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-init="0,0,1" data-ops="H:0 + H:1; CP:2,0:45; CP:2,1:90"></div></td>
+          <td data-label="ทำอะไร"><b>phase kickback</b> — เฟสที่ยิงใส่ reg2 ไปโผล่ที่ reg1 (0°/45°/90°/135°) ส่วน reg2 ไม่ขยับ<br>
+            🔴 <b>ไม่เกิด entanglement</b> — สถานะยัง separable<br>
+            <a href="#lec03">↩ กลับไปหัวข้อ Lec03</a></td>
+        </tr>
+        <tr id="code-swap-test">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(3);
+var input1 = qint.new(1, 'input1');
+var input2 = qint.new(1, 'input2');
+var output = qint.new(1, 'output');   // ancilla
+input1.write(0);
+input2.write(0);
+output.write(0);
+output.had();
+input1.exchange(input2, 0x1, output.bits());  // CSWAP
+output.had();
+output.not();        // ⚠️ มีบรรทัดนี้ → 1 = เหมือน
+var result = output.read();</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="input1,input2,ancilla" data-init="0,0,0" data-ops="_; H:2; CSWAP:2,0,1; H:2; X:2; READ:2"></div></td>
+          <td data-label="ทำอะไร"><b>swap test</b> — เทียบสองทะเบียนโดยไม่ทำลาย<br>
+            ตามโค้ดสไลด์ (มี <code class="code">output.not()</code>) → <b>result = 1 ถ้าเหมือน</b><br>
+            ถ้าตัด NOT ทิ้ง = วงจร 5 ขั้นมาตรฐาน → <b>0 = เหมือน</b><br>
+            <a href="#lec03">↩ กลับไปหัวข้อ Lec03</a></td>
+        </tr>
+        <tr id="code-custom-cphase">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">var theta = 90;
+qc.reset(2);
+qc.write(0);
+qc.hadamard();
+qc.phase( theta / 2, 0x2);
+qc.cnot(0x2, 0x1);        // target 0x2, control 0x1
+qc.phase(-theta / 2, 0x2);
+qc.cnot(0x2, 0x1);
+qc.phase( theta / 2, 0x1);
+// เทียบเท่ากับ qc.phase(theta, 0x1, 0x2);</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="2" data-wire-labels="0x1,0x2" data-ops="H:0 + H:1; P:1:45; CNOT:0,1; P:1:-45; CNOT:0,1; P:0:45"></div></td>
+          <td data-label="ทำอะไร"><b>สร้าง CPHASE(90°) เอง</b> จาก CNOT 2 ตัว + PHASE 3 ตัว<br>
+            ใช้ตอน QPU ไม่มีคำสั่ง CPHASE ให้ · มีแค่ input (1,1) ที่ได้ +90°<br>
+            <a href="#lec03">↩ กลับไปหัวข้อ Lec03</a></td>
+        </tr>
+        <tr id="code-remote-random">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(2);
+var a = qint.new(1, 'a');
+var b = qint.new(1, 'b');
+qc.write(0);
+a.had();          // prob ของ a = 50%
+b.had();
+b.phase(45);
+b.had();          // prob ของ b = 15%
+b.cnot(a);
+var a_result = a.read();
+var b_result = b.read();</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="2" data-wire-labels="a(0x1),b(0x2)" data-ops="WRITE:0 + WRITE:1; H:0 + H:1; P:1:45; H:1; CNOT:0,1; READ:0 + READ:1"></div></td>
+          <td data-label="ทำอะไร"><b>remote-controlled randomness</b> — อ่านตัวไหนก่อนก็ได้ สุ่ม 50/50<br>
+            ได้ 0 → อีกตัวเป็น 85%/15% · ได้ 1 → 15%/85%<br>
+            ⚠️ ตัวหนังสือสไลด์ p115/116 เขียน 70/30 ผิด<br>
+            <a href="#lec03">↩ กลับไปหัวข้อ Lec03</a></td>
+        </tr>
+        <tr id="code-teleport-qasm">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">OPENQASM 2.0;
+include "qelib1.inc";   // ⚠️ สไลด์พิมพ์ qulib1.inc (ผิด)
+qreg q[5];
+creg c[5];
+// q[0] = alice (payload) · q[2] = ep · q[4] = bob
+// q[1], q[3] เว้นว่าง เพราะ ibmqx4 ต่อ CNOT ได้เฉพาะบางคู่
+
+// --- เตรียม payload บน alice (เวอร์ชัน QASM ใช้ x → h → t) ---
+x q[0];
+h q[0];
+t q[0];
+barrier q[0],q[1],q[2],q[3],q[4];
+
+// --- สร้าง Bell pair ระหว่าง ep กับ bob ---
+h q[2];
+cx q[2],q[4];
+barrier q[0],q[1],q[2],q[3],q[4];
+
+// --- Bell measurement ฝั่ง Alice ---
+// ใช้เอกลักษณ์ CNOT(alice→ep) = (H⊗H)·CNOT(ep→alice)·(H⊗H)
+h q[0];
+h q[2];
+cx q[2],q[0];
+h q[2];
+measure q[0] -&gt; c[0];
+measure q[2] -&gt; c[2];</pre>
+            <p class="src">ฉบับ QCEngine ที่ออกสอบ: <code class="code">ep.had(); bob.cnot(ep); alice.had(); alice.phase(45); alice.had(); ep.cnot(alice); alice.had(); bit_p = alice.read(); bit_n = ep.read();</code></p></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="alice,ep,bob"
+            data-ops="WRITE:0 + WRITE:1 + WRITE:2; X:0; H:0; P:0:45; H:1; CNOT:1,2; H:0; H:1; CNOT:1,0; H:1; READ:0 + READ:1"
+            data-alt="วงจร teleportation ฝั่ง Alice จนถึง READ 2 บิต"></div></td>
+          <td data-label="ทำอะไร"><b>teleportation ครึ่งแรก</b> — สร้างคู่ entangled แล้วทำ <b>Bell measurement</b> (CNOT + HAD + READ 2 ตัว) บนฝั่ง Alice
+            → ได้ 2 บิตคลาสสิก ส่วน qubit ของ bob กลายเป็น payload ที่ถูกบิดแบบใดแบบหนึ่งใน 4 แบบ<br>
+            🔴 <b>โค้ดเดียวในคอร์สที่ไม่ใช่ QCEngine</b> · <code class="code">barrier</code> แค่กั้นไม่ให้ compiler รวม gate ไม่เปลี่ยนสถานะ<br>
+            <a href="#lec04">↩ กลับไปหัวข้อ Lec04</a></td>
+        </tr>
+        <tr id="code-teleport-fix">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// --- QCEngine: Bob บิดกลับตาม 2 บิตที่ได้รับ ---
+if (bit_n) { bob.not(); }        // บิตจาก ep คุม NOT (X)
+if (bit_p) { bob.phase(180); }   // บิตจาก alice คุม PHASE(180) = Z
+
+// --- QASM บน ibmqx4: ไม่มี if เลย ทำทุกครั้ง ---
+x q[4];
+z q[4];</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="alice,ep,bob"
+            data-ops="READ:0 + READ:1; CC:1,2 + X:2; CC:0,2 + P:2:180"
+            data-cap="ลูกศรประฟ้า = classical control · <b>ep → ⊕</b> · <b>alice → φ(180°)</b>"
+            data-alt="ท่อน correction ของ teleportation: classical control จาก ep คุม NOT และจาก alice คุม PHASE 180"></div></td>
+          <td data-label="ทำอะไร"><b>ท่อน correction</b> — 🎯 กฎที่ห้ามสลับ: <b>บิตจาก ep คุม NOT (X)</b> เพราะ ep เป็นฝาแฝดของ bob จึงรายงานเรื่อง<b>บิต</b>
+            · <b>บิตจาก alice คุม PHASE(180) = Z</b> เพราะ alice ผ่าน HAD จึงรายงานเรื่อง<b>เฟส</b><br>
+            ทำ X ก่อนหรือ Z ก่อนไม่มีผล (ต่างกันแค่ global phase) แต่สลับว่าบิตไหนคุม gate ไหน<b>ไม่ได้</b><br>
+            ⚠️ QASM ไม่มี <code class="code">if</code> → ถูกเฉพาะรอบที่ alice = 1 และ ep = 1 ต้องใช้ <b>post-selection</b> ทิ้งรอบอื่น<br>
+            <a href="#lec04">↩ กลับไปหัวข้อ Lec04</a></td>
+        </tr>
+        <tr id="code-teleport-verify">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// --- QCEngine: verify = prep payload แบบย้อนกลับ ---
+// prep เดิมคือ had → phase(45) → had
+bob.had();
+bob.phase(-45);
+bob.had();
+check = bob.read();   // ต้องได้ 0 เสมอ
+
+// --- QASM: prep เดิมคือ x → h → t จึงย้อนด้วย tdg → h → x ---
+tdg q[4];
+h q[4];
+x q[4];
+measure q[4] -&gt; c[4];</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-wire-labels="bob"
+            data-ops="H:0; P:0:-45; H:0; READ:0"
+            data-cap="verify ฉบับ QCEngine = prep แบบย้อนกลับ แล้ว READ"
+            data-alt="วงจร verify ของ bob: HAD, PHASE ลบ 45 องศา, HAD, READ"></div></td>
+          <td data-label="ทำอะไร"><b>ตรวจว่า teleport สำเร็จ</b> — ให้ Bob รัน<b>ขั้นตอนเตรียม payload แบบย้อนกลับ</b> ถ้าของที่ได้คือ payload เดิมจริง
+            qubit ต้องกลับไปเป็น |0⟩ เป๊ะ → <code class="code">check</code> ต้องได้ <b>0 เสมอ</b> · อ่านได้ 1 เมื่อไร = teleport พลาด<br>
+            ⚠️ ข้อจำกัด: ของที่ "เกือบถูก" ก็มักผ่าน verify → ต้องรันหลายรอบถึงมั่นใจ<br>
+            ⚠️ prep กับ verify ต้องเป็นชุดเดียวกันเสมอ — ฉบับหนังสือ (H·φ45·H ↔ H·φ−45·H) กับฉบับ QASM (x·h·t ↔ tdg·h·x) <b>ห้ามจำปนกัน</b><br>
+            <a href="#lec04">↩ กลับไปหัวข้อ Lec04</a></td>
+        </tr>
+        <tr id="code-add-b">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(6);
+var a = qint.new(4, 'a');   // register 4 บิต
+var b = qint.new(2, 'b');   // register 2 บิต
+a.write(1);
+b.write(3);
+
+a.add(b);        // a += b  (ทับลงบน a ไม่สร้าง register ใหม่)
+// a.subtract(b) = ชุด gate เดิมรันย้อนลำดับ</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="6" data-names="a,a,a,a,b,b"
+            data-wire-labels="0x1,0x2,0x4,0x8,0x1,0x2"
+            data-ops="CTRL:0,1,2,4 + X:3; CTRL:0,1,4 + X:2; CCNOT:0,4,1; CNOT:4,0; CTRL:1,2,5 + X:3; CCNOT:1,5,2; CNOT:5,1"
+            data-out="0-3:a + b"
+            data-alt="วงจร a += b 6 สาย"></div></td>
+          <td data-label="ทำอะไร"><b><code class="code">a += b</code></b> — บวก quantum integer สองตัวเข้าด้วยกัน<br>
+            = เอาวงจร increment ของ <code class="code">a</code> มาซ้ำ <b>1 รอบต่อบิตของ b</b> โดยพ่วง control จากบิตนั้นเข้าไปทุก gate<br>
+            รอบของ <code class="code">b·0x2</code> เริ่มที่ <code class="code">a·0x2</code> (เลื่อนขึ้น 1 บิตตามน้ำหนัก)<br>
+            ⚠️ <code class="code">c = a + b</code> ทำไม่ได้ (เสีย reversibility + ละเมิด no-cloning)<br>
+            <a href="#lec05">↩ กลับไปหัวข้อ Lec05</a></td>
+        </tr>
+        <tr id="code-subtract-1">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(4);
+var a = qint.new(4, 'a');
+a.write(5);
+
+a.subtract(1);   // −1  = วงจร increment กลับลำดับ
+// a.add(1);     // +1  = ลำดับปกติ</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x4,0x8"
+            data-ops="X:0; CNOT:0,1; CCNOT:0,1,2; CTRL:0,1,2 + X:3"
+            data-out="0-3:a − 1"
+            data-alt="วงจร decrement 4 qubit"></div></td>
+          <td data-label="ทำอะไร"><b>decrement (−1)</b> — <b>วงจรเดียวกับ increment แต่กลับลำดับ gate ทั้งหมด</b><br>
+            increment ไล่จาก control เยอะสุด → น้อยสุด (จบที่ <code class="code">X</code> บน <code class="code">0x1</code>) ·
+            decrement ไล่กลับหลัง เริ่มที่ <code class="code">X</code> บน <code class="code">0x1</code><br>
+            เป็นการทดเลข (carry/borrow) แบบเดียวกับเลขคณิตปกติ · ล้นช่วงแล้ว wrap รอบ mod 16<br>
+            <a href="#lec05">↩ กลับไปหัวข้อ Lec05</a></td>
+        </tr>
+        <tr id="code-not-mask">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// อยากทำงานเฉพาะตอน b == 1 (คือ 01₂)
+b.not(~1);          // พลิกทุกบิตของ b ยกเว้น 0x1
+a.add(3, b);        // ใช้ทุกบิตของ b เป็น condition ได้เลย
+b.not(~1);          // พลิกกลับคืนให้ b เป็นค่าเดิม</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-names="b,b,a"
+            data-wire-labels="0x1,0x2,target"
+            data-ops="X:1; CTRL:0,1 + X:2; X:1"
+            data-alt="วงจรใช้ NOT เป็น mask ก่อนใช้ control"></div></td>
+          <td data-label="ทำอะไร"><b>ใช้ NOT เป็น mask</b> — control (●) อ่านได้แค่เงื่อนไข “บิตนี้เป็น 1”
+            แต่เงื่อนไขจริงมักมีเลข 0 ปนอยู่ (<code class="code">b == 1</code> คือ <code class="code">01₂</code>)<br>
+            ทริก: พลิกบิตที่ควรเป็น 0 ให้เป็น 1 ก่อน → เงื่อนไขกลายเป็น “ทุกบิตเป็น 1” → ใช้ทุกสายเป็น control ได้<br>
+            🔴 ใช้เสร็จต้อง <b>พลิกกลับคืน</b> เสมอ ไม่งั้น <code class="code">b</code> เพี้ยน<br>
+            <a href="#lec05">↩ กลับไปหัวข้อ Lec05</a></td>
+        </tr>
       </tbody>
     </table>
     <button type="button" class="next-btn" data-target="pitfalls">บทถัดไป: Pitfalls →</button>
   </section>
 
   <!-- ==== PITFALLS ==== -->
-  <section class="page" data-page="pitfalls">
+  <section class="page" id="pitfalls" data-page="pitfalls">
     <p class="kicker">ทวนรอบสุดท้าย</p>
     <h2>Pitfalls</h2>
     <p class="lead">ลิสต์ลิงก์กลับไปจุดจริงในเนื้อหา — ไม่เขียนเนื้อซ้ำที่นี่</p>
 
     <h2 id="pitfalls-misconception">จุดที่คนมักพลาด</h2>
     <ul class="pitfall-list" id="pitfalls-misconception-list">
-      <li class="pitfall-empty">ยังไม่มีรายการ — แต่ละ ticket เติมของตัวเองตอนเขียนหน้านั้น</li>
+      <li><a href="#lec01">Lec01 · QPU คืออะไร</a> — “QPU มาแทน CPU / เร็วกว่าทุกงาน” ผิด มันคือ co-processor ที่เก่งบางงาน</li>
+      <li><a href="#lec01">Lec01 · QPU คืออะไร</a> — “ต้องเก่งฟิสิกส์ก่อนถึงเขียนโปรแกรมได้” ผิด (สไลด์เทียบกับ C++ กับทรานซิสเตอร์)</li>
+      <li><a href="#lec02">Lec02 · ข้อ 1 bit vs qubit</a> — “superposition = เป็น 0 และ 1 พร้อมกัน อ่านได้ทั้งคู่” ผิด · qubit 1 ตัวอ่านได้ 1 บิตเท่านั้น</li>
+      <li><a href="#lec02">Lec02 · ข้อ 2 amplitude</a> — “phase เปลี่ยน → โอกาสวัดเปลี่ยน” ผิด phase ไม่แตะ magnitude² · กับดักหลักของ Lec02</li>
+      <li><a href="#lec02">Lec02 · ข้อ 3 circle notation</a> — จำผิดว่า “รัศมี = ความน่าจะเป็น” ของจริงคือ <b>พื้นที่</b></li>
+      <li><a href="#lec02">Lec02 · ข้อ 5 READ/WRITE</a> — “WRITE ตั้ง superposition ได้” ผิด ตั้งได้แค่ ∣0⟩ / ∣1⟩</li>
+      <li><a href="#lec02">Lec02 · ข้อ 6 QRNG</a> — “รัน QRNG บน simulator = สุ่มแท้” ผิด simulator ยังใช้ PRNG</li>
+      <li><a href="#lec02">Lec02 · ข้อ 7 PHASE</a> — “gate ควอนตัมทุกตัวเป็น its own inverse” ผิด PHASE(θ) ต้องย้อนด้วย PHASE(−θ)</li>
+      <li><a href="#lec02">Lec02 · ข้อ 8 no-cloning</a> — “ก๊อป qubit เก็บไว้ก่อนแล้วค่อยวัด” ทำไม่ได้ ไม่มีคำสั่ง COPY</li>
+      <li><a href="#lec02-matrix">Lec02 · ข้อ 9 เมทริกซ์</a> — คูณผิดลำดับ · <b>gate ที่ทำก่อนต้องอยู่ขวาสุด</b> (วงจรอ่านซ้าย→ขวา แต่สูตรคูณขวา→ซ้าย)</li>
+      <li><a href="#lec02-rnot">Lec02 · ข้อ 10 RNOT</a> — คิดว่า RNOT เป็น its own inverse เหมือน NOT · ทำสองที<b>ได้ NOT</b> ไม่ใช่กลับที่เดิม (ตัวย้อนคือ H·PHASE(−90°)·H)</li>
+      <li><a href="#lec02-rnot">Lec02 · ข้อ 10 RNOT</a> — เดาว่า RNOT ทีเดียวแล้ว READ ได้ 1 ที่ 0% หรือ 100% · ของจริง <b>50%</b> (หยุดครึ่งทางพอดี)</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — จำสลับว่า <b>ROTX/ROTY แกนไหน</b> · ROTY(90°)∣0⟩ = ∣+⟩ ส่วน ROTX(90°)∣0⟩ = ∣−Y⟩</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — คิดว่า PHASE เปลี่ยนโอกาสวัดได้ · หมุนรอบ<b>แกนตั้ง</b> = ละติจูดเดิม = โอกาสเท่าเดิม</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — คิดว่า state อยู่<b>ข้างใน</b>ทรงกลมได้ · normalization ล็อกความยาวลูกศร = 1 → อยู่บน<b>ผิว</b>เสมอ</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — เอาทรงกลมไปวาด 2 qubit · <b>ใช้ได้กับ 1 qubit เท่านั้น</b> หลายตัวต้อง circle notation (2ᴺ วง)</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — คิดว่า ∣+⟩ ∣−⟩ ∣+Y⟩ ∣−Y⟩ วัดแล้วต่างกัน · <b>50/50 เหมือนกันหมด</b> ต่างแค่ phase</li>
+      <li><a href="#lec02-spy">Lec02 · ข้อ 12 Spy Hunter</a> — สรุปว่า “ค่าไม่ตรง = มีสปาย” · ต้อง <b>HAD ตรงกันด้วย</b> ถ้าฐานไม่ตรงให้<b>ทิ้ง</b>ทุกกรณี</li>
+      <li><a href="#lec02-spy">Lec02 · ข้อ 12 Spy Hunter</a> — คิดว่าสปายก๊อป qubit ผ่านไปเงียบๆ ได้ · no-cloning บังคับให้ต้อง READ = ทิ้งร่องรอย</li>
+      <li><a href="#lec03">Lec03 · 2ᴺ วง</a> — เข้าใจผิดว่า 2 qubit วาด 2 วงต่อ qubit; ของจริง N qubit = 2ᴺ วง (เคส 2 qubit ที่ได้ 4 เท่ากันเป็นเรื่องบังเอิญ)</li>
+      <li><a href="#lec03">Lec03 · operator pairs</a> — สลับกันระหว่าง "NOT ขยับของ" กับ "PHASE ไม่ขยับของ"; PHASE ไม่เปลี่ยนความน่าจะเป็นเลย</li>
+      <li><a href="#lec03">Lec03 · PHASE ครึ่งหนึ่ง</a> — คิดว่า PHASE แตะทุกวง; แตะเฉพาะครึ่งที่บิตนั้น = 1 เสมอ ไม่ว่า register ใหญ่แค่ไหน</li>
+      <li><a href="#lec03">Lec03 · READ ใน register</a> — คิดว่า READ qubit เดียวยุบทั้ง register; จริงๆ ตัดครึ่งที่ขัดกับผลแล้ว renormalize qubit ที่เหลือยังซ้อนทับอยู่</li>
+      <li><a href="#lec03">Lec03 · ชื่อสาย</a> — เรียกสายว่า Q1/Q2/Q3; ต้องเรียกตามน้ำหนักบิต 0x1/0x2/0x4 และเส้นบนสุด = 0x1 (LSB)</li>
+      <li><a href="#lec03">Lec03 · phase kickback</a> — คิดว่า “ใช้ gate 2 qubit แล้วต้อง entangle” · จริงๆ kickback <b>ไม่เกิด entanglement</b> สถานะยัง separable</li>
+      <li><a href="#lec03">Lec03 · CPHASE / CZ</a> — นั่งหาว่าข้างไหน control ข้างไหน target · มัน <b>สมมาตร</b> สลับแล้วผลเหมือนเดิม สัญลักษณ์จึงเป็น φ—φ และ ●—●</li>
+      <li><a href="#lec03">Lec03 · swap test</a> — อ่านได้ผลฝั่ง “เหมือน” แล้วสรุปว่าเหมือนแน่ · <b>สรุปไม่ได้</b> ต้องรันซ้ำ — มีแต่ผลฝั่ง “ต่าง” ครั้งเดียวที่ฟันธงได้</li>
+      <li><a href="#lec03">Lec03 · CNOT + Bell pair</a> — คิดว่า CNOT เดี่ยวๆ สร้าง entanglement · ต้องมี HAD ทำให้ control เป็น superposition ก่อน</li>
+      <li><a href="#lec03">Lec03 · Bell’s theorem</a> — คิดว่าละเมิด Bell inequality = ส่งข้อมูลเร็วกว่าแสงได้ · เลือกผลไม่ได้ จึงเป็นแค่ shared randomness</li>
+      <li><a href="#lec03">Lec03 · CNOT บนวงจร</a> — คิดว่า ● ต้องอยู่เส้นบนเสมอ · สไลด์ p41–42 วาง ● ไว้เส้นล่าง ให้ดูที่รูปสัญลักษณ์ ไม่ใช่ตำแหน่ง</li>
+      <li><a href="#lec04">Lec04 · ตาราง Bob 4 กรณี</a> — <b>จำสลับ X/Z</b> · ท่องว่า “ep เป็นฝาแฝดของ bob → รายงานเรื่องบิต คุม NOT (X) · alice ผ่าน HAD → รายงานเรื่องเฟส คุม PHASE(180) = Z” (ลำดับ X/Z สลับได้ แต่บิตไหนคุม gate ไหนสลับไม่ได้)</li>
+      <li><a href="#lec04">Lec04 · teleportation คือ/ไม่ใช่อะไร</a> — คิดว่า <b>สื่อสารเร็วกว่าแสง</b> · ก่อน Bob ได้ 2 บิตคลาสสิก เขาถือของที่ดูเหมือนสุ่มล้วน จึงเร็วเกินแสงไม่ได้</li>
+      <li><a href="#lec04">Lec04 · teleportation คือ/ไม่ใช่อะไร</a> — คิดว่า <b>ต้นฉบับยังอยู่</b> = ก๊อปสำเร็จ · Alice READ ทิ้งทั้ง payload และ ep เสมอ ถ้าไม่ทำลายก็ละเมิด no-cloning ทันที</li>
+      <li><a href="#lec04">Lec04 · teleportation คือ/ไม่ใช่อะไร</a> — คิดว่าย้าย <b>สสาร</b>/ตัว qubit · ย้ายแค่ <b>state</b> (magnitude + relative phase) ตัว qubit ไม่ไปไหน</li>
+      <li><a href="#lec04">Lec04 · Step 3.2</a> — คิดว่า <b>CNOT อย่างเดียวก็พอ</b> ข้าม HAD ได้ · ความต่างบางคู่ซ่อนอยู่ในเฟส ซึ่ง READ มองไม่เห็น · HAD = ตัวแปลง “ความต่างเชิงเฟส → ความต่างที่อ่านได้”</li>
+      <li><a href="#lec04">Lec04 · Step 3.1</a> — คิดว่า CNOT ของ Alice <b>ย้าย payload ไปให้ Bob แล้ว</b> · CNOT แค่ผูก 3 ตัวเข้าด้วยกัน ตัวที่ทำให้ข้อมูลไหลไปคือ HAD ใน Step 3.2</li>
+      <li><a href="#lec04">Lec04 · แกน 4 บรรทัด</a> — คิดว่า Alice ต้อง<b>รู้ว่า payload คือสถานะอะไร</b>ก่อนส่ง · Bell measurement ถามแค่ “สัมพันธ์กันแบบไหนใน 4 แบบ” ไม่ได้ถามว่า payload คืออะไร</li>
+      <li><a href="#lec04">Lec04 · Step 5 verify</a> — คิดว่า verify ได้ 0 <b>ครั้งเดียว</b> = teleport ถูกแน่นอน · ของที่ “เกือบถูก” ก็มักผ่าน ต้องรันหลายรอบ</li>
+      <li><a href="#lec04">Lec04 · post-selection</a> — คิดว่า post-selection เป็นส่วนหนึ่งของโปรโตคอลจริง · เป็นแค่<b>วิธีอ่านผลการทดลอง</b> (ทิ้งรอบที่ Bob บังเอิญแก้ไม่ตรง) เพราะ QASM บน ibmqx4 ไม่มี <code class="code">if</code></li>
+      <li><a href="#lec05-abs-trap">Lec05 · abs(−4)</a> — เห็น <code class="code">abs(−4) = −4</code> แล้วคิดว่าเป็นบั๊ก · เป็น<b>คำตอบที่ถูก</b> (+4 ล้นช่วง 3 บิต) · คำตอบผิดที่มักเลือกคือ <code class="code">011</code> เพราะ<b>ลืม +1</b> หลัง flip</li>
+      <li><a href="#lec05-scratch">Lec05 · scratch qubit</a> — คิดว่า scratch คือการ <b>copy</b> ค่าไว้ · จริงๆ มัน <b>entangled</b> กับ output เสมอ จึง READ ทิ้งไม่ได้ และไม่กลับเป็น <code class="code">|0⟩</code> เอง</li>
+      <li><a href="#lec05">Lec05 · uncomputing</a> — คิดว่า uncompute จะล้างคำตอบหายไปด้วย · ลำดับต้องเป็น <b>compute → use → uncompute</b> · ที่หายคือ scratch ไม่ใช่ผลที่ “ใช้” ไปแล้ว (uncompute ทันทีหลัง compute ต่างหากที่ล้างคำตอบทิ้ง)</li>
+      <li><a href="#lec05-no-c-equals">Lec05 · <code class="code">c = a + b</code></a> — เขียนบวกแบบภาษาคลาสสิก · ผิดทั้ง 2 กติกา (ทับค่าเดิมใน c = ไม่ reversible · ถ้าทำได้จะถอด <code class="code">b = c − a</code> ได้ = ก๊อป qubit) ต้องใช้ <code class="code">+=</code></li>
+      <li><a href="#lec05">Lec05 · ลำดับ gate ของ increment</a> — ไล่จากบิตต่ำขึ้นบิตสูง · ต้องไล่จาก gate ที่มี <b>control เยอะสุดลงไปน้อยสุด</b> ไม่งั้นเงื่อนไข carry อ่านค่าที่เปลี่ยนไปแล้ว · <code class="code">decrement</code> = ชุดเดิม<b>กลับหลัง</b> ไม่ใช่วงจรใหม่ <a href="#code-subtract-1">→ ดูโค้ด</a></li>
+      <li><a href="#lec05">Lec05 · <code class="code">a.add(12)</code></a> — สลับลำดับ <code class="code">X:2</code> กับ <code class="code">CNOT:2,3</code> · สลับแล้วได้ 1→5 ซึ่งผิด · และอย่าลืมว่า register 4 บิต <b>wrap mod 16</b> (5 + 12 = 1)</li>
+      <li><a href="#lec05">Lec05 · <code class="code">b²</code></a> — กระจายกำลังสองแล้ว<b>ตกเทอมคู่</b> หรือเขียน <code class="code">bᵢ²</code> ทิ้งไว้ · กุญแจคือ <code class="code">bᵢ² = bᵢ</code> → เทอมเดี่ยว <code class="code">2^(2i)·bᵢ</code> + เทอมคู่ <code class="code">2^(i+j+1)·bᵢbⱼ</code> (i&lt;j) · เช็กเร็วด้วยการแทนค่า b = 5 → 25</li>
+      <li><a href="#lec05">Lec05 · Toffoli</a> — คิดว่า Toffoli “เท่ากับ” NAND ทุกประการ · Toffoli ทำ <code class="code">c = c XOR (a AND b)</code> จึงได้ <code class="code">c = f(a,b)</code> <b>ก็ต่อเมื่อ c เริ่มที่ <code class="code">|0⟩</code></b> (ที่มาของ scratch ในตาราง 6 ประตู) และ a, b ยังอยู่ครบ = reversible</li>
+      <li><a href="#lec05">Lec05 · <code class="code">b.not(~1)</code></a> — ใช้ mask แล้ว<b>ลืมพลิกกลับคืน</b> → ค่าใน b เพี้ยนไปทั้ง superposition <a href="#code-not-mask">→ ดูโค้ด</a></li>
     </ul>
 
     <h2 id="pitfalls-slide-errors">สไลด์ผิดตรงไหน</h2>
     <ul class="pitfall-list" id="pitfalls-slide-errors-list">
-      <li class="pitfall-empty">ยังไม่มีรายการ — แหล่ง: learning-records/0010-slide-errors-and-rotation-convention.md</li>
+      <li><b>convention ที่ต้องยึดทุกบท</b> — มุมบวก = <b>ทวนเข็มนาฬิกา</b> (ยืนยันจากสไลด์ p64/p66) สามัญสำนึกว่า “ตามเข็ม” ผิด</li>
+      <li><b>วิธีรับมือตอนสอบ</b> — ถ้าข้อสอบอ้างสไลด์ตรงๆ ให้ <b>ตอบตามสไลด์</b> แต่รู้ของจริงไว้เผื่อโจทย์ถามเชิงเข้าใจ</li>
+      <li><a href="#lec02-bloch">Lec02 · สไลด์ p71</a> — เขียนว่า “The Z-axis is a horizontal axis” <b>ผิด</b> · Z คือแกน<b>ตั้ง</b> (∣0⟩→∣1⟩) ขัดกับประโยคถัดไปของสไลด์เอง</li>
+      <li><a href="#lec02-bloch">Lec02 · สไลด์ p69</a> — เขียนว่า “ROTX(π/2) เอียง ∣0⟩ ไป ∣+⟩” <b>ผิด</b> · ของจริง ROTY(π/2)∣0⟩ = ∣+⟩ ส่วน ROTX(π/2)∣0⟩ = ∣−Y⟩ (ใจความที่ออกสอบไม่เปลี่ยน: ทั้งคู่ให้ 50/50 ต่างกันที่ phase)</li>
+      <li><a href="#lec03">Lec03 · PHASE ใน register</a> — สไลด์ Lec03 หน้า 66 (PHASE ที่ 0x1) แถวบนสุดระบายไฮไลต์แค่ |3⟩ |5⟩ |7⟩ <strong>ตกวง |1⟩ ไป</strong> — เป็นการระบายสีตกหล่น ไม่ใช่เนื้อหาผิด (zoom แล้วเข็มของ |1⟩ เอียงจริง) ของจริงต้องครบ 4 วงตามกฎ "PHASE แตะครึ่งหนึ่ง"</li>
+      <li><a href="#lec03">Lec03 · สไลด์ p71</a> — เขียนว่าสัญลักษณ์ย่อของ CZ คือ (●—⊕) <b>ผิด</b> · นั่นคือ CNOT · CZ ของจริง = <b>●—●</b> (สไลด์ p70 ของอาจารย์เองวาด ●—● ไว้ชัด)</li>
+      <li><a href="#lec03">Lec03 · swap test p94 กับ p97–99</a> — ไม่ใช่ error แต่เป็น <b>สอง convention</b>: p94 ใช้วงจร 5 ขั้น (0 = เหมือน) ส่วนโค้ด p97–99 เติม <code class="code">output.not()</code> (1 = เหมือน) — ดูโจทย์ก่อนตอบ</li>
+      <li><a href="#lec03">Lec03 · สไลด์ p115/116</a> — ตัวหนังสือเขียนว่า b = 70%/30% <b>ผิด</b> · ของจริง <b>85%/15%</b> (ตรงกับคอมเมนต์โค้ด p113 และขนาดวงในรูปหน้าเดียวกัน)</li>
+      <li><a href="#code-teleport-qasm">Lec04 · กล่องโค้ด QASM</a> — สไลด์พิมพ์ <code class="code">include "qulib1.inc";</code> <b>ผิด</b> · ของจริงคือ <code class="code">qelib1.inc</code> (quantum experience library) — <b>ตอนสอบตอบตามสไลด์</b> แต่รู้ของจริงไว้</li>
+      <li><a href="#lec04">Lec04 · prep payload สองเวอร์ชัน</a> — ไม่ใช่ error แต่เป็น <b>สองชุดในสไลด์เดียว</b>: วงจรฉบับหนังสือ p15 ใช้ H → φ(45°) → H ส่วนโค้ด QASM p6 ใช้ <code class="code">x → h → t</code> · verify ต้องเป็นชุดย้อนกลับของ prep ที่ใช้ — <b>ดูรูปที่โจทย์ให้มาก่อนตอบ</b></li>
+      <li><a href="#lec04">Lec04 · สไลด์ p12 (ผังกล่อง-ลูกศร)</a> — ผังนี้เป็นผังของ <b>superdense coding</b> ไม่ใช่ teleportation ·
+        ในผังให้ <b>Alice แก้ qubit แล้ว Bob วัด</b> ซึ่งกลับด้านกับเนื้อหาในหน้าเดียวกัน (ของจริง Alice วัดได้ 2 บิต แล้ว Bob แก้)
+        — <b>ห้ามใช้ผังนี้ไล่ลำดับขั้น teleportation</b></li>
+      <li><a href="#code-teleport-fix">Lec04 · สไลด์ p39 คำว่า “บิตแรก/บิตที่สอง”</a> — <b>กำกวม</b> ไม่ได้บอกว่าบิตไหนคือบิตแรก ·
+        <b>โค้ดในรูปเป็นตัวตัดสิน</b>: <code class="code">bit_n</code> (ผล READ ของ ep) คุม NOT · <code class="code">bit_p</code> (ผล READ ของ alice) คุม PHASE(180)
+        — และโค้ด p37 อ่าน <code class="code">bit_p</code> ก่อน ดังนั้น “บิตแรก” ในประโยคนี้ ≠ <code class="code">bit_p</code></li>
+      <li><a href="#lec05-toffoli">Lec05 · สไลด์ NAND</a> — เขียนว่า NAND คือ <code class="code">NOT(b AND b)</code> <b>ผิด</b> ·
+        ของจริง <code class="code">a NAND b = NOT(a AND b)</code> (ยืนยันจากรูปจริงแล้วว่าสไลด์พิมพ์แบบนั้นจริง ไม่ใช่ extract พลาด) — <b>ตอบตามสไลด์ตอนสอบ</b></li>
+      <li><a href="#lec05-uncompute">Lec05 · หัวเรื่อง “Upcomputing”</a> — พิมพ์ผิดจาก <b>“Uncomputing”</b> · เนื้อความหน้าถัดๆ ไปใช้ “uncomputing” ตลอด — คงตามสไลด์ไว้</li>
+      <li><a href="#lec05-cond">Lec05 · สไลด์ conditional execution</a> — เขียนว่า subtract 3 จะไปเซ็ต qubit <b>lowest-weight</b> · ขัดกับโค้ด
+        <code class="code">a.bits(0x4)</code> ที่ใช้ qubit <b>น้ำหนักสูงสุด</b> (บิตเครื่องหมาย) เป็นเงื่อนไข · คำว่า “top bit” ก็กำกวมเพราะสายบนสุดในรูปคือ 0x1 (LSB)
+        — ตอบตามสไลด์ แต่ของจริงคือ highest-weight (0x4)</li>
     </ul>
 
     <a href="index.html" class="hub-link-btn">← กลับไปหน้า Hub</a>
@@ -123,7 +2195,7 @@
 (function () {
   var ORDER = ["lec01", "lec02", "lec03", "lec04", "lec05", "code", "pitfalls"];
 
-  function showPage(id) {
+  function showPage(id, keepScroll) {
     if (ORDER.indexOf(id) === -1) id = ORDER[0];
     document.querySelectorAll(".page").forEach(function (sec) {
       sec.classList.toggle("active", sec.dataset.page === id);
@@ -135,7 +2207,7 @@
     if (sel) sel.value = id;
     if (history.replaceState) history.replaceState(null, "", "#" + id);
     else location.hash = id;
-    window.scrollTo(0, 0);
+    if (!keepScroll) window.scrollTo(0, 0);
   }
   window.examShowPage = showPage;
 
@@ -149,7 +2221,29 @@
     if (e.target.classList.contains("exam-dropdown")) showPage(e.target.value);
   });
 
+  // ลิงก์ข้ามหน้า: <a href="#code-xxx"> ต้องสลับ .page ให้ด้วย ไม่ใช่แค่เปลี่ยน hash
+  function goToAnchor(id) {
+    if (!id) return false;
+    if (ORDER.indexOf(id) !== -1) { showPage(id); return true; }
+    var target = document.getElementById(id);
+    if (!target) return false;
+    var page = target.closest(".page");
+    if (page && page.dataset.page) showPage(page.dataset.page, true);
+    if (history.replaceState) history.replaceState(null, "", "#" + id);
+    target.scrollIntoView({ block: "center" });
+    target.classList.add("anchor-hit");
+    setTimeout(function () { target.classList.remove("anchor-hit"); }, 1600);
+    return true;
+  }
+
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a || a.closest(".exam-tabs")) return;
+    var id = a.getAttribute("href").slice(1);
+    if (goToAnchor(id)) e.preventDefault();
+  });
+
   var start = (location.hash || "").replace("#", "");
-  showPage(start || ORDER[0]);
+  if (!goToAnchor(start)) showPage(ORDER[0]);
 })();
 </script>
