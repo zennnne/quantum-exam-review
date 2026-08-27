@@ -1968,6 +1968,83 @@ if (send_had == recv_had)      // ฐานตรงกัน
           🎯 <b>HAD ตรงกันแต่ค่าไม่ตรง = มีสปาย</b> (โอกาสจับได้ 25% ต่อ qubit ที่ตรวจ)<br>
           <a href="#lec02-spy">↩ กลับไปหัวข้อ Lec02 ข้อ 12</a></td>
         </tr>
+        <tr id="code-teleport-qasm">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">OPENQASM 2.0;
+include "qelib1.inc";   // ⚠️ สไลด์พิมพ์ qulib1.inc (ผิด)
+qreg q[5];
+creg c[5];
+// q[0] = alice (payload) · q[2] = ep · q[4] = bob
+// q[1], q[3] เว้นว่าง เพราะ ibmqx4 ต่อ CNOT ได้เฉพาะบางคู่
+
+// --- เตรียม payload บน alice (เวอร์ชัน QASM ใช้ x → h → t) ---
+x q[0];
+h q[0];
+t q[0];
+barrier q[0],q[1],q[2],q[3],q[4];
+
+// --- สร้าง Bell pair ระหว่าง ep กับ bob ---
+h q[2];
+cx q[2],q[4];
+barrier q[0],q[1],q[2],q[3],q[4];
+
+// --- Bell measurement ฝั่ง Alice ---
+// ใช้เอกลักษณ์ CNOT(alice→ep) = (H⊗H)·CNOT(ep→alice)·(H⊗H)
+h q[0];
+h q[2];
+cx q[2],q[0];
+h q[2];
+measure q[0] -&gt; c[0];
+measure q[2] -&gt; c[2];</pre>
+            <p class="src">ฉบับ QCEngine ที่ออกสอบ: <code class="code">ep.had(); bob.cnot(ep); alice.had(); alice.phase(45); alice.had(); ep.cnot(alice); alice.had(); bit_p = alice.read(); bit_n = ep.read();</code></p></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="alice,ep,bob"
+            data-ops="WRITE:0 + WRITE:1 + WRITE:2; X:0; H:0; P:0:45; H:1; CNOT:1,2; H:0; H:1; CNOT:1,0; H:1; READ:0 + READ:1"
+            data-alt="วงจร teleportation ฝั่ง Alice จนถึง READ 2 บิต"></div></td>
+          <td data-label="ทำอะไร"><b>teleportation ครึ่งแรก</b> — สร้างคู่ entangled แล้วทำ <b>Bell measurement</b> (CNOT + HAD + READ 2 ตัว) บนฝั่ง Alice
+            → ได้ 2 บิตคลาสสิก ส่วน qubit ของ bob กลายเป็น payload ที่ถูกบิดแบบใดแบบหนึ่งใน 4 แบบ<br>
+            🔴 <b>โค้ดเดียวในคอร์สที่ไม่ใช่ QCEngine</b> · <code class="code">barrier</code> แค่กั้นไม่ให้ compiler รวม gate ไม่เปลี่ยนสถานะ<br>
+            <a href="#lec04">↩ กลับไปหัวข้อ Lec04</a></td>
+        </tr>
+        <tr id="code-teleport-fix">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// --- QCEngine: Bob บิดกลับตาม 2 บิตที่ได้รับ ---
+if (bit_n) { bob.not(); }        // บิตจาก ep คุม NOT (X)
+if (bit_p) { bob.phase(180); }   // บิตจาก alice คุม PHASE(180) = Z
+
+// --- QASM บน ibmqx4: ไม่มี if เลย ทำทุกครั้ง ---
+x q[4];
+z q[4];</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="alice,ep,bob"
+            data-ops="READ:0 + READ:1; CC:1,2 + X:2; CC:0,2 + P:2:180"
+            data-cap="ลูกศรประฟ้า = classical control · <b>ep → ⊕</b> · <b>alice → φ(180°)</b>"
+            data-alt="ท่อน correction ของ teleportation: classical control จาก ep คุม NOT และจาก alice คุม PHASE 180"></div></td>
+          <td data-label="ทำอะไร"><b>ท่อน correction</b> — 🎯 กฎที่ห้ามสลับ: <b>บิตจาก ep คุม NOT (X)</b> เพราะ ep เป็นฝาแฝดของ bob จึงรายงานเรื่อง<b>บิต</b>
+            · <b>บิตจาก alice คุม PHASE(180) = Z</b> เพราะ alice ผ่าน HAD จึงรายงานเรื่อง<b>เฟส</b><br>
+            ทำ X ก่อนหรือ Z ก่อนไม่มีผล (ต่างกันแค่ global phase) แต่สลับว่าบิตไหนคุม gate ไหน<b>ไม่ได้</b><br>
+            ⚠️ QASM ไม่มี <code class="code">if</code> → ถูกเฉพาะรอบที่ alice = 1 และ ep = 1 ต้องใช้ <b>post-selection</b> ทิ้งรอบอื่น<br>
+            <a href="#lec04">↩ กลับไปหัวข้อ Lec04</a></td>
+        </tr>
+        <tr id="code-teleport-verify">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// --- QCEngine: verify = prep payload แบบย้อนกลับ ---
+// prep เดิมคือ had → phase(45) → had
+bob.had();
+bob.phase(-45);
+bob.had();
+check = bob.read();   // ต้องได้ 0 เสมอ
+
+// --- QASM: prep เดิมคือ x → h → t จึงย้อนด้วย tdg → h → x ---
+tdg q[4];
+h q[4];
+x q[4];
+measure q[4] -&gt; c[4];</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-wire-labels="bob"
+            data-ops="H:0; P:0:-45; H:0; READ:0"
+            data-cap="verify ฉบับ QCEngine = prep แบบย้อนกลับ แล้ว READ"
+            data-alt="วงจร verify ของ bob: HAD, PHASE ลบ 45 องศา, HAD, READ"></div></td>
+          <td data-label="ทำอะไร"><b>ตรวจว่า teleport สำเร็จ</b> — ให้ Bob รัน<b>ขั้นตอนเตรียม payload แบบย้อนกลับ</b> ถ้าของที่ได้คือ payload เดิมจริง
+            qubit ต้องกลับไปเป็น |0⟩ เป๊ะ → <code class="code">check</code> ต้องได้ <b>0 เสมอ</b> · อ่านได้ 1 เมื่อไร = teleport พลาด<br>
+            ⚠️ ข้อจำกัด: ของที่ "เกือบถูก" ก็มักผ่าน verify → ต้องรันหลายรอบถึงมั่นใจ<br>
+            ⚠️ prep กับ verify ต้องเป็นชุดเดียวกันเสมอ — ฉบับหนังสือ (H·φ45·H ↔ H·φ−45·H) กับฉบับ QASM (x·h·t ↔ tdg·h·x) <b>ห้ามจำปนกัน</b><br>
+            <a href="#lec04">↩ กลับไปหัวข้อ Lec04</a></td>
+        </tr>
         <tr id="code-add-b">
           <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(6);
 var a = qint.new(4, 'a');   // register 4 บิต
@@ -2063,6 +2140,15 @@ b.not(~1);          // พลิกกลับคืนให้ b เป็น
       <li><a href="#lec03">Lec03 · CNOT + Bell pair</a> — คิดว่า CNOT เดี่ยวๆ สร้าง entanglement · ต้องมี HAD ทำให้ control เป็น superposition ก่อน</li>
       <li><a href="#lec03">Lec03 · Bell’s theorem</a> — คิดว่าละเมิด Bell inequality = ส่งข้อมูลเร็วกว่าแสงได้ · เลือกผลไม่ได้ จึงเป็นแค่ shared randomness</li>
       <li><a href="#lec03">Lec03 · CNOT บนวงจร</a> — คิดว่า ● ต้องอยู่เส้นบนเสมอ · สไลด์ p41–42 วาง ● ไว้เส้นล่าง ให้ดูที่รูปสัญลักษณ์ ไม่ใช่ตำแหน่ง</li>
+      <li><a href="#lec04">Lec04 · ตาราง Bob 4 กรณี</a> — <b>จำสลับ X/Z</b> · ท่องว่า “ep เป็นฝาแฝดของ bob → รายงานเรื่องบิต คุม NOT (X) · alice ผ่าน HAD → รายงานเรื่องเฟส คุม PHASE(180) = Z” (ลำดับ X/Z สลับได้ แต่บิตไหนคุม gate ไหนสลับไม่ได้)</li>
+      <li><a href="#lec04">Lec04 · teleportation คือ/ไม่ใช่อะไร</a> — คิดว่า <b>สื่อสารเร็วกว่าแสง</b> · ก่อน Bob ได้ 2 บิตคลาสสิก เขาถือของที่ดูเหมือนสุ่มล้วน จึงเร็วเกินแสงไม่ได้</li>
+      <li><a href="#lec04">Lec04 · teleportation คือ/ไม่ใช่อะไร</a> — คิดว่า <b>ต้นฉบับยังอยู่</b> = ก๊อปสำเร็จ · Alice READ ทิ้งทั้ง payload และ ep เสมอ ถ้าไม่ทำลายก็ละเมิด no-cloning ทันที</li>
+      <li><a href="#lec04">Lec04 · teleportation คือ/ไม่ใช่อะไร</a> — คิดว่าย้าย <b>สสาร</b>/ตัว qubit · ย้ายแค่ <b>state</b> (magnitude + relative phase) ตัว qubit ไม่ไปไหน</li>
+      <li><a href="#lec04">Lec04 · Step 3.2</a> — คิดว่า <b>CNOT อย่างเดียวก็พอ</b> ข้าม HAD ได้ · ความต่างบางคู่ซ่อนอยู่ในเฟส ซึ่ง READ มองไม่เห็น · HAD = ตัวแปลง “ความต่างเชิงเฟส → ความต่างที่อ่านได้”</li>
+      <li><a href="#lec04">Lec04 · Step 3.1</a> — คิดว่า CNOT ของ Alice <b>ย้าย payload ไปให้ Bob แล้ว</b> · CNOT แค่ผูก 3 ตัวเข้าด้วยกัน ตัวที่ทำให้ข้อมูลไหลไปคือ HAD ใน Step 3.2</li>
+      <li><a href="#lec04">Lec04 · แกน 4 บรรทัด</a> — คิดว่า Alice ต้อง<b>รู้ว่า payload คือสถานะอะไร</b>ก่อนส่ง · Bell measurement ถามแค่ “สัมพันธ์กันแบบไหนใน 4 แบบ” ไม่ได้ถามว่า payload คืออะไร</li>
+      <li><a href="#lec04">Lec04 · Step 5 verify</a> — คิดว่า verify ได้ 0 <b>ครั้งเดียว</b> = teleport ถูกแน่นอน · ของที่ “เกือบถูก” ก็มักผ่าน ต้องรันหลายรอบ</li>
+      <li><a href="#lec04">Lec04 · post-selection</a> — คิดว่า post-selection เป็นส่วนหนึ่งของโปรโตคอลจริง · เป็นแค่<b>วิธีอ่านผลการทดลอง</b> (ทิ้งรอบที่ Bob บังเอิญแก้ไม่ตรง) เพราะ QASM บน ibmqx4 ไม่มี <code class="code">if</code></li>
       <li><a href="#lec05-abs-trap">Lec05 · abs(−4)</a> — เห็น <code class="code">abs(−4) = −4</code> แล้วคิดว่าเป็นบั๊ก · เป็น<b>คำตอบที่ถูก</b> (+4 ล้นช่วง 3 บิต) · คำตอบผิดที่มักเลือกคือ <code class="code">011</code> เพราะ<b>ลืม +1</b> หลัง flip</li>
       <li><a href="#lec05-scratch">Lec05 · scratch qubit</a> — คิดว่า scratch คือการ <b>copy</b> ค่าไว้ · จริงๆ มัน <b>entangled</b> กับ output เสมอ จึง READ ทิ้งไม่ได้ และไม่กลับเป็น <code class="code">|0⟩</code> เอง</li>
       <li><a href="#lec05">Lec05 · uncomputing</a> — คิดว่า uncompute จะล้างคำตอบหายไปด้วย · ลำดับต้องเป็น <b>compute → use → uncompute</b> · ที่หายคือ scratch ไม่ใช่ผลที่ “ใช้” ไปแล้ว (uncompute ทันทีหลัง compute ต่างหากที่ล้างคำตอบทิ้ง)</li>
@@ -2085,6 +2171,8 @@ b.not(~1);          // พลิกกลับคืนให้ b เป็น
       <li><a href="#lec03">Lec03 · สไลด์ p71</a> — เขียนว่าสัญลักษณ์ย่อของ CZ คือ (●—⊕) <b>ผิด</b> · นั่นคือ CNOT · CZ ของจริง = <b>●—●</b> (สไลด์ p70 ของอาจารย์เองวาด ●—● ไว้ชัด)</li>
       <li><a href="#lec03">Lec03 · swap test p94 กับ p97–99</a> — ไม่ใช่ error แต่เป็น <b>สอง convention</b>: p94 ใช้วงจร 5 ขั้น (0 = เหมือน) ส่วนโค้ด p97–99 เติม <code class="code">output.not()</code> (1 = เหมือน) — ดูโจทย์ก่อนตอบ</li>
       <li><a href="#lec03">Lec03 · สไลด์ p115/116</a> — ตัวหนังสือเขียนว่า b = 70%/30% <b>ผิด</b> · ของจริง <b>85%/15%</b> (ตรงกับคอมเมนต์โค้ด p113 และขนาดวงในรูปหน้าเดียวกัน)</li>
+      <li><a href="#code-teleport-qasm">Lec04 · กล่องโค้ด QASM</a> — สไลด์พิมพ์ <code class="code">include "qulib1.inc";</code> <b>ผิด</b> · ของจริงคือ <code class="code">qelib1.inc</code> (quantum experience library) — <b>ตอนสอบตอบตามสไลด์</b> แต่รู้ของจริงไว้</li>
+      <li><a href="#lec04">Lec04 · prep payload สองเวอร์ชัน</a> — ไม่ใช่ error แต่เป็น <b>สองชุดในสไลด์เดียว</b>: วงจรฉบับหนังสือ p15 ใช้ H → φ(45°) → H ส่วนโค้ด QASM p6 ใช้ <code class="code">x → h → t</code> · verify ต้องเป็นชุดย้อนกลับของ prep ที่ใช้ — <b>ดูรูปที่โจทย์ให้มาก่อนตอบ</b></li>
     </ul>
 
     <a href="index.html" class="hub-link-btn">← กลับไปหน้า Hub</a>
