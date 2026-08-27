@@ -1,0 +1,101 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⭐ อ่านก่อนเข้าห้องสอบ — Quantum Programming</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/lesson-bits.css">
+<link rel="stylesheet" href="exam.css">
+<script defer src="../assets/circles.js"></script>
+<script defer src="../assets/circuit.js"></script>
+
+<div class="wrap">
+
+  <p class="kicker">Exam Review · หน้าพิเศษ</p>
+  <h1>⭐ อ่านหน้าห้องสอบ</h1>
+  <p class="lead">4 อย่างที่ต้องมีในหัวตอนเดินเข้าห้อง — ไม่ต้องอ่านอย่างอื่นแล้ว</p>
+
+  <!-- ① 45° -->
+  <div class="box aha">
+    <span class="tag">① 45 องศา → 85.4 / 14.6</span>
+    <p><b>HAD → PHASE(45°) → HAD</b> แล้วอ่าน ได้ <b>85.4%</b> ต่อ <b>14.6%</b></p>
+    <p class="src">มาจาก cos²(22.5°) = 0.854 · sin²(22.5°) = 0.146 — ครึ่งของ 45 คือ 22.5</p>
+  </div>
+
+  <!-- ② HAD ก่อน PHASE -->
+  <div class="box warn">
+    <span class="tag">② ถ้ายังไม่ Hadamard ก็ phase ไม่ได้</span>
+    <p><b>PHASE เฉยกับ |0⟩</b> — หมุนเฉพาะฝั่งที่บิตเป็น 1 ถ้า qubit ยังเป็น |0⟩ ล้วน
+    PHASE จะ<b>ไม่เกิดอะไรขึ้นเลย</b> ต้อง HAD ให้เข้า superposition ก่อน เฟสถึงจะมีของให้หมุน
+    (และ READ ก็ยังไม่เห็นอยู่ดี ต้อง HAD ปิดท้ายอีกทีให้เฟสกลายเป็นขนาดวง)</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="1" data-wire-labels="0x1"
+           data-ops="WRITE:0; H:0; P:0:45; H:0; READ:0"
+           data-cap="ลำดับที่ถูก: HAD → PHASE → HAD → READ"></div>
+    </div>
+  </div>
+
+  <!-- ③ SWAP -->
+  <div class="box">
+    <span class="tag">③ SWAP = CNOT สามตัวสลับทิศ</span>
+    <p>ลง → <b>ขึ้น</b> → ลง (ตัวกลางกลับทิศ)</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2" data-ops="SWAP:0,1"
+           data-cap="SWAP — ×—×"></div>
+      <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2"
+           data-ops="CNOT:0,1; CNOT:1,0; CNOT:0,1"
+           data-cap="= CNOT:0→1 · CNOT:1→0 · CNOT:0→1"></div>
+    </div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+  </div>
+
+  <!-- ④ circle rotation ของ remote-controlled randomness -->
+  <h2>④ Circle rotation ของ Remote-controlled randomness</h2>
+
+  <div class="scrollx">
+    <div class="circuit" data-wires="2" data-wire-labels="a(0x1),b(0x2)"
+         data-ops="WRITE:0 + WRITE:1; H:0 + H:1; P:1:45; H:1; CNOT:0,1; READ:0 + READ:1"
+         data-cap="a.had() · b.had() → b.phase(45) → b.had() → b.cnot(a) → READ"></div>
+  </div>
+  <p class="scroll-hint">← เลื่อนดูได้</p>
+
+  <p class="src">อ่านเลขวงแบบนี้: เลขในวง = <b>a + 2b</b> →
+  |0⟩ = (a0,b0) · |1⟩ = (a1,b0) · |2⟩ = (a0,b1) · |3⟩ = (a1,b1)</p>
+
+  <div class="scrollx">
+    <div class="crow" data-n="4" data-lab="① เริ่มที่ |00⟩"
+         data-mag="1,0,0,0" data-sub="100%,0%,0%,0%"></div>
+
+    <div class="crow" data-n="4" data-lab="② a.had() + b.had() — วงเท่ากันหมด เข็มชี้ขึ้น"
+         data-mag="0.25,0.25,0.25,0.25" data-sub="25%,25%,25%,25%"></div>
+
+    <div class="crow" data-n="4" data-lab="③ b.phase(45) — หมุนเฉพาะวงที่ b = 1 (|2⟩,|3⟩) ขนาดยังเท่าเดิม"
+         data-mag="0.25,0.25,0.25,0.25" data-phase="0,0,45,45" data-hl="2,3"
+         data-sub="25%,25%,25%,25%"></div>
+
+    <div class="crow" data-n="4" data-lab="④ b.had() — เฟสกลายเป็นขนาด: b=0 โต · b=1 หด"
+         data-mag="0.427,0.427,0.073,0.073" data-phase="22.5,22.5,-67.5,-67.5" data-hl="2,3"
+         data-sub="42.7%,42.7%,7.3%,7.3%"></div>
+
+    <div class="crow" data-n="4" data-lab="⑤ b.cnot(a) — สลับวงฝั่ง a = 1 (|1⟩ ↔ |3⟩)"
+         data-mag="0.427,0.073,0.073,0.427" data-phase="22.5,-67.5,-67.5,22.5" data-hl="1,3"
+         data-sub="42.7%,7.3%,7.3%,42.7%"></div>
+  </div>
+  <p class="scroll-hint">← เลื่อนดูได้</p>
+
+  <div class="box aha">
+    <span class="tag">อ่านผลจากแถวสุดท้าย</span>
+    <p>a = 0 คือวง |0⟩+|2⟩ = 42.7 + 7.3 = <b>50%</b> · a = 1 ก็ 50% → <b>ตัวแรกสุ่ม 50/50 เสมอ</b><br>
+    พออ่าน a = 0 แล้ว เหลือ |0⟩ : |2⟩ = 42.7 : 7.3 → b ได้ <b>85.4% / 14.6%</b> (ตรงกับข้อ ①)<br>
+    อ่าน a = 1 → |1⟩ : |3⟩ = 7.3 : 42.7 → b <b>กลับด้าน</b>เป็น 14.6% / 85.4%</p>
+  </div>
+
+  <div class="box warn">
+    <span class="tag">อย่าลืม</span>
+    <p>สไลด์หน้า 115/116 เขียน <b>70/30 — ผิด</b> ของจริง <b>85.4/14.6</b><br>
+    และเปลี่ยนความน่าจะเป็นอีกฝั่งได้จริง แต่<b>สั่งทิศไม่ได้</b> → ส่งข้อมูลเร็วกว่าแสงไม่ได้ (no-signaling)</p>
+  </div>
+
+  <p style="margin-top:2rem;">
+    <a href="index.html" class="hub-link-btn">← กลับไปหน้า Hub</a>
+  </p>
+
+</div>
