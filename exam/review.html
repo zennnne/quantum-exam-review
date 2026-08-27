@@ -58,8 +58,255 @@
   <section class="page" data-page="lec03">
     <p class="kicker">Lec03 · ทวนให้ครบ ไม่ปูใหม่</p>
     <h2>Multi-qubit &amp; Entanglement</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 05 เติม circle notation + operator pairs</p></div>
+    <p class="lead">ครึ่งแรก: register หลาย qubit เขียนเป็นวงยังไง และ gate 1 qubit ทำงานใน register ยังไง (<span class="term" title="การจับคู่วงที่ต่างกันเท่าน้ำหนักบิต">operator pairs</span>) — กลไกกลางของทั้งคาบ</p>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 1</div>
+      <h2>register หลาย qubit = 2ᴺ วง</h2>
+    </div>
+
+    <p><strong>N qubit ได้ 2ᴺ วง ไม่ใช่ 2N วง</strong> — หนึ่งวงต่อหนึ่งค่าที่ READ ออกมาได้ ไม่ใช่หนึ่งคู่วงต่อ qubit
+      เหตุผล: ถ้าวาดแยก qubit ละ 2 วง จะบรรยาย superposition (การซ้อนทับ) ของ<em>กลุ่ม</em>ไม่ได้ — มันเก็บได้แค่ "แต่ละตัวเป็นยังไง" ไม่เก็บ "ความสัมพันธ์ระหว่างตัว"</p>
+
+    <div class="box warn"><span class="tag">กับดักเลข</span>
+      <p>2 qubit → 2×2 = 4 และ 2² = 4 <strong>บังเอิญเท่ากัน</strong> ห้ามจำจากเคสนี้
+        3 qubit → 2×3 = 6 แต่ของจริง 2³ = <strong>8</strong> วง</p>
+    </div>
+
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="3 qubit → 8 วง" data-r="16"></div>
+    </div>
+
+    <p>เลข |i⟩ ใต้วง = ค่าของ register ตีความเป็นเลขฐานสอง โดย qubit ที่ยิงชื่อตาม <strong>น้ำหนักบิต</strong> (0x1 = LSB, 0x2, 0x4 …) <a href="#code-qint">→ ดูโค้ด</a></p>
+
+    <table class="cmp">
+      <thead><tr><th>วง</th><th>0x4</th><th>0x2</th><th>0x1</th></tr></thead>
+      <tbody>
+        <tr><td data-label="วง">|0⟩</td><td data-label="0x4">0</td><td data-label="0x2">0</td><td data-label="0x1">0</td></tr>
+        <tr><td data-label="วง">|1⟩</td><td data-label="0x4">0</td><td data-label="0x2">0</td><td data-label="0x1">1</td></tr>
+        <tr><td data-label="วง">|2⟩</td><td data-label="0x4">0</td><td data-label="0x2">1</td><td data-label="0x1">0</td></tr>
+        <tr><td data-label="วง">|3⟩</td><td data-label="0x4">0</td><td data-label="0x2">1</td><td data-label="0x1">1</td></tr>
+        <tr><td data-label="วง">|4⟩</td><td data-label="0x4">1</td><td data-label="0x2">0</td><td data-label="0x1">0</td></tr>
+        <tr><td data-label="วง">|5⟩</td><td data-label="0x4">1</td><td data-label="0x2">0</td><td data-label="0x1">1</td></tr>
+        <tr><td data-label="วง">|6⟩</td><td data-label="0x4">1</td><td data-label="0x2">1</td><td data-label="0x1">0</td></tr>
+        <tr><td data-label="วง">|7⟩</td><td data-label="0x4">1</td><td data-label="0x2">1</td><td data-label="0x1">1</td></tr>
+      </tbody>
+    </table>
+
+    <div class="box aha"><span class="tag">ตารางนี้คือเครื่องมือ</span>
+      <p>ทั้งส่วน operator pairs ข้างล่างใช้ตารางนี้ตัวเดียวจบ — <strong>gate 1 qubit = ทำอะไรบางอย่างกับ "คอลัมน์" ของตัวเอง</strong></p>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 2</div>
+      <h2>แยกเป็น qubit เดี่ยวได้ vs แยกไม่ได้</h2>
+    </div>
+
+    <p><strong>แยกได้ (product state / สถานะแยกร่าง)</strong> — เช่น |0⟩+|2⟩+|4⟩+|6⟩ เท่าๆ กัน
+      สังเกตว่าบิต 0x1 เป็น 0 ทุกวง แปลว่า register นี้ = "0x1 อยู่ที่ |0⟩ แน่นอน" × "0x2, 0x4 อยู่ในซ้อนทับ 50/50" → เขียนแยกทีละ qubit ได้</p>
+
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="แยกได้" data-mag="0.25,0,0.25,0,0.25,0,0.25,0" data-hl="0,2,4,6"></div>
+    </div>
+
+    <p><strong>แยกไม่ได้ = entanglement (การพัวพัน)</strong> — เช่น GHZ state (|000⟩+|111⟩)/√2 คือ |0⟩ กับ |7⟩ อย่างละ 50%</p>
+
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="GHZ — แยกไม่ได้" data-mag="0.5,0,0,0,0,0,0,0.5" data-hl="0,7"></div>
+    </div>
+
+    <p>เหตุผลที่แยกไม่ได้แบบเห็นภาพ: ถ้าทั้ง 3 ตัวต่างคนต่างโยนเหรียญอิสระ ต้องมีโอกาสได้ 010 หรือ 101 บ้าง
+      แต่ state นี้<strong>ไม่เคย</strong>ให้ผลนอกจาก 000 กับ 111 → ผลของแต่ละตัวผูกกันอยู่ ไม่มีคำตอบว่า "qubit ตัวแรกอยู่สถานะอะไร" แยกเดี่ยวๆ</p>
+
+    <div class="box aha"><span class="tag">ประโยคออกสอบ</span>
+      <p><strong>superposition เป็นสมบัติของ qubit เดี่ยว · entanglement เป็นสมบัติของความสัมพันธ์ (ของทั้งระบบ)</strong>
+        — qubit เดี่ยวๆ entangle กับตัวเองไม่ได้ ต้องมีอย่างน้อย 2 ตัว</p>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 3</div>
+      <h2>กติกาการวาด register: ตั้งชื่อสายตามน้ำหนักบิต</h2>
+    </div>
+
+    <p>สายในวงจร<strong>ไม่</strong>ตั้งชื่อ Q1, Q2, Q3 แต่ตั้งเป็น <code class="code">0x1</code>, <code class="code">0x2</code>, <code class="code">0x4</code> … (8 ตัวเรียกรวมว่า <span class="term" title="8 qubit = 1 ไบต์ควอนตัม">qubyte</span> ไปถึง 0x80)</p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-init="0,0,0"
+           data-ops="H:0; H:1; H:2"
+           data-cap="เส้น<strong>บนสุด = 0x1 (LSB)</strong> ไล่ลงล่างไปบิตที่มีน้ำหนักมากขึ้น"></div>
+    </div>
+
+    <div class="box why"><span class="tag">ทำไมต้องแบบนี้</span>
+      <p>เพื่อให้<strong>วงจรกับ circle notation ตรงกันโดยไม่ต้องแปลง</strong> — เห็น <code class="code">0x2</code> บนวงจร
+        ก็เปิดตารางไบนารีดูคอลัมน์ 0x2 ได้ทันทีว่ากระทบวงไหน ถ้าตั้งชื่อ Q1/Q2/Q3 ต้องมานั่งจำอีกชั้นว่า Q2 คือน้ำหนักเท่าไร (แล้วมักสลับ)</p>
+    </div>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 4 · หัวใจของบท</div>
+      <h2>operator pairs — gate 1 qubit ทำงานใน register ยังไง</h2>
+    </div>
+
+    <p>gate 1 qubit ที่ยิงใส่ register ไม่ได้แตะทีละวง แต่แตะทีละ <strong>คู่</strong>:
+      จับวงที่ index <strong>ต่างกันเท่าน้ำหนักบิตของ qubit ที่ยิง</strong> มาเข้าคู่กัน — 8 วง → ได้ 4 คู่เสมอ</p>
+
+    <table class="cmp">
+      <thead><tr><th>ยิงที่</th><th>คู่ของวง</th><th>ในตารางไบนารี</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="ยิงที่">0x1</td>
+          <td data-label="คู่ของวง">(0,1) (2,3) (4,5) (6,7)</td>
+          <td data-label="ในตารางไบนารี">คู่ที่ต่างกันแค่คอลัมน์ 0x1</td>
+        </tr>
+        <tr>
+          <td data-label="ยิงที่">0x2</td>
+          <td data-label="คู่ของวง">(0,2) (1,3) (4,6) (5,7)</td>
+          <td data-label="ในตารางไบนารี">คู่ที่ต่างกันแค่คอลัมน์ 0x2</td>
+        </tr>
+        <tr>
+          <td data-label="ยิงที่">0x4</td>
+          <td data-label="คู่ของวง">(0,4) (1,5) (2,6) (3,7)</td>
+          <td data-label="ในตารางไบนารี">คู่ที่ต่างกันแค่คอลัมน์ 0x4</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box aha"><span class="tag">ทริกไบนารี</span>
+      <p>อย่าไล่จับคู่ทีละวง ให้มองเป็น<strong>คอลัมน์</strong>:
+        <strong>NOT = flip คอลัมน์นั้นทั้งคอลัมน์</strong> (0↔1 ทุกแถว) แล้วดูว่าแต่ละแถวเลื่อนไปเป็นเลขอะไร ·
+        <strong>PHASE = เลือกเฉพาะแถวที่คอลัมน์นั้นเป็น 1</strong> ·
+        <strong>READ = แบ่งตารางเป็นสองฝั่งตามคอลัมน์นั้น</strong></p>
+    </div>
+
+    <h3 id="lec03-worked">worked example — state ตั้งต้นชุดเดียว ใช้ทั้ง 3 แบบ</h3>
+
+    <p>สมมติ register 3 qubit อยู่ที่ |1⟩, |2⟩, |4⟩, |7⟩ อย่างละ <strong>25%</strong> (วงเท่ากัน 4 วง เข็มชี้ขึ้นหมด):</p>
+
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="ตั้งต้น" data-mag="0,0.25,0.25,0,0.25,0,0,0.25"
+           data-hl="1,2,4,7" data-sub=",25%,25%,,25%,,,25%"></div>
+    </div>
+
+    <h4>(ก) NOT ที่ 0x1 — สลับของในแต่ละคู่</h4>
+    <p>คู่ของ 0x1 = (0,1) (2,3) (4,5) (6,7) → ของในวง <strong>สลับที่กัน</strong> ทั้งขนาดและเข็ม
+      ในตารางไบนารีคือ flip คอลัมน์ 0x1: 1→0, 2→3, 4→5, 7→6 <a href="#code-not-reg">→ ดูโค้ด</a></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="X:0"
+           data-cap="NOT ยิงที่สาย 0x1"></div>
+    </div>
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="หลัง NOT 0x1" data-mag="0.25,0,0,0.25,0,0.25,0.25,0"
+           data-hl="0,3,5,6" data-sub="25%,,,25%,,25%,25%,"></div>
+    </div>
+
+    <div class="box warn"><span class="tag">จำคู่กันไว้</span>
+      <p><strong>NOT ขยับของ</strong> (วงย้ายที่) แต่ <strong>PHASE ไม่ขยับของ</strong> (วงอยู่ที่เดิม หมุนแค่เข็ม)
+        → ความน่าจะเป็นของทุกผลลัพธ์หลัง PHASE ยังเท่าเดิมเป๊ะ</p>
+    </div>
+
+    <h4>(ข) PHASE(45°) ที่ 0x2 — หมุนเข็มของ "ฝั่งขวา" ของทุกคู่</h4>
+    <p>คู่ของ 0x2 = (0,2) (1,3) (4,6) (5,7) — สมาชิกที่ index มากกว่าในแต่ละคู่คือตัวที่บิต 0x2 = <strong>1</strong>
+      กลุ่มนั้นคือ |2⟩ |3⟩ |6⟩ |7⟩ ได้เข็มหมุน 45° ทวนเข็ม ที่เหลือไม่แตะ <a href="#code-phase-reg">→ ดูโค้ด</a></p>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="P:1:45"
+           data-cap="PHASE(45°) ยิงที่สาย 0x2"></div>
+    </div>
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="หลัง PHASE 0x2" data-mag="0,0.25,0.25,0,0.25,0,0,0.25"
+           data-phase="0,0,45,45,0,0,45,45" data-hl="2,3,6,7" data-sub=",25%,25%,,25%,,,25%"></div>
+    </div>
+
+    <div class="box why"><span class="tag">ทำไม PHASE แตะครึ่งหนึ่ง "เสมอ"</span>
+      <p>เพราะทุกวงถูกจับคู่หมด และในทุกคู่มีตัวที่บิตนั้นเป็น 1 อยู่ <strong>ตัวเดียว</strong>
+        → กลุ่ม "บิตนั้น = 1" มี 2ᴺ⁄2 วง = ครึ่งพอดี ไม่ว่ายิงที่ qubit ไหนหรือ register ใหญ่แค่ไหน
+        (ที่ 3 qubit ก็คือ 4 จาก 8 วง แม้บางวงจะว่างอยู่ก็ถือว่าถูกแตะ)</p>
+    </div>
+
+    <h4>(ค) READ ที่ 0x4 — ตัดครึ่งที่ขัดกับผล แล้ว renormalize</h4>
+    <p>READ ไม่ได้ทำทีละคู่แบบ NOT/PHASE แต่ใช้การแบ่งกลุ่มชุดเดียวกัน: ฝั่ง 0x4 = 0 คือ |0⟩–|3⟩ · ฝั่ง 0x4 = 1 คือ |4⟩–|7⟩ <a href="#code-read-reg">→ ดูโค้ด</a></p>
+
+    <div class="work">
+      <div class="step"><span class="lbl">1</span> P(อ่านได้ 0) = ผลรวมพื้นที่ฝั่ง 0x4=0 = |1⟩ 25% + |2⟩ 25% = <strong>50%</strong></div>
+      <div class="step"><span class="lbl">2</span> P(อ่านได้ 1) = |4⟩ 25% + |7⟩ 25% = <strong>50%</strong></div>
+      <div class="step"><span class="lbl">3</span> สมมติอ่านได้ <strong>1</strong> → วงฝั่ง 0x4=0 (|0⟩–|3⟩) <strong>หายหมด</strong></div>
+      <div class="step"><span class="lbl">4</span> renormalize: ที่เหลือรวมได้ 50% ต้องดันกลับเป็น 100% → หารด้วย 0.5 ทุกวง → |4⟩ 50%, |7⟩ 50%</div>
+    </div>
+
+    <div class="scrollx">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="READ:2"
+           data-cap="READ เฉพาะสาย 0x4"></div>
+    </div>
+    <div class="scrollx">
+      <div class="crow" data-n="8" data-lab="หลัง READ 0x4 = 1" data-mag="0,0,0,0,0.5,0,0,0.5"
+           data-hl="4,7" data-sub=",,,,50%,,,50%"></div>
+    </div>
+
+    <div class="box warn"><span class="tag">ระวัง</span>
+      <p>READ qubit เดียว <strong>ไม่ยุบทั้ง register</strong> — 0x1 กับ 0x2 ยังซ้อนทับอยู่ (|4⟩ กับ |7⟩ ยังต่างกัน)
+        มันแค่ตัดความเป็นไปได้ครึ่งหนึ่งทิ้ง แล้วเกลี่ยส่วนที่เหลือใหม่</p>
+    </div>
+
+    <table class="cmp">
+      <thead><tr><th>gate</th><th>ทำอะไรกับคู่</th><th>แตะกี่วง</th><th>ความน่าจะเป็นเปลี่ยนไหม</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="gate">NOT</td>
+          <td data-label="ทำอะไรกับคู่">สลับของสองฝั่งของทุกคู่</td>
+          <td data-label="แตะกี่วง">ทุกวง (8)</td>
+          <td data-label="ความน่าจะเป็นเปลี่ยนไหม">ย้ายที่ แต่ค่ารวมเท่าเดิม</td>
+        </tr>
+        <tr>
+          <td data-label="gate">PHASE</td>
+          <td data-label="ทำอะไรกับคู่">หมุนเข็มฝั่งที่บิต = 1</td>
+          <td data-label="แตะกี่วง">ครึ่งเดียว (4)</td>
+          <td data-label="ความน่าจะเป็นเปลี่ยนไหม">ไม่เปลี่ยนเลย</td>
+        </tr>
+        <tr>
+          <td data-label="gate">READ</td>
+          <td data-label="ทำอะไรกับคู่">เลือกฝั่งเดียวของทุกคู่ ทิ้งอีกฝั่ง</td>
+          <td data-label="แตะกี่วง">ลบทิ้งครึ่งหนึ่ง (4)</td>
+          <td data-label="ความน่าจะเป็นเปลี่ยนไหม">เปลี่ยน — ต้อง renormalize</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="part">
+      <div class="n">ส่วนที่ 5</div>
+      <h2>พอ qubit เยอะ ภาพนี้ก็ใช้ไม่ไหว</h2>
+    </div>
+
+    <p>จำนวนวงโตแบบเลขชี้กำลัง — 32 qubit = 2³² = <strong>4,294,967,296 วง</strong> วาดไม่ไหวและตาก็ดูไม่ทัน
+      QCEngine เลยมีโหมด <code class="code">qc_options.color_by_phase = true</code> ที่<strong>เลิกวาดเข็ม</strong>แล้วใช้<strong>สี</strong>แทนเฟส
+      เหลือแค่ขนาดวง + สี → กวาดตาเห็นแพทเทิร์นของ state ใหญ่ๆ ได้ (เป็นแค่วิธี "มองภาพ" ไม่ใช่ฟิสิกส์ใหม่)</p>
+
+    <details class="recall">
+      <summary>ทวนเร็ว: register 4 qubit ยิง PHASE(90°) ที่ 0x8 กระทบกี่วง และวงไหนบ้าง?</summary>
+        <p>4 qubit = 16 วง → กระทบครึ่งหนึ่ง = <strong>8 วง</strong> คือกลุ่มที่บิต 0x8 = 1 นั่นคือ |8⟩ ถึง |15⟩
+          (ค่าตั้งแต่ 8 ขึ้นไปคือค่าที่บิตน้ำหนัก 8 ติดอยู่) — ความน่าจะเป็นทุกวงเท่าเดิม</p>
+    </details>
+
+    <div class="quiz" data-answer="2">
+      <div class="q">register 3 qubit ยิง NOT ที่ 0x4 ตอนตั้งต้นอยู่ที่ |1⟩ 100% จะไปอยู่ที่วงไหน?</div>
+      <button class="opt">|0⟩</button>
+      <button class="opt">|3⟩</button>
+      <button class="opt">|5⟩</button>
+      <button class="opt">|7⟩</button>
+      <div class="fb ok" data-for="ok">ถูก — flip คอลัมน์ 0x4 ของแถว 001 ได้ 101 = |5⟩ (คู่ของ 0x4 คือ (1,5))</div>
+      <div class="fb no" data-for="no">ยัง — NOT ที่ 0x4 จับคู่ (0,4) (1,5) (2,6) (3,7) → |1⟩ ไปที่ |5⟩ (บวก/ลบ 4 นั่นเอง)</div>
+    </div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">state (|000⟩+|111⟩)/√2 อธิบายให้ตรงตามภาษาที่ออกสอบ ควรพูดว่ายังไง?</div>
+      <button class="opt">qubit แต่ละตัวอยู่ใน superposition และแยกเขียนทีละตัวได้</button>
+      <button class="opt">แยกเขียนทีละ qubit ไม่ได้ — เป็น entanglement ซึ่งเป็นสมบัติของความสัมพันธ์</button>
+      <button class="opt">เป็น product state ที่บังเอิญมี 2 วง</button>
+      <button class="opt">ต้องวาด 6 วงเพราะมี 3 qubit</button>
+      <div class="fb ok" data-for="ok">ใช่ — superposition = สมบัติ qubit เดี่ยว / entanglement = สมบัติของทั้งระบบ</div>
+      <div class="fb no" data-for="no">ไม่ใช่ — GHZ ให้ผลได้แค่ 000 กับ 111 ไม่มีทางได้ 010 → แยกทีละ qubit ไม่ได้ = entangle (และ 3 qubit ต้องวาด 8 วงเสมอ)</div>
+    </div>
+
     <!-- LEC03-B -->
     <div class="box why"><span class="tag">สถานะ (ต่อ)</span>
       <p>ยังไม่มีเนื้อหา — ticket 06 เติมส่วน gate หลาย qubit ต่อจากตรงนี้</p></div>
@@ -93,6 +340,28 @@
       <thead><tr><th>คำสั่ง (QCEngine / QASM)</th><th>สัญลักษณ์วงจร</th><th>ทำอะไร</th></tr></thead>
       <tbody id="code-table-body">
         <!-- แถวจากใบอื่นแทรกที่นี่ — ทุกแถวต้องมี id="code-xxx" ให้หน้าอื่นลิงก์กลับได้ -->
+        <tr id="code-qint">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(3);
+var reg = qint.new(3, 'reg');
+reg.write(0);</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="WRITE:0 + WRITE:1 + WRITE:2"></div></td>
+          <td data-label="ทำอะไร">สร้าง register 3 qubit (8 วง) แล้วเซ็ตค่าเริ่มเป็น 0 — สายชื่อตามน้ำหนักบิต</td>
+        </tr>
+        <tr id="code-not-reg">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">reg.not(0x1);</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="X:0"></div></td>
+          <td data-label="ทำอะไร">NOT ที่ qubit 0x1 — สลับของในทุกคู่ (0,1) (2,3) (4,5) (6,7)</td>
+        </tr>
+        <tr id="code-phase-reg">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">reg.phase(45, 0x2);</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="P:1:45"></div></td>
+          <td data-label="ทำอะไร">PHASE 45° ที่ qubit 0x2 — หมุนเข็มเฉพาะครึ่งที่บิต 0x2 = 1 (|2⟩ |3⟩ |6⟩ |7⟩)</td>
+        </tr>
+        <tr id="code-read-reg">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">var v = reg.read(0x4);</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-ops="READ:2"></div></td>
+          <td data-label="ทำอะไร">READ เฉพาะ qubit 0x4 — ตัดครึ่งที่ขัดกับผลทิ้งแล้ว renormalize (ไม่ยุบทั้ง register)</td>
+        </tr>
       </tbody>
     </table>
     <button type="button" class="next-btn" data-target="pitfalls">บทถัดไป: Pitfalls →</button>
@@ -107,11 +376,17 @@
     <h2 id="pitfalls-misconception">จุดที่คนมักพลาด</h2>
     <ul class="pitfall-list" id="pitfalls-misconception-list">
       <li class="pitfall-empty">ยังไม่มีรายการ — แต่ละ ticket เติมของตัวเองตอนเขียนหน้านั้น</li>
+      <li><a href="#lec03">Lec03 · 2ᴺ วง</a> — เข้าใจผิดว่า 2 qubit วาด 2 วงต่อ qubit; ของจริง N qubit = 2ᴺ วง (เคส 2 qubit ที่ได้ 4 เท่ากันเป็นเรื่องบังเอิญ)</li>
+      <li><a href="#lec03">Lec03 · operator pairs</a> — สลับกันระหว่าง "NOT ขยับของ" กับ "PHASE ไม่ขยับของ"; PHASE ไม่เปลี่ยนความน่าจะเป็นเลย</li>
+      <li><a href="#lec03">Lec03 · PHASE ครึ่งหนึ่ง</a> — คิดว่า PHASE แตะทุกวง; แตะเฉพาะครึ่งที่บิตนั้น = 1 เสมอ ไม่ว่า register ใหญ่แค่ไหน</li>
+      <li><a href="#lec03">Lec03 · READ ใน register</a> — คิดว่า READ qubit เดียวยุบทั้ง register; จริงๆ ตัดครึ่งที่ขัดกับผลแล้ว renormalize qubit ที่เหลือยังซ้อนทับอยู่</li>
+      <li><a href="#lec03">Lec03 · ชื่อสาย</a> — เรียกสายว่า Q1/Q2/Q3; ต้องเรียกตามน้ำหนักบิต 0x1/0x2/0x4 และเส้นบนสุด = 0x1 (LSB)</li>
     </ul>
 
     <h2 id="pitfalls-slide-errors">สไลด์ผิดตรงไหน</h2>
     <ul class="pitfall-list" id="pitfalls-slide-errors-list">
       <li class="pitfall-empty">ยังไม่มีรายการ — แหล่ง: learning-records/0010-slide-errors-and-rotation-convention.md</li>
+      <li><a href="#lec03">Lec03 · PHASE ใน register</a> — สไลด์ Lec03 หน้า 66 (PHASE ที่ 0x1) แถวบนสุดระบายไฮไลต์แค่ |3⟩ |5⟩ |7⟩ <strong>ตกวง |1⟩ ไป</strong> — เป็นการระบายสีตกหล่น ไม่ใช่เนื้อหาผิด (zoom แล้วเข็มของ |1⟩ เอียงจริง) ของจริงต้องครบ 4 วงตามกฎ "PHASE แตะครึ่งหนึ่ง"</li>
     </ul>
 
     <a href="index.html" class="hub-link-btn">← กลับไปหน้า Hub</a>
