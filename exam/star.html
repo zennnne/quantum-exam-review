@@ -11,18 +11,49 @@
 
   <p class="kicker">Exam Review · หน้าพิเศษ</p>
   <h1>⭐ อ่านหน้าห้องสอบ</h1>
-  <p class="lead">4 อย่างที่ต้องมีในหัวตอนเดินเข้าห้อง — ไม่ต้องอ่านอย่างอื่นแล้ว</p>
+  <p class="lead">5 อย่างที่ต้องมีในหัวตอนเดินเข้าห้อง — ไม่ต้องอ่านอย่างอื่นแล้ว</p>
 
   <!-- ① 45° -->
   <div class="box aha">
     <span class="tag">① 45 องศา → 85.4 / 14.6</span>
     <p><b>HAD → PHASE(45°) → HAD</b> แล้วอ่าน ได้ <b>85.4%</b> ต่อ <b>14.6%</b></p>
     <p class="src">มาจาก cos²(22.5°) = 0.854 · sin²(22.5°) = 0.146 — ครึ่งของ 45 คือ 22.5</p>
+
+    <table class="cmp">
+      <thead><tr><th>PHASE กี่องศา</th><th>อ่านได้ 0 / 1</th><th>จำว่า</th></tr></thead>
+      <tbody>
+        <tr><td data-label="PHASE กี่องศา">0°</td><td data-label="อ่านได้ 0 / 1">100 / 0</td>
+          <td data-label="จำว่า">HAD สองตัวหักล้างกัน กลับเป็น |0⟩</td></tr>
+        <tr><td data-label="PHASE กี่องศา"><b>45°</b></td><td data-label="อ่านได้ 0 / 1"><b>85.4 / 14.6</b></td>
+          <td data-label="จำว่า">เลขของคาบนี้ · cos²(22.5°)</td></tr>
+        <tr><td data-label="PHASE กี่องศา"><b>90° / −90°</b></td><td data-label="อ่านได้ 0 / 1"><b>50 / 50</b></td>
+          <td data-label="จำว่า">+90 กับ <b>−90 ให้เลขเท่ากัน</b> — READ แยกไม่ออก ต่างกันแค่<b>ทิศเข็ม</b> (ข้อ ②)</td></tr>
+        <tr><td data-label="PHASE กี่องศา">180°</td><td data-label="อ่านได้ 0 / 1">0 / 100</td>
+          <td data-label="จำว่า">|−⟩ · พลิกเป็น |1⟩ เต็มๆ</td></tr>
+      </tbody>
+    </table>
+    <p class="src">สูตรเดียวจบ: อ่านได้ 0 = cos²(θ/2) — <b>หารสองก่อนเสมอ</b> ·
+    PHASE(−θ) คือ<b>ตัวย้อน</b>ของ PHASE(θ) (ต่อท้ายกันแล้วเข็มกลับที่เดิม)</p>
   </div>
 
-  <!-- ② HAD ก่อน PHASE -->
+  <!-- ② phase 90 / -90 -->
+  <div class="box aha">
+    <span class="tag">② H ตัวที่ phase 90 → 90 กับ −90 หันหน้าชนกัน</span>
+    <p>ทั้งคู่ต้อง <b>HAD ก่อน</b> แล้วค่อย PHASE — ได้คู่ที่เข็ม<b>ชี้สวนทางกัน</b>
+    (มุมห่างกัน 180° = ตรงข้ามกันสุดๆ) แต่<b>ขนาดวงเท่ากัน 50/50 ทั้งคู่</b></p>
+    <div class="scrollx">
+      <div class="crow" data-n="2" data-lab="HAD → PHASE(<b>+90</b>) = |+Y⟩ — เข็มวง |1⟩ <b>ชี้ซ้าย</b>"
+           data-mag="0.5,0.5" data-phase="0,90" data-hl="1" data-sub="50%,50%"></div>
+      <div class="crow" data-n="2" data-lab="HAD → PHASE(<b>−90</b>) = |−Y⟩ — เข็มวง |1⟩ <b>ชี้ขวา</b>"
+           data-mag="0.5,0.5" data-phase="0,-90" data-hl="1" data-sub="50%,50%"></div>
+    </div>
+    <p>บน Bloch sphere คือขั้ว <b>+Y กับ −Y</b> ที่อยู่คนละฝั่งของลูกบอล — เอามาวางคู่กันเมื่อไร
+    เข็มสองอันก็<b>หันหน้าชนกัน</b>พอดี · ต่อ PHASE(−90) ท้าย PHASE(+90) = กลับมาที่ |+⟩ (เข็มขึ้น)</p>
+  </div>
+
+  <!-- ③ HAD ก่อน PHASE -->
   <div class="box warn">
-    <span class="tag">② ถ้ายังไม่ Hadamard ก็ phase ไม่ได้</span>
+    <span class="tag">③ ถ้ายังไม่ Hadamard ก็ phase ไม่ได้</span>
     <p><b>PHASE เฉยกับ |0⟩</b> — หมุนเฉพาะฝั่งที่บิตเป็น 1 ถ้า qubit ยังเป็น |0⟩ ล้วน
     PHASE จะ<b>ไม่เกิดอะไรขึ้นเลย</b> ต้อง HAD ให้เข้า superposition ก่อน เฟสถึงจะมีของให้หมุน
     (และ READ ก็ยังไม่เห็นอยู่ดี ต้อง HAD ปิดท้ายอีกทีให้เฟสกลายเป็นขนาดวง)</p>
@@ -33,9 +64,9 @@
     </div>
   </div>
 
-  <!-- ③ SWAP -->
+  <!-- ④ SWAP -->
   <div class="box">
-    <span class="tag">③ SWAP = CNOT สามตัวสลับทิศ</span>
+    <span class="tag">④ SWAP = CNOT สามตัวสลับทิศ</span>
     <p>ลง → <b>ขึ้น</b> → ลง (ตัวกลางกลับทิศ)</p>
     <div class="scrollx">
       <div class="circuit" data-wires="2" data-wire-labels="0x1,0x2" data-ops="SWAP:0,1"
@@ -47,8 +78,8 @@
     <p class="scroll-hint">← เลื่อนดูได้</p>
   </div>
 
-  <!-- ④ circle rotation ของ remote-controlled randomness -->
-  <h2>④ Circle rotation ของ Remote-controlled randomness</h2>
+  <!-- ⑤ circle rotation ของ remote-controlled randomness -->
+  <h2>⑤ Circle rotation ของ Remote-controlled randomness</h2>
 
   <div class="scrollx">
     <div class="circuit" data-wires="2" data-wire-labels="a(0x1),b(0x2)"
