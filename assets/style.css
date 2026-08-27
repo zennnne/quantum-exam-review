@@ -1,0 +1,210 @@
+/* ============================================================
+   Quantum Programming — Shared Lesson Stylesheet
+   ใช้ร่วมกันทุกบทเรียน เพื่อให้หน้าตาเป็น "คอร์สเดียวกัน"
+   ออกแบบให้: อ่านสบาย (Tufte-ish), พิมพ์ออกกระดาษสวย, ใช้ฟอนต์ไทยที่มีบน Windows
+   ============================================================ */
+
+:root {
+  --ink:        #1a1a1a;
+  --ink-soft:   #4a4a4a;
+  --paper:      #fbfaf7;
+  --rule:       #e3ded3;
+  --accent:     #6a3fb5;   /* ม่วง quantum */
+  --accent-dim: #efe9fb;
+  --good:       #1f7a4d;
+  --good-bg:    #e6f4ec;
+  --bad:        #b23a48;
+  --bad-bg:     #f8e9eb;
+  --warn:       #8a5a00;
+  --warn-bg:    #fcf3df;
+  --maxw:       42rem;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: "Sarabun", "Leelawadee UI", "Noto Sans Thai", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.75;
+  font-size: 18px;
+  margin: 0;
+  padding: 3.5rem 1.25rem 6rem;
+}
+
+.wrap { max-width: var(--maxw); margin: 0 auto; }
+
+/* ---------- ป้ายหัวบท ---------- */
+.kicker {
+  font-size: .8rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0 0 .4rem;
+}
+h1 {
+  font-size: 2rem;
+  line-height: 1.25;
+  margin: 0 0 .6rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+.lead {
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+  margin: 0 0 2rem;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin: 2.6rem 0 .8rem;
+  padding-bottom: .35rem;
+  border-bottom: 2px solid var(--rule);
+  font-weight: 800;
+}
+h3 { font-size: 1.08rem; margin: 1.8rem 0 .5rem; font-weight: 700; }
+
+p { margin: 0 0 1.1rem; }
+strong { font-weight: 700; }
+em { color: var(--ink-soft); }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+/* ---------- กล่อง callout ---------- */
+.box {
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  border: 1px solid var(--rule);
+  background: #fff;
+}
+.box p:last-child { margin-bottom: 0; }
+.box .tag {
+  display: inline-block;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: .5rem;
+}
+
+.box.why    { background: var(--accent-dim); border-color: #d9ccf5; }
+.box.why    .tag { color: var(--accent); }
+.box.aha    { background: var(--good-bg);   border-color: #c6e6d3; }
+.box.aha    .tag { color: var(--good); }
+.box.warn   { background: var(--warn-bg);   border-color: #efd9a3; }
+.box.warn   .tag { color: var(--warn); }
+.box.mathref{ background: #f2f4f8; border-color: #d5dbe6; }
+.box.mathref .tag { color: #3a5aa0; }
+
+/* ---------- analogy strip ---------- */
+.analogy {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: .8rem;
+  align-items: center;
+  margin: 1.4rem 0;
+}
+.analogy .cell {
+  background: #fff; border: 1px solid var(--rule);
+  border-radius: 10px; padding: .9rem 1rem; text-align: center;
+}
+.analogy .arrow { font-size: 1.4rem; color: var(--accent); text-align: center; }
+.analogy .cell b { display:block; font-size:.95rem; }
+.analogy .cell small { color: var(--ink-soft); }
+
+/* ---------- key terms ---------- */
+.term {
+  border-bottom: 1px dotted var(--accent);
+  cursor: help;
+  font-weight: 600;
+}
+
+/* ---------- quiz ---------- */
+.quiz {
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  background: #fff;
+  padding: 1.1rem 1.3rem;
+  margin: 1.6rem 0;
+}
+.quiz .q { font-weight: 700; margin-bottom: .8rem; }
+.quiz button.opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: .6rem .85rem;
+  margin: .45rem 0;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.quiz button.opt:hover { border-color: var(--accent); }
+.quiz button.opt.correct { background: var(--good-bg); border-color: var(--good); }
+.quiz button.opt.wrong   { background: var(--bad-bg);  border-color: var(--bad); }
+.quiz button.opt:disabled { cursor: default; opacity: .95; }
+.quiz .fb {
+  margin-top: .7rem;
+  font-size: .95rem;
+  padding: .7rem .9rem;
+  border-radius: 8px;
+  display: none;
+}
+.quiz .fb.show { display: block; }
+.quiz .fb.ok  { background: var(--good-bg); color: var(--good); }
+.quiz .fb.no  { background: var(--bad-bg);  color: var(--bad); }
+
+/* ---------- recall prompt ---------- */
+.recall {
+  border: 1px dashed var(--accent);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  margin: 1.6rem 0;
+  background: var(--accent-dim);
+}
+.recall summary { font-weight: 700; cursor: pointer; color: var(--accent); }
+.recall[open] summary { margin-bottom: .7rem; }
+
+/* ---------- footer nav ---------- */
+.footer {
+  margin-top: 3.5rem;
+  padding-top: 1.2rem;
+  border-top: 2px solid var(--rule);
+  font-size: .95rem;
+  color: var(--ink-soft);
+}
+.footer a { font-weight: 600; }
+.pill {
+  display:inline-block; background: var(--accent-dim); color: var(--accent);
+  border-radius: 999px; padding: .15rem .7rem; font-size:.8rem; font-weight:700;
+  margin-right:.4rem;
+}
+.ask {
+  background: var(--accent); color:#fff; border-radius:10px;
+  padding: 1rem 1.2rem; margin: 2rem 0 0;
+}
+.ask b { color: #fff; }
+.ask code.code { background:#54308f; color:#fff; }
+
+ul, ol { margin: 0 0 1.1rem; padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+
+.src { font-size: .85rem; color: var(--ink-soft); }
+.src a { color: var(--ink-soft); }
+
+/* ---------- print ---------- */
+@media print {
+  body { background:#fff; font-size: 12pt; padding: 0; }
+  .quiz button.opt { border:1px solid #999; }
+  .ask { background:#eee; color:#000; }
+  .ask b { color:#000; }
+  a { color:#000; }
+}

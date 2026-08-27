@@ -1,0 +1,104 @@
+/* ============================================================
+   Lesson Bits — component CSS ที่บทเรียนใช้ซ้ำกันหลายบท
+   แยกออกมาจาก inline <style> ของบท 3–5 (เคยก๊อปวางซ้ำทุกบท)
+   ใช้คู่กับ style.css เสมอ:
+     <link rel="stylesheet" href="../assets/style.css">
+     <link rel="stylesheet" href="../assets/lesson-bits.css">
+   ============================================================ */
+
+/* ---------- circle notation ---------- */
+.circles { display:flex; gap:1.1rem; justify-content:center; flex-wrap:wrap;
+  margin:1.2rem 0; align-items:center; }
+.circ { text-align:center; }
+.circ svg { display:block; margin:0 auto .3rem; }
+.circ .cap { font-size:.85rem; color:var(--ink-soft); }
+.circ .cap b { color:var(--ink); }
+.op-arrow { font-size:1.3rem; color:var(--accent); font-weight:800; }
+
+/* ---------- เศษส่วนแนวตั้ง อ่านง่าย ---------- */
+.frac { display:inline-flex; flex-direction:column; vertical-align:middle;
+  text-align:center; margin:0 .15rem; line-height:1.15; }
+.frac .num { border-bottom:1.5px solid var(--ink); padding:0 .35rem; }
+.frac .den { padding:0 .35rem; }
+.ket { font-style:normal; }
+
+/* ---------- worked example ---------- */
+.work { background:#f2f4f8; border:1px solid #d5dbe6; border-radius:10px;
+  padding:1rem 1.2rem; margin:1.3rem 0; overflow-x:auto; }
+.work .step { margin:.55rem 0; }
+.work .lbl { display:inline-block; min-width:1.4rem; color:#3a5aa0; font-weight:800; }
+
+/* ---------- matrix ---------- */
+.mat { display:inline-grid; grid-template-columns:auto auto; gap:.05rem .7rem;
+  border-left:2px solid var(--ink); border-right:2px solid var(--ink);
+  padding:.25rem .5rem; margin:0 .2rem; vertical-align:middle; text-align:center; }
+
+/* ---------- การ์ดเหตุผล/ประเด็นย่อย ---------- */
+.reasons { display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));
+  gap:.7rem; margin:1.2rem 0; }
+.reasons .r { border:1px solid var(--rule); border-radius:10px; background:#fff;
+  padding:.7rem .8rem; }
+.reasons .r b { color:var(--accent); display:block; margin-bottom:.2rem; font-size:.95rem; }
+.reasons .r small { color:var(--ink-soft); }
+
+/* ---------- แถบสัญลักษณ์วงจร ---------- */
+.circuit-syms { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin:1.2rem 0; }
+.circuit-syms .sy { text-align:center; border:1px solid var(--rule); border-radius:10px;
+  background:#fff; padding:.6rem .5rem; min-width:9rem; }
+.circuit-syms .sy svg { display:block; margin:0 auto; }
+.circuit-syms .cap { font-size:.9rem; margin-top:.2rem; }
+
+/* ---------- โค้ด inline ---------- */
+code.code { background:#f2f4f8; padding:.05rem .3rem; border-radius:4px; }
+
+/* ---------- ตารางเปรียบเทียบ ---------- */
+table.cmp { width:100%; border-collapse:collapse; margin:1.3rem 0; font-size:.95rem;
+  background:#fff; display:block; overflow-x:auto; }
+table.cmp th, table.cmp td { border:1px solid var(--rule); padding:.55rem .7rem; text-align:left;
+  vertical-align:top; }
+table.cmp th { background:var(--accent-dim); color:var(--accent); font-weight:800; }
+table.cmp td b { color:var(--ink); }
+
+/* ---------- แถว circle notation (คู่กับ circles.js) ---------- */
+.crow { display:flex; gap:.35rem; justify-content:center; align-items:flex-end;
+  flex-wrap:nowrap; overflow-x:auto; margin:.9rem 0; }
+.crow .c { text-align:center; }
+.crow .c small { display:block; font-size:.72rem; color:var(--ink-soft); line-height:1.3; }
+.crow .c.hl small { color:#9a4f1c; }
+.crow .lab { min-width:5.4rem; font-size:.8rem; font-weight:800; color:var(--accent);
+  text-align:right; padding-right:.4rem; align-self:center; }
+
+/* ---------- วงจร (คู่กับ circuit.js) ---------- */
+.circuit { text-align:center; margin:1.1rem 0; }
+.circuit svg { display:block; margin:0 auto; max-width:100%; height:auto; }
+.circuit .cap { font-size:.85rem; color:var(--ink-soft); margin-top:.4rem; }
+
+/* ---------- ประตูลอจิกดิจิทัล (คู่กับ logicgate.js) — เพิ่มตอนบท 0022 ---------- */
+.logicgate { text-align:center; margin:.9rem 0; }
+.logicgate svg { display:block; margin:0 auto; max-width:100%; height:auto; }
+.logicgate .cap { font-size:.85rem; color:var(--ink-soft); margin-top:.35rem; text-align:center; }
+/* คำบรรยายใต้รูปต้องไหลเป็นบรรทัดเดียว — กัน `.twocol .c b { display:block }` มาหั่น */
+.twocol .c .cap b { display:inline; color:inherit; margin-bottom:0; }
+
+/* ---------- โครงหน้า lesson ที่ใช้ซ้ำทุกบท (ย้ายมาจาก inline style บท 6–10) ---------- */
+.part { background:var(--accent); color:#fff; border-radius:10px; padding:.7rem 1.1rem;
+  margin:3rem 0 1.4rem; }
+.part .n { font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; opacity:.85;
+  font-weight:800; }
+.part h2 { border:0; color:#fff; margin:.1rem 0 0; font-size:1.25rem; padding:0; }
+/* code ในแถบหัวข้อสีเข้ม — กัน 'ขาวบนเทาอ่อน' (เจอตอนบท 0019) */
+.part code.code { background:#54308f; color:#fff; }
+.wide { overflow-x:auto; background:#fff; border:1px solid var(--rule); border-radius:10px;
+  padding:1rem .8rem; margin:1.4rem 0; }
+.wide .cap { text-align:center; font-size:.85rem; color:var(--ink-soft); margin-top:.5rem; }
+.eq { text-align:center; font-size:1.2rem; font-weight:800; margin:1.1rem 0; }
+pre.code-blk { background:#f2f4f8; border:1px solid #d5dbe6; border-radius:10px;
+  padding:.9rem 1.1rem; overflow-x:auto; font-size:.9rem; line-height:1.6; margin:1.2rem 0; }
+.twocol { display:grid; grid-template-columns:1fr 1fr; gap:.9rem; margin:1.3rem 0; }
+.twocol .c { border:1px solid var(--rule); border-radius:10px; background:#fff; padding:.8rem 1rem; }
+.twocol .c b { display:block; color:var(--accent); margin-bottom:.25rem; }
+@media (max-width:34rem){ .twocol { grid-template-columns:1fr; } }
+
+@media print {
+  .work, .box, .quiz, .circuit-syms .sy, .circuit, .crow { break-inside: avoid; }
+}

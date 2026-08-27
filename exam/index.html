@@ -1,0 +1,81 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exam Hub — สรุปอ่านสอบ Quantum Programming (Lec 01–05)</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/lesson-bits.css">
+<link rel="stylesheet" href="exam.css">
+<div class="wrap">
+
+  <p class="kicker">Exam Review Hub · Lec 01–05</p>
+  <h1>อ่านสอบ Quantum Programming</h1>
+  <p class="lead">ศูนย์รวมทุกอย่างที่ใช้อ่านทวนก่อนสอบ — สรุปครบ 5 คาบในไฟล์เดียว
+  ซ้อมจำสัญลักษณ์วงจร และตารางอ้างอิงเดิมที่ใช้มาตลอดคอร์ส</p>
+
+  <h2>เข้าไปอ่าน / ซ้อม</h2>
+  <div class="linkgrid">
+    <a href="review.html">
+      <b>📖 สรุป Lec01–05</b>
+      <small>ไฟล์เดียว 7 หน้า สลับดูได้ — เนื้อหา + โค้ด↔วงจร + pitfalls</small>
+    </a>
+    <a href="gate-drill.html">
+      <b>🎯 ซ้อมสัญลักษณ์ gate</b>
+      <small>สุ่มถามรูป ↔ ชื่อ gate เลือกกลุ่มที่จะซ้อมได้</small>
+    </a>
+    <a href="../reference/circuit-cheatsheet.html">
+      <b>📋 Cheat Sheet วงจร</b>
+      <small>สัญลักษณ์ทุก gate ที่เรียนมา (สไตล์ QCEngine)</small>
+    </a>
+    <a href="../reference/glossary.html">
+      <b>🔤 Glossary</b>
+      <small>คำศัพท์เฉพาะทางที่ใช้ทั้งคอร์ส</small>
+    </a>
+  </div>
+
+  <h2>แผนที่คอร์ส — QPU Primitives</h2>
+  <p>ทุกแอปพลิเคชัน QPU มีโครงเดียวกัน <b>4 ขั้น</b> — Lec01–05 ที่กำลังจะสอบ ปูฐาน
+  ขั้น ①②④ ไว้ครบแล้ว ส่วนขั้น ③ (phase manipulation) จะไปเข้มข้นใน Lec06 เป็นต้นไป</p>
+
+  <div class="eq">create superposition&nbsp; → &nbsp;compute in superposition&nbsp;
+    ⇅ &nbsp;phase manipulation&nbsp; → &nbsp;readout</div>
+
+  <div class="reasons" style="grid-template-columns:repeat(2,1fr);">
+    <div class="r"><b>① create superposition</b> — เอา qubit เข้าสู่ superposition
+    (HAD คือตัวแทน) เพื่อให้มี "หลายคำตอบพร้อมกัน" ให้คำนวณ</div>
+    <div class="r"><b>② compute in superposition</b> — คำนวณกับทุกความเป็นไปได้พร้อมกัน
+    ด้วยความขนานโดยปริยายของ superposition</div>
+    <div class="r"><b>③ phase manipulation</b> — จัดการ<b>เฟส</b>เพื่อให้คำตอบที่ต้องการ
+    โผล่ออกมาตอน READ · ขั้น ② กับ ③ มัก<b>วนสลับกันหลายรอบ</b> (ลูกศรสองหัว)</div>
+    <div class="r"><b>④ readout</b> — READ ออกมาเป็นบิตคลาสสิก · ขั้นนี้เองที่ทำให้ทุกอย่าง
+    ก่อนหน้า "มีความหมาย" หรือ "สูญเปล่า"</div>
+  </div>
+
+  <div class="box aha">
+    <span class="tag">ทำไมขั้น ③ ถึงมีอยู่</span>
+    <p>READ <b>มองไม่เห็นเฟสโดยตรง</b> — phase manipulation คือการแปลง "ข้อมูลที่ซ่อนอยู่
+    ในเฟส" ให้กลายเป็น "ขนาดของวง" ที่ READ เห็นได้ ไม่มีขั้นนี้ = คำนวณเสร็จแล้วอ่านผลไม่ได้</p>
+  </div>
+
+  <table class="cmp">
+    <thead><tr><th>Lec</th><th>Primitive</th><th>อยู่ในขั้นไหน</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Lec">5</td><td data-label="Primitive">Digital logic</td>
+        <td data-label="อยู่ในขั้นไหน">② compute in superposition</td></tr>
+      <tr><td data-label="Lec">6</td><td data-label="Primitive">Amplitude amplification</td>
+        <td data-label="อยู่ในขั้นไหน">③ phase manipulation</td></tr>
+      <tr><td data-label="Lec">7</td><td data-label="Primitive">Quantum Fourier Transform</td>
+        <td data-label="อยู่ในขั้นไหน">③ phase manipulation</td></tr>
+      <tr><td data-label="Lec">8</td><td data-label="Primitive">Phase estimation</td>
+        <td data-label="อยู่ในขั้นไหน">③ phase manipulation</td></tr>
+      <tr><td data-label="Lec">9</td><td data-label="Primitive">Quantum data types</td>
+        <td data-label="อยู่ในขั้นไหน">① create superposition</td></tr>
+    </tbody>
+  </table>
+  <p class="src">ที่มา: slide Lec04 p50–52 (ย้ายมาไว้ที่นี่แทนหน้า Lec04 ในสรุป เพราะเป็นแผนที่
+  ของทั้งคอร์ส ไม่ใช่เนื้อหาเฉพาะคาบ)</p>
+
+  <div class="footer">
+    <span class="pill">Exam Hub</span>
+    <span class="src">ครอบคลุมแค่ Lec01–05 — เนื้อหา Lec06 ขึ้นไปยังไม่ออกสอบ</span>
+  </div>
+
+</div>

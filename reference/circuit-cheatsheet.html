@@ -1,0 +1,710 @@
+<meta charset="utf-8">
+<title>Cheat Sheet — สัญลักษณ์ Quantum Circuit (สไตล์ QCEngine)</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/lesson-bits.css">
+<script defer src="../assets/circuit.js"></script>
+<script defer src="../assets/circles.js"></script>
+<script defer src="../assets/logicgate.js"></script>
+<style>
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(15rem,1fr)); gap:1rem; margin:1.4rem 0; }
+  .sym { border:1px solid var(--rule); border-radius:10px; background:#fff; padding:1rem; }
+  .sym.todo { opacity:.5; background:#f6f4ef; }
+  .sym svg { display:block; margin:.2rem auto .6rem; }
+  .sym h3 { margin:.2rem 0 .4rem; font-size:1.05rem; }
+  .sym .meta { font-size:.85rem; color:var(--ink-soft); }
+  .sym .rev { display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.05em;
+    border-radius:999px; padding:.1rem .55rem; margin-top:.5rem; }
+  .rev.yes { background:var(--good-bg); color:var(--good); }
+  .rev.no  { background:var(--bad-bg);  color:var(--bad); }
+  .rev.soon{ background:var(--accent-dim); color:var(--accent); }
+  .circuit-demo { background:#fff; border:1px solid var(--rule); border-radius:10px;
+    padding:1.2rem; margin:1.4rem 0; overflow-x:auto; text-align:center; }
+  .progress { font-size:.85rem; color:var(--ink-soft); }
+</style>
+<div class="wrap">
+
+  <p class="kicker">Reference · Cheat Sheet วงจร</p>
+  <h1>สัญลักษณ์ Quantum Circuit — ชุดที่ต้องท่องสอบ</h1>
+  <p class="lead">รวมสัญลักษณ์ของแต่ละ gate ที่ใช้ในวงจรควอนตัม ออกแบบให้พิมพ์ใส่กระดาษท่องก่อนสอบได้
+  หน้านี้ <b>โตขึ้นเรื่อยๆ</b> ทุกครั้งที่เราเรียน gate ใหม่ในบทเรียน</p>
+
+  <div class="box warn">
+    <span class="tag">สำคัญมากก่อนท่อง!</span>
+    <p>อาจารย์ใช้สัญลักษณ์สไตล์ <b>QCEngine / หนังสือ O'Reilly</b> — <b>ไม่ใช่</b> แบบ Qiskit
+    (กล่องเหลี่ยมล้วน) ที่เจอทั่วเน็ต ถ้าไปท่องผิดสไตล์จะงงในห้องสอบได้ ยึดตามหน้านี้
+    (เทียบกับ slide Lec 02 ได้ตามเลขหน้าที่กำกับไว้)</p>
+  </div>
+
+  <p class="progress"><b>ความคืบหน้า:</b> 8 สัญลักษณ์เดี่ยว (บท 4–9) + <b>CNOT</b> (บท 0009)
+  + <b>CPHASE/CZ + วงจร phase kickback</b> (บท 0010)
+  + <b>CCNOT · SWAP · CSWAP · วงจร SWAP test</b> (บท 0011)
+  + <b>สัญลักษณ์เชิงโครงสร้าง (write ▷ · ลูกศรประคลาสสิก · กล่องมีชื่อ) + วงจร teleportation
+  + ผัง 8 วง</b> (บท 0014) · สไตล์ IBM/Qiskit เทียบ QCEngine (บท 0016)
+  + <b>control หลายจุด / target หลายตัว · CZ 3 จุด · ประตูลอจิกดิจิทัล 6 ตัว</b> (Lec 05)</p>
+
+  <h2>วิธีอ่านวงจร (กติกาพื้นฐาน)</h2>
+  <ul>
+    <li><b>1 เส้นนอน = 1 qubit</b> เวลาไล่โปรแกรม อ่าน <b>ซ้าย → ขวา</b> (เหมือนอ่านหนังสือ)</li>
+    <li>สัญลักษณ์ที่วางบนเส้น = คำสั่ง (gate) ที่กระทำกับ qubit นั้น ตามลำดับเวลา</li>
+    <li>ปกติเริ่มด้วย <b>WRITE</b> (ตั้งค่า) ซ้ายสุด และจบด้วย <b>READ</b> (วัด) ขวาสุด</li>
+  </ul>
+
+  <h2>คำสั่งที่เรียนแล้ว (บท 4–9)</h2>
+  <div class="grid">
+
+    <div class="sym">
+      <svg width="150" height="64" viewBox="0 0 150 64" role="img" aria-label="สัญลักษณ์ WRITE">
+        <line x1="0" y1="32" x2="150" y2="32" stroke="#1a1a1a" stroke-width="2"/>
+        <circle cx="58" cy="32" r="5" fill="#6a3fb5"/>
+        <path d="M66,18 L90,32 L66,46 Z" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <h3>WRITE</h3>
+      <p class="meta">ตั้งค่าเริ่มต้น qubit ให้เป็น |0⟩ หรือ |1⟩ (แน่นอน ไม่สุ่ม) ตั้ง superposition เองไม่ได้</p>
+      <span class="rev no">IRREVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;">slide 58 · <code>qc.write(0)</code></p>
+    </div>
+
+    <div class="sym">
+      <svg width="150" height="64" viewBox="0 0 150 64" role="img" aria-label="สัญลักษณ์ READ">
+        <line x1="0" y1="32" x2="150" y2="32" stroke="#1a1a1a" stroke-width="2"/>
+        <path d="M64,12 A20,20 0 0 1 64,52" fill="#efe9fb" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="64" y1="12" x2="64" y2="52" stroke="#1a1a1a" stroke-width="2"/>
+      </svg>
+      <h3>READ (วัด)</h3>
+      <p class="meta">วัดค่า qubit → ได้ 0/1 (โอกาส = magnitude²) <b>คำสั่งเดียวที่สุ่ม</b> ยุบ superposition ทิ้ง</p>
+      <span class="rev no">IRREVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;">slide 58 · <code>qc.read()</code></p>
+    </div>
+
+    <div class="sym">
+      <svg width="150" height="64" viewBox="0 0 150 64" role="img" aria-label="สัญลักษณ์ NOT">
+        <line x1="0" y1="32" x2="150" y2="32" stroke="#1a1a1a" stroke-width="2"/>
+        <circle cx="75" cy="32" r="16" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="75" y1="18" x2="75" y2="46" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="61" y1="32" x2="89" y2="32" stroke="#1a1a1a" stroke-width="2"/>
+      </svg>
+      <h3>NOT (X)</h3>
+      <p class="meta">สลับ 0↔1 (สลับพื้นที่ทึบสองวง) ทำกับ superposition ได้ เป็นตัวย้อนของตัวเอง</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;">slide 33 · <code>qc.not()</code></p>
+    </div>
+
+    <div class="sym">
+      <svg width="150" height="64" viewBox="0 0 150 64" role="img" aria-label="สัญลักษณ์ HAD">
+        <line x1="0" y1="32" x2="150" y2="32" stroke="#1a1a1a" stroke-width="2"/>
+        <rect x="59" y="14" width="32" height="36" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="75" y="39" text-anchor="middle" font-size="20" font-weight="800" fill="#1a1a1a">H</text>
+      </svg>
+      <h3>HAD (H)</h3>
+      <p class="meta">สร้าง superposition 50/50 · H|0⟩=(|0⟩+|1⟩)/√2, H|1⟩=(|0⟩−|1⟩)/√2 (มีเครื่องหมายลบ) เป็นตัวย้อนของตัวเอง</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;">slide 34–35 · <code>qc.had()</code></p>
+    </div>
+
+    <div class="sym">
+      <svg width="150" height="64" viewBox="0 0 150 64" role="img" aria-label="สัญลักษณ์ PHASE">
+        <line x1="0" y1="32" x2="150" y2="32" stroke="#1a1a1a" stroke-width="2"/>
+        <circle cx="75" cy="32" r="17" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="75" y1="14" x2="75" y2="50" stroke="#1a1a1a" stroke-width="2"/>
+        <path d="M67,24 A9,8 0 1 1 67,40" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="75" y="10" text-anchor="middle" font-size="10" font-weight="800" fill="#4a4a4a">45°</text>
+      </svg>
+      <h3>PHASE(θ) = ROTZ</h3>
+      <p class="meta">หมุนเข็มของ <b>วง |1⟩ เท่านั้น</b> (วง |0⟩ ไม่แตะ) · <b>ไม่เปลี่ยนโอกาสวัด</b> ·
+      ไม่มีผลกับ |0⟩ เลย (ไม่มีเข็มให้หมุน) · <b>มุมบวก = ทวนเข็ม</b> · เขียนมุมกำกับข้างบนสัญลักษณ์</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;"><b style="color:#b23a48;">แต่ไม่ใช่ its own inverse!</b>
+      ย้อนด้วย PHASE(−θ) · <em>ยกเว้น PHASE(180)=Z ที่ย้อนตัวเองได้</em><br>
+      slide 64–65 · <code>qc.phase(45)</code></p>
+    </div>
+
+    <div class="sym">
+      <svg width="150" height="64" viewBox="0 0 150 64" role="img" aria-label="สัญลักษณ์ ROTX">
+        <line x1="0" y1="32" x2="150" y2="32" stroke="#1a1a1a" stroke-width="2"/>
+        <rect x="53" y="12" width="44" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="75" y="38" text-anchor="middle" font-size="15" font-weight="800" fill="#1a1a1a">RX</text>
+        <text x="75" y="8" text-anchor="middle" font-size="10" font-weight="800" fill="#4a4a4a">θ</text>
+      </svg>
+      <h3>ROTX(θ)</h3>
+      <p class="meta">หมุนลูกศรรอบ <b>แกน X</b> (แกนนอน) · <b>เปลี่ยน magnitude → เปลี่ยนโอกาสวัด</b> ·
+      สร้าง superposition จาก |0⟩ ได้เองโดยไม่ต้องใช้ HAD</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;">ย้อนด้วย ROTX(−θ) · slide 67–69 · <code>qc.rotx(90)</code></p>
+    </div>
+
+    <div class="sym">
+      <svg width="150" height="64" viewBox="0 0 150 64" role="img" aria-label="สัญลักษณ์ ROTY">
+        <line x1="0" y1="32" x2="150" y2="32" stroke="#1a1a1a" stroke-width="2"/>
+        <rect x="53" y="12" width="44" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="75" y="38" text-anchor="middle" font-size="15" font-weight="800" fill="#1a1a1a">RY</text>
+        <text x="75" y="8" text-anchor="middle" font-size="10" font-weight="800" fill="#4a4a4a">θ</text>
+      </svg>
+      <h3>ROTY(θ)</h3>
+      <p class="meta">หมุนลูกศรรอบ <b>แกน Y</b> (แกนนอนอีกทิศ) · <b>เปลี่ยน magnitude → เปลี่ยนโอกาสวัด</b> ·
+      ได้ superposition คนละตัวกับ ROTX (phase ต่างกัน → interference ต่างกัน)</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;">ย้อนด้วย ROTY(−θ) · slide 67–70 · <code>qc.roty(90)</code></p>
+    </div>
+
+    <div class="sym">
+      <svg width="150" height="64" viewBox="0 0 150 64" role="img" aria-label="สัญลักษณ์ RNOT">
+        <line x1="0" y1="32" x2="150" y2="32" stroke="#1a1a1a" stroke-width="2"/>
+        <rect x="57" y="14" width="36" height="36" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <path d="M65,34 l5,9 l7,-18 h11" fill="none" stroke="#1a1a1a" stroke-width="2"
+          stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      <h3>RNOT (√NOT)</h3>
+      <p class="meta"><b>ครึ่งหนึ่งของ NOT</b> — ทำสองที = NOT เต็ม (√NOT·√NOT = NOT) · เท่ากับ
+      <b>H → PHASE(90) → H</b> · พา |0⟩ ไปครึ่งทาง (superposition 50/50) · เมทริกซ์มี <b>i</b>:
+      ½[[1+i, 1−i],[1−i, 1+i]]</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;"><b style="color:#b23a48;">แต่ไม่ใช่ its own inverse!</b>
+      ย้อนด้วย H → PHASE(−90) → H<br>slide 92–106 · <code>qc.rootnot()</code></p>
+    </div>
+
+  </div>
+
+  <div class="box why">
+    <span class="tag">ตารางที่ออกสอบง่ายที่สุด (slide 68)</span>
+    <p><b>ROTX</b> → แกน X → <b>เปลี่ยน</b>โอกาสวัด (เปลี่ยน magnitude)<br>
+    <b>ROTY</b> → แกน Y → <b>เปลี่ยน</b>โอกาสวัด (เปลี่ยน magnitude)<br>
+    <b>PHASE</b> → แกน Z (แกน<b>ตั้ง</b>) → <b>ไม่เปลี่ยน</b>โอกาสวัด (เปลี่ยน phase อย่างเดียว)</p>
+    <p style="margin-bottom:0;" class="meta">เหตุผลจำง่าย: แกน Z คือแกนตั้งจาก |0⟩ ลงไป |1⟩
+    หมุนรอบมันแล้วลูกศรอยู่ <em>ละติจูดเดิม</em> = สูงเท่าเดิม = โอกาสเท่าเดิม</p>
+  </div>
+
+  <h2>4 สถานะที่มีชื่อ (สร้างจาก HAD + PHASE)</h2>
+  <p class="meta">ทั้ง 4 ตัว <b>วัดแล้วได้ 50/50 เหมือนกันหมด</b> ต่างกันแค่ทิศเข็มของวง |1⟩ เท่านั้น
+  (มุมบวก = ทวนเข็ม) — slide 65–66</p>
+  <div class="circuit-demo">
+    <table style="margin:0 auto; border-collapse:collapse; font-size:.9rem;">
+      <tr><th style="border:1px solid var(--rule); padding:.4rem .8rem;">สถานะ</th>
+          <th style="border:1px solid var(--rule); padding:.4rem .8rem;">เข็มวง |1⟩</th>
+          <th style="border:1px solid var(--rule); padding:.4rem .8rem;">สร้างยังไง</th></tr>
+      <tr><td style="border:1px solid var(--rule); padding:.4rem .8rem;"><b>|+⟩</b></td>
+          <td style="border:1px solid var(--rule); padding:.4rem .8rem;">ขึ้น (0°)</td>
+          <td style="border:1px solid var(--rule); padding:.4rem .8rem;"><code>HAD</code></td></tr>
+      <tr><td style="border:1px solid var(--rule); padding:.4rem .8rem;"><b>|−⟩</b></td>
+          <td style="border:1px solid var(--rule); padding:.4rem .8rem;">ลง (180°)</td>
+          <td style="border:1px solid var(--rule); padding:.4rem .8rem;"><code>HAD → PHASE(180)</code></td></tr>
+      <tr><td style="border:1px solid var(--rule); padding:.4rem .8rem;"><b>|+Y⟩</b></td>
+          <td style="border:1px solid var(--rule); padding:.4rem .8rem;">ซ้าย (90°)</td>
+          <td style="border:1px solid var(--rule); padding:.4rem .8rem;"><code>HAD → PHASE(90)</code></td></tr>
+      <tr><td style="border:1px solid var(--rule); padding:.4rem .8rem;"><b>|−Y⟩</b></td>
+          <td style="border:1px solid var(--rule); padding:.4rem .8rem;">ขวา (−90°)</td>
+          <td style="border:1px solid var(--rule); padding:.4rem .8rem;"><code>HAD → PHASE(−90)</code></td></tr>
+    </table>
+  </div>
+
+  <h2>ตัวอย่างอ่านวงจรจริง</h2>
+  <div class="circuit-demo">
+    <svg width="360" height="80" viewBox="0 0 360 80" role="img" aria-label="วงจรตัวอย่าง write not read">
+      <line x1="10" y1="40" x2="350" y2="40" stroke="#1a1a1a" stroke-width="2"/>
+      <!-- write -->
+      <circle cx="55" cy="40" r="5" fill="#6a3fb5"/>
+      <path d="M63,27 L85,40 L63,53 Z" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"/>
+      <!-- not -->
+      <circle cx="180" cy="40" r="15" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+      <line x1="180" y1="27" x2="180" y2="53" stroke="#1a1a1a" stroke-width="2"/>
+      <line x1="167" y1="40" x2="193" y2="40" stroke="#1a1a1a" stroke-width="2"/>
+      <!-- read -->
+      <path d="M295,22 A18,18 0 0 1 295,58" fill="#efe9fb" stroke="#1a1a1a" stroke-width="2"/>
+      <line x1="295" y1="22" x2="295" y2="58" stroke="#1a1a1a" stroke-width="2"/>
+    </svg>
+    <p class="meta" style="margin:.6rem 0 0;">อ่านว่า: <b>WRITE</b> ตั้งเป็น |0⟩ → <b>NOT</b> พลิกเป็น |1⟩ → <b>READ</b> วัดได้ 1 แน่นอน</p>
+  </div>
+
+  <div class="circuit-demo">
+    <svg width="360" height="80" viewBox="0 0 360 80" role="img" aria-label="วงจร QRNG: write H read">
+      <line x1="10" y1="40" x2="350" y2="40" stroke="#1a1a1a" stroke-width="2"/>
+      <circle cx="55" cy="40" r="5" fill="#6a3fb5"/>
+      <path d="M63,27 L85,40 L63,53 Z" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="165" y="22" width="32" height="36" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+      <text x="181" y="47" text-anchor="middle" font-size="20" font-weight="800" fill="#1a1a1a">H</text>
+      <path d="M295,22 A18,18 0 0 1 295,58" fill="#efe9fb" stroke="#1a1a1a" stroke-width="2"/>
+      <line x1="295" y1="22" x2="295" y2="58" stroke="#1a1a1a" stroke-width="2"/>
+      <text x="70" y="16" text-anchor="middle" font-size="11" fill="#4a4a4a">write</text>
+      <text x="181" y="16" text-anchor="middle" font-size="11" fill="#4a4a4a">had</text>
+      <text x="295" y="16" text-anchor="middle" font-size="11" fill="#4a4a4a">read</text>
+    </svg>
+    <p class="meta" style="margin:.6rem 0 0;"><b>QRNG</b> (slide 58) — วงจรที่ต้องวาดได้แบบหลับตา:
+    <b>WRITE</b> |0⟩ → <b>[H]</b> superposition 50/50 → <b>READ</b> ได้ 0/1 สุ่มแท้<br>
+    <code>qc.reset(1); qc.write(0); qc.had(); var result = qc.read();</code></p>
+  </div>
+
+  <h2>เอกลักษณ์ประกอบ gate (บท 8)</h2>
+  <p class="meta">เอา gate ที่มีมาต่อกันสร้างตัวอื่นได้ — H เป็นตัว "สลับ X ↔ Z"</p>
+  <div class="box why">
+    <span class="tag">ท่องคู่นี้ไว้</span>
+    <p style="margin:0;"><b>X = HZH</b> → สร้าง NOT จาก HAD + PHASE(180) (slide 75–85)<br>
+    <b>Z = HXH</b> → สร้าง PHASE(180) จาก HAD + NOT (slide 86–90)<br>
+    <b>RNOT = H·PHASE(90)·H</b> → เหมือน X=HZH แต่ครึ่งมุม (180→90)</p>
+  </div>
+
+  <h2>ตัวอย่างวงจรหลาย qubit: Quantum Spy Hunter (บท 9)</h2>
+  <div class="circuit-demo">
+    <svg width="480" height="150" viewBox="0 0 480 150" role="img" aria-label="วงจร spy hunter ย่อ สามเส้น">
+      <g font-size="11" fill="#1a1a1a" font-weight="700" text-anchor="end">
+        <text x="42" y="44">alice</text><text x="42" y="79">สาย</text><text x="42" y="114">bob</text>
+      </g>
+      <line x1="48" y1="40" x2="230" y2="40" stroke="#1a1a1a" stroke-width="2"/>
+      <line x1="230" y1="40" x2="262" y2="75" stroke="#1a1a1a" stroke-width="2"/>
+      <line x1="262" y1="75" x2="340" y2="75" stroke="#1a1a1a" stroke-width="2"/>
+      <line x1="340" y1="75" x2="372" y2="110" stroke="#1a1a1a" stroke-width="2"/>
+      <line x1="372" y1="110" x2="470" y2="110" stroke="#1a1a1a" stroke-width="2"/>
+      <!-- alice: write, had?, not?, had? -->
+      <circle cx="66" cy="40" r="4" fill="#6a3fb5"/>
+      <path d="M72,32 L86,40 L72,48 Z" fill="none" stroke="#1a1a1a" stroke-width="1.6" stroke-linejoin="round"/>
+      <circle cx="120" cy="40" r="11" fill="#fff" stroke="#1a1a1a" stroke-width="1.6"/>
+      <line x1="120" y1="29" x2="120" y2="51" stroke="#1a1a1a" stroke-width="1.6"/>
+      <line x1="109" y1="40" x2="131" y2="40" stroke="#1a1a1a" stroke-width="1.6"/>
+      <rect x="170" y="28" width="22" height="24" fill="#fff" stroke="#1a1a1a" stroke-width="1.6"/>
+      <text x="181" y="45" text-anchor="middle" font-size="12" font-weight="800">H</text>
+      <!-- spy on line -->
+      <rect x="272" y="63" width="22" height="24" fill="#fff" stroke="#b23a48" stroke-width="1.6"/>
+      <text x="283" y="80" text-anchor="middle" font-size="12" font-weight="800" fill="#b23a48">H</text>
+      <path d="M300,63 A12,12 0 0 1 300,87" fill="#fbe3e6" stroke="#b23a48" stroke-width="1.6"/>
+      <line x1="300" y1="63" x2="300" y2="87" stroke="#b23a48" stroke-width="1.6"/>
+      <text x="300" y="103" text-anchor="middle" font-size="9" fill="#b23a48">spy READ</text>
+      <!-- bob: had?, read -->
+      <rect x="390" y="98" width="22" height="24" fill="#fff" stroke="#1a1a1a" stroke-width="1.6"/>
+      <text x="401" y="115" text-anchor="middle" font-size="12" font-weight="800">H</text>
+      <path d="M448,98 A12,12 0 0 1 448,122" fill="#efe9fb" stroke="#1a1a1a" stroke-width="1.6"/>
+      <line x1="448" y1="98" x2="448" y2="122" stroke="#1a1a1a" stroke-width="1.6"/>
+    </svg>
+    <p class="meta" style="margin:.6rem 0 0;">3 เส้น (alice/สาย/bob) qubit วิ่งจาก alice ลงสาย (สปายสีแดงดักตรงนี้) แล้วขึ้นไป bob<br>
+    <b>กติกาจับสปาย:</b> <code>if (send_had==recv_had) if (send_val!=recv_val) → "Caught a spy!"</code> (slide 120)</p>
+  </div>
+
+  <h2>การตั้งชื่อเส้นในวงจรหลาย qubit (บท 0008 · Lec 03 slide 17–20)</h2>
+  <p class="meta">ไม่ใช่สัญลักษณ์ gate แต่<b>ออกสอบแน่</b> — วางเส้นผิดคือตอบผิดทั้งข้อ</p>
+  <div class="box why">
+    <span class="tag">กติกา</span>
+    <p style="margin:0;">ตั้งชื่อ qubit ตาม <b>น้ำหนักบิต</b> ไม่ใช่ลำดับที่วาด · เขียนเป็นเลขฐานสิบหก:<br>
+    <b>เส้นบนสุด = 0x1 (LSB)</b> → 0x2 → 0x4 → 0x8 → 0x10 → 0x20 → 0x40 → <b>0x80 (MSB, ล่างสุด)</b><br>
+    ครบ 8 เส้น = <b>qubyte</b> (ในสไลด์วาดปีกกาครอบทั้ง 8 เส้นแล้วเขียนว่า "one qubyte")<br>
+    <span class="src">0x1 = 0001 · 0x2 = 0010 · 0xF = 1111</span></p>
+  </div>
+  <div class="box aha">
+    <span class="tag">operator pairs — ใช้อ่านผลของ gate เดี่ยวในวงจรหลายเส้น</span>
+    <p style="margin:0;">ยิง gate ใส่เส้นไหน → จับคู่วงที่<b>ค่าต่างกันเท่าน้ำหนักบิตของเส้นนั้น</b><br>
+    ยิง 0x1 → (0,1)(2,3)(4,5)(6,7) · ยิง 0x2 → (0,2)(1,3)(4,6)(5,7) · ยิง 0x4 → (0,4)(1,5)(2,6)(3,7)<br>
+    <b>NOT (⊕)</b> = สลับสองวงในทุกคู่ · <b>PHASE (วงกลมมี φ)</b> = หมุนเฉพาะวง<b>ขวา</b>ของทุกคู่ ·
+    <b>READ (ครึ่งวงกลม)</b> = บวก magnitude² แยกฝั่งซ้าย/ขวา แล้วลบวงที่ขัดผล + renormalize</p>
+  </div>
+
+  <h2>CNOT (บท 0009 · Lec 03 slide 40–42, 61)</h2>
+  <p class="meta">gate ตัวแรกที่ "ข้าม qubit" ได้ — สัญลักษณ์นี้ออกสอบแน่</p>
+  <div class="grid">
+    <div class="sym">
+      <svg width="150" height="96" role="img" aria-label="สัญลักษณ์ CNOT">
+        <line x1="14" y1="28" x2="136" y2="28" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="14" y1="70" x2="136" y2="70" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="75" y1="28" x2="75" y2="70" stroke="#1a1a1a" stroke-width="2.4"/>
+        <circle cx="75" cy="28" r="6.5" fill="#1a1a1a"/>
+        <circle cx="75" cy="70" r="12" fill="#fff" stroke="#1a1a1a" stroke-width="2.4"/>
+        <line x1="63" y1="70" x2="87" y2="70" stroke="#1a1a1a" stroke-width="2.4"/>
+        <line x1="75" y1="58" x2="75" y2="82" stroke="#1a1a1a" stroke-width="2.4"/>
+        <text x="146" y="22" font-size="10" text-anchor="end" fill="#4a4a4a">control</text>
+        <text x="146" y="92" font-size="10" text-anchor="end" fill="#4a4a4a">target</text>
+      </svg>
+      <p class="meta" style="margin:.4rem 0 0;"><b>CNOT</b><br>
+      ● = control (จุด<b>ทึบ</b>) · ⊕ = target · <b>ต้องมีเส้นตั้งเชื่อม</b><br>
+      สลับข้างกัน = ความหมายเปลี่ยนคนละเรื่อง</p>
+      <span class="rev yes">REVERSIBLE (inverse ของตัวเอง)</span>
+    </div>
+    <div class="sym">
+      <svg width="200" height="96" role="img" aria-label="วงจร Bell pair">
+        <line x1="30" y1="28" x2="190" y2="28" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="30" y1="70" x2="190" y2="70" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="6" y="33" font-size="13" font-weight="700">a</text>
+        <text x="6" y="75" font-size="13" font-weight="700">b</text>
+        <rect x="52" y="14" width="26" height="28" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="65" y="34" font-size="14" font-weight="800" text-anchor="middle">H</text>
+        <line x1="112" y1="28" x2="112" y2="70" stroke="#1a1a1a" stroke-width="2.2"/>
+        <circle cx="112" cy="28" r="6" fill="#1a1a1a"/>
+        <circle cx="112" cy="70" r="11" fill="#fff" stroke="#1a1a1a" stroke-width="2.2"/>
+        <line x1="101" y1="70" x2="123" y2="70" stroke="#1a1a1a" stroke-width="2.2"/>
+        <line x1="112" y1="59" x2="112" y2="81" stroke="#1a1a1a" stroke-width="2.2"/>
+        <path d="M156,16 A12,12 0 0 1 156,40" fill="#efe9fb" stroke="#1a1a1a" stroke-width="1.8"/>
+        <line x1="156" y1="16" x2="156" y2="40" stroke="#1a1a1a" stroke-width="1.8"/>
+        <path d="M156,58 A12,12 0 0 1 156,82" fill="#efe9fb" stroke="#1a1a1a" stroke-width="1.8"/>
+        <line x1="156" y1="58" x2="156" y2="82" stroke="#1a1a1a" stroke-width="1.8"/>
+      </svg>
+      <p class="meta" style="margin:.4rem 0 0;"><b>วงจร Bell pair</b> (slide 45, 61)<br>
+      HAD ที่ a → CNOT (control a, target b) → READ ทั้งคู่<br>
+      ผล: <b>|0⟩ 50% · |3⟩ 50%</b> อ่านแล้วตรงกันเสมอ</p>
+    </div>
+  </div>
+  <div class="box aha">
+    <span class="tag">CNOT ในภาษา operator pairs</span>
+    <p style="margin:0;"><b>คู่มาจาก target · เงื่อนไขมาจาก control</b><br>
+    ① จับคู่วงตามน้ำหนักบิตของ <b>target</b> → ② เอาเฉพาะคู่ที่บิตของ <b>control เป็น 1</b> → ③ สลับคู่นั้น<br>
+    ตัวอย่าง 3 qubit · target 0x1 + control 0x2 → สลับ <b>(2,3) และ (6,7)</b> เท่านั้น (slide 42)<br>
+    → NOT กระทบครึ่งหนึ่ง แต่ <b>CNOT กระทบ 1 ใน 4</b> · <b>CNOT เป็น inverse ของตัวเอง</b><br>
+    <span class="src">โค้ด QCEngine: <code>b.cnot(a)</code> = target b, control a — ตัวหน้าจุดคือ target</span></p>
+  </div>
+
+  <h2>CPHASE · CZ (บท 0010 · Lec 03 slide 63–72)</h2>
+  <p class="meta">conditional gate ที่ <b>ไม่ขยับวง แต่หมุนเข็ม</b> — สังเกตว่าสัญลักษณ์ <b>สมมาตร</b> ทั้งคู่</p>
+  <div class="grid">
+    <div class="sym">
+      <svg width="150" height="100" role="img" aria-label="สัญลักษณ์ CPHASE">
+        <text x="75" y="14" text-anchor="middle" font-size="12" font-weight="700">θ</text>
+        <line x1="14" y1="34" x2="136" y2="34" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="14" y1="76" x2="136" y2="76" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="75" y1="34" x2="75" y2="76" stroke="#1a1a1a" stroke-width="2.4"/>
+        <circle cx="75" cy="34" r="11" fill="#fff" stroke="#1a1a1a" stroke-width="2.2"/>
+        <text x="75" y="39" text-anchor="middle" font-size="13" font-weight="700">φ</text>
+        <circle cx="75" cy="76" r="11" fill="#fff" stroke="#1a1a1a" stroke-width="2.2"/>
+        <text x="75" y="81" text-anchor="middle" font-size="13" font-weight="700">φ</text>
+      </svg>
+      <p class="meta" style="margin:.4rem 0 0;"><b>CPHASE(θ)</b><br>
+      φ <b>ทั้งสองเส้น</b> · มุมกำกับด้านบน · เชื่อมด้วยเส้นตั้ง<br>
+      หมุน phase เฉพาะ <b>|11⟩</b> — ไม่มี control/target (สมมาตร)</p>
+      <span class="rev yes">REVERSIBLE (ย้อนด้วย −θ)</span>
+    </div>
+    <div class="sym">
+      <svg width="150" height="100" role="img" aria-label="สัญลักษณ์ CZ">
+        <line x1="14" y1="34" x2="136" y2="34" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="14" y1="76" x2="136" y2="76" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="75" y1="34" x2="75" y2="76" stroke="#1a1a1a" stroke-width="3"/>
+        <circle cx="75" cy="34" r="7.5" fill="#1a1a1a"/>
+        <circle cx="75" cy="76" r="7.5" fill="#1a1a1a"/>
+      </svg>
+      <p class="meta" style="margin:.4rem 0 0;"><b>CZ = CPHASE(180°)</b><br>
+      <b>จุดทึบ ● ทั้งสองข้าง</b> (ไม่ใช่ ⊕!) · พลิกเครื่องหมาย |11⟩<br>
+      matrix = diag(1, 1, 1, <b>−1</b>)</p>
+      <span class="rev yes">REVERSIBLE (inverse ของตัวเอง)</span>
+    </div>
+    <div class="sym">
+      <svg width="200" height="100" role="img" aria-label="CZ เท่ากับ H CNOT H">
+        <line x1="14" y1="34" x2="190" y2="34" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="14" y1="76" x2="190" y2="76" stroke="#1a1a1a" stroke-width="2"/>
+        <rect x="40" y="62" width="26" height="28" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="53" y="82" font-size="14" font-weight="800" text-anchor="middle">H</text>
+        <line x1="104" y1="34" x2="104" y2="76" stroke="#1a1a1a" stroke-width="2.2"/>
+        <circle cx="104" cy="34" r="6" fill="#1a1a1a"/>
+        <circle cx="104" cy="76" r="11" fill="#fff" stroke="#1a1a1a" stroke-width="2.2"/>
+        <line x1="93" y1="76" x2="115" y2="76" stroke="#1a1a1a" stroke-width="2.2"/>
+        <line x1="104" y1="65" x2="104" y2="87" stroke="#1a1a1a" stroke-width="2.2"/>
+        <rect x="142" y="62" width="26" height="28" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="155" y="82" font-size="14" font-weight="800" text-anchor="middle">H</text>
+      </svg>
+      <p class="meta" style="margin:.4rem 0 0;"><b>CZ สร้างจาก H + CNOT</b> (slide 72)<br>
+      CZ(q₀,q₁) = H(q₁) → CNOT(q₀,q₁) → H(q₁)<br>
+      <b>H คร่อมเส้นเดียว</b> (เส้น target) — คู่ขนานกับ Z = H→X→H</p>
+    </div>
+    <div class="sym">
+      <svg width="200" height="118" role="img" aria-label="วงจร phase kickback">
+        <line x1="34" y1="24" x2="190" y2="24" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="34" y1="58" x2="190" y2="58" stroke="#1a1a1a" stroke-width="2"/>
+        <line x1="34" y1="98" x2="190" y2="98" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="4" y="28" font-size="10" font-weight="700">0x1</text>
+        <text x="4" y="62" font-size="10" font-weight="700">0x2</text>
+        <text x="2" y="102" font-size="10" font-weight="700">|1⟩</text>
+        <rect x="46" y="12" width="22" height="24" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="57" y="29" font-size="12" font-weight="800" text-anchor="middle">H</text>
+        <rect x="46" y="46" width="22" height="24" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="57" y="63" font-size="12" font-weight="800" text-anchor="middle">H</text>
+        <text x="104" y="8" text-anchor="middle" font-size="10" font-weight="700">45°</text>
+        <line x1="104" y1="24" x2="104" y2="98" stroke="#1a1a1a" stroke-width="2.2"/>
+        <circle cx="104" cy="24" r="9" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="104" y="28" text-anchor="middle" font-size="11" font-weight="700">φ</text>
+        <circle cx="104" cy="98" r="9" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="104" y="102" text-anchor="middle" font-size="11" font-weight="700">φ</text>
+        <text x="156" y="42" text-anchor="middle" font-size="10" font-weight="700">90°</text>
+        <line x1="156" y1="58" x2="156" y2="98" stroke="#1a1a1a" stroke-width="2.2"/>
+        <circle cx="156" cy="58" r="9" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="156" y="62" text-anchor="middle" font-size="11" font-weight="700">φ</text>
+        <circle cx="156" cy="98" r="9" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="156" y="102" text-anchor="middle" font-size="11" font-weight="700">φ</text>
+      </svg>
+      <p class="meta" style="margin:.4rem 0 0;"><b>วงจร phase kickback</b> (slide 73)<br>
+      reg1 (2 qubit) HAD ทั้งคู่ · <b>reg2 เขียน |1⟩</b> · CPHASE ลงมาที่ reg2<br>
+      ผล: reg1 ได้ phase <b>0° / 45° / 90° / 135°</b> · reg2 ไม่ขยับ · <b>ไม่ entangle</b></p>
+    </div>
+  </div>
+  <div class="box aha">
+    <span class="tag">กฎตัวกรอง (slide 67–68) — ออกสอบง่ายมาก</span>
+    <p style="margin:0;"><b>k control → กระทบ 1 / 2<sup>k+1</sup> ของทุกวง</b><br>
+    PHASE เดี่ยว (k=0) → ครึ่งหนึ่ง · CPHASE (k=1) → 1/4 · CCPHASE (k=2) → 1/8<br>
+    วิธีหาว่าวงไหนโดน: เขียนเลขฐานสองของทุกวง → เอาเฉพาะวงที่ <b>บิตของ qubit ที่เกี่ยวข้องเป็น 1 ครบทุกตัว</b><br>
+    <span class="src">โค้ด QCEngine: <code>qc.phase(มุม, targetMask, conditionMask)</code>
+    เช่น <code>qc.phase(45, 0x4, 0x1)</code></span></p>
+  </div>
+  <div class="box warn">
+    <span class="tag">⚠️ สไลด์ 71 พิมพ์ผิด</span>
+    <p style="margin:0;">สไลด์ 71 เขียนว่าสัญลักษณ์ CZ คือ <b>(●—⊕)</b> — <b>ผิด</b> นั่นคือ CNOT<br>
+    ของถูกคือ <b>●—●</b> ซึ่ง <b>สไลด์ 70 ของอาจารย์เองก็วาดไว้แบบนี้</b> (สองหน้าขัดกันเอง)<br>
+    ตอนสอบให้วาด ●—● ตามรูปหน้า 70 ค่ะ</p>
+  </div>
+
+  <h2>CCNOT · SWAP · CSWAP (บท 0011 · Lec 03 slide 85–91)</h2>
+  <p class="meta">เพิ่มเงื่อนไขให้ NOT (CCNOT) แล้วเอาไปทำ SWAP แบบมีเงื่อนไข (CSWAP)</p>
+  <div class="grid">
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-wire-labels="A,B,C" data-init="0,0,0"
+           data-ops="CCNOT:0,1,2"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>CCNOT (Toffoli)</b><br>
+      <b>●● สอง control</b> + ⊕ target · “ถ้า A และ B ค่อยพลิก C”<br>
+      2 control → กระทบ <b>1 คู่วง</b> (universal สำหรับ logic)</p>
+      <span class="rev yes">REVERSIBLE (inverse ของตัวเอง)</span>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="2" data-wire-labels="a,b" data-init="0,0"
+           data-ops="SWAP:0,1"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>SWAP</b><br>
+      <b>×—×</b> เชื่อมด้วยเส้นตั้ง · สลับสอง qubit<br>
+      = CNOT:a,b → CNOT:b,a → CNOT:a,b (3 CNOT)</p>
+      <span class="rev yes">REVERSIBLE (inverse ของตัวเอง)</span>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-wire-labels="a,b,ctrl" data-init="0,0,1"
+           data-ops="CSWAP:2,0,1"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>CSWAP (conditional exchange)</b><br>
+      <b>● control</b> + ×—× · สลับก็ต่อเมื่อ control = |1⟩<br>
+      = 3 CCNOT · control superposition → “สลับ+ไม่สลับ” พร้อมกัน</p>
+      <span class="rev yes">REVERSIBLE (inverse ของตัวเอง)</span>
+    </div>
+  </div>
+
+  <h2>วงจร SWAP test (บท 0011 · Lec 03 slide 93–97)</h2>
+  <p class="meta">เทียบว่าสองสถานะเหมือนกันแค่ไหน โดยไม่ต้องอ่านทำลาย</p>
+  <div class="circuit-demo">
+    <div class="circuit" data-wires="3" data-wire-labels="input1,input2,output(ancilla)"
+         data-init="0,0,0"
+         data-ops="_; _; H:2; CSWAP:2,0,1; H:2; READ:2"
+         data-cap="ancilla → H → CSWAP(คุมโดย ancilla) → H → READ"></div>
+  </div>
+  <div class="box aha">
+    <span class="tag">การอ่านผล — เรื่องออกสอบ</span>
+    <p style="margin:0;"><b>เวอร์ชัน 5 สเต็ป (ไม่มี NOT):</b> ancilla = <b>0 → เหมือน</b> · 1 → ต่าง ·
+    P(0) = (1 + |⟨a|b⟩|²)/2<br>
+    ต่างสุดขั้ว (|0⟩ vs |1⟩) → 50/50 · เจอผล “ต่าง” ครั้งเดียว = ฟันธงว่าไม่เหมือนเป๊ะ</p>
+  </div>
+  <div class="box warn">
+    <span class="tag">⚠️ สไลด์เขียนการอ่านผลไว้สองแบบ</span>
+    <p style="margin:0;">หน้า 94 บอก <b>0 = เหมือน</b> (วงจร 5 สเต็ป) แต่โค้ดหน้า 97 เติม
+    <code>output.not()</code> ปิดท้าย → กลายเป็น <b>1 = เหมือน</b><br>
+    ทั้งคู่ถูกในบริบทตัวเอง — ตอนสอบดูว่าโจทย์มี <code>output.not()</code> ไหม
+    แล้วค่อยตอบ (มี NOT → 1 = เหมือน · ไม่มี → 0 = เหมือน)</p>
+  </div>
+
+  <h2>สัญลักษณ์เชิงโครงสร้าง (บท 0014 · Lec 04 slide 15)</h2>
+  <p class="meta">ไม่ใช่ gate — ไม่เปลี่ยนสถานะ qubit เอง แต่บอกว่าสายเริ่ม/จบตรงไหน และอะไรสั่งอะไร
+  · ทั้งสามตัวโผล่พร้อมกันในวงจร teleportation</p>
+  <div class="grid">
+    <div class="sym">
+      <div class="circuit" data-wires="1" data-ops="WRITE:0; _"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>write ▷</b><br>
+      สามเหลี่ยมเปิด + วงกลมเล็กสีฟ้า ที่<b>หัวสาย</b> · “สายเริ่มที่นี่ ตั้งค่าเป็น |0⟩”<br>
+      เส้นก่อนสัญลักษณ์นี้วาด<b>จาง</b> = qubit ยังไม่ถูกใช้</p>
+      <span class="rev">ไม่ใช่ gate</span>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="2" data-ops="READ:0; CC:0,1 + X:1"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>ควบคุมด้วยบิตคลาสสิก 🔴</b><br>
+      <b>ลูกศรประสีฟ้าชี้ลง</b> จากสายที่ถูก READ ไปยัง gate ปลายทาง<br>
+      = <code>if (bit) { … }</code> · <b>ไม่</b>สร้าง entanglement (ต่างจากเส้นตั้งทึบของ CNOT)</p>
+      <span class="rev">คลาสสิก ไม่ใช่ควอนตัม</span>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="1" data-groups="0-2:ชื่อกล่อง:45°" data-ops="H:0; P:0; H:0"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>กล่องมีชื่อกำกับ</b><br>
+      พื้นเทา + วงเล็บโค้ง + ชื่อกล่องด้านบน · จัดกลุ่ม gate ที่ทำงานเป็นชุดเดียวกัน<br>
+      ตัวเลขในกล่อง = <b>มุมของ φ</b> ที่อยู่ข้างใน</p>
+      <span class="rev">แค่การจัดกลุ่ม</span>
+    </div>
+  </div>
+
+  <h2>วงจร quantum teleportation (บท 0014 · Lec 04 slide 15)</h2>
+  <p class="meta">หน้าที่สำคัญที่สุดของ Lec 04 — วาดจากความจำให้ได้ทั้ง 5 กล่อง</p>
+  <div class="circuit-demo">
+    <div class="circuit" data-wires="3" data-names="alice,ep,bob" data-wire-labels="0x1,0x1,0x1"
+         data-groups="1-2:entangle; 4-6:prep payload:45°; 7-9:send; 10-11:receive:180°; 12-15:verify:−45°"
+         data-ops="WRITE:1 + WRITE:2; H:1; CNOT:1,2; WRITE:0; H:0; P:0; H:0; CNOT:0,1; H:0;
+                   READ:0 + READ:1; CC:1,2 + X:2; CC:0,2 + P:2; H:2; P:2; H:2; READ:2"
+         data-cap="สาย alice/ep จางหลัง READ = ถูกทำลาย (no-cloning)"></div>
+  </div>
+  <div class="box aha">
+    <span class="tag">จุดที่ข้อสอบชอบสลับ</span>
+    <p style="margin:0;">ลูกศรจากสาย <b>ep → คุม ⊕ (NOT)</b> · ลูกศรจากสาย <b>alice → คุม φ (PHASE 180°)</b><br>
+    โค้ด: <code>if(bit_n){bob.not();}</code> โดย <code>bit_n</code> มาจาก ep ·
+    <code>if(bit_p){bob.phase(180);}</code> โดย <code>bit_p</code> มาจาก alice</p>
+  </div>
+
+  <h2>ผัง circle notation ของ 3 qubit (บท 0014 · Lec 04 slide 20–22)</h2>
+  <p class="meta">2³ = 8 วง จัด 2 แถว × 4 คอลัมน์ — น้ำหนักบิต <b>alice = 1 · ep = 2 · bob = 4</b></p>
+  <div class="circuit-demo">
+    <div class="crow" data-n="4" data-r="17" data-lab="bob = 0" data-labels="0,1,2,3"
+         data-mag="1,0,0,0" data-sub="000,001,010,011"></div>
+    <div class="crow" data-n="4" data-r="17" data-lab="bob = 1" data-labels="4,5,6,7"
+         data-mag="0,0,0,0" data-sub="100,101,110,111"></div>
+    <p class="meta" style="text-align:center;">แถว = bob · ครึ่งซ้าย/ขวา = ep · คอลัมน์สลับ = alice
+    · เลขใต้วงเรียง <b>bob·ep·alice</b> · ภาพนี้ = สถานะเริ่มต้น |000⟩</p>
+  </div>
+
+  <h2>control หลายจุด · target หลายตัว (Lec 05 slide 12, 30–34, 43, 52–53)</h2>
+  <p class="meta">Lec 05 ก้าวข้าม CCNOT ไปแล้ว — วงจรเลขคณิต (increment, negate, abs) ใช้ ● <b>3–4 จุด</b>
+  ในคอลัมน์เดียว และบางคอลัมน์มี ⊕ <b>หลายตัว</b> คุมด้วย ● จุดเดียว
+  · กติกาการอ่านเหมือนเดิมทุกอย่าง: <b>เส้นตั้งทึบเส้นเดียว = ทุกอย่างบนเส้นนั้นทำงานพร้อมกันในคอลัมน์เดียว</b>
+  · ● ทุกจุดต้องเป็น 1 พร้อมกัน gate ถึงจะทำงาน (เงื่อนไข AND)</p>
+  <div class="grid">
+    <div class="sym">
+      <div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x4,0x1"
+           data-names="a,,,scratch" data-ops="CTRL:0,1,3 + X:2"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>NOT ที่มี 3 control</b><br>
+      ● สามจุด + ⊕ หนึ่งตัว บนเส้นตั้งเดียวกัน = <code>if (a AND b AND c) then NOT t</code><br>
+      ขยายจาก CCNOT (2 control) ตรงๆ — ยิ่งมี control มาก เงื่อนไขยิ่งแคบ</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;"><code>data-ops="CTRL:0,1,3 + X:2"</code></p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x4,0x1"
+           data-names="a,,,scratch" data-ops="CTRL:3 + X:0,1,2"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>multi-target CNOT</b> (⊕ หลายตัว ● จุดเดียว)<br>
+      = พลิก<b>ทุกบิต</b>ของ register ถ้า control เป็น 1 · ใช้ทำ two’s complement negate<br>
+      🔴 อย่าอ่านสลับกับ 3 control! <b>นับว่าอะไรเป็น ● อะไรเป็น ⊕</b> ก่อนเสมอ</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;"><code>data-ops="CTRL:3 + X:0,1,2"</code></p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-ops="CZ:0,1,2"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>CZ 3 จุด</b> (multi-control Z)<br>
+      ● ทึบทุกจุด <b>ไม่มี ⊕ เลย</b> = พลิกเฟส 180° เฉพาะสถานะที่ทุกสายเป็น 1 พร้อมกัน<br>
+      สมมาตร — สลับสายยังไงความหมายก็เท่าเดิม (ไม่มี “ตัวคุม/ตัวถูกคุม”)</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;"><code>data-ops="CZ:0,1,2"</code></p>
+    </div>
+  </div>
+  <div class="box aha">
+    <span class="tag">วิธีเขียนใน data-ops</span>
+    <p style="margin:0;"><code>CTRL:</code> = วาด ● อย่างเดียว แล้วเอาไปรวมกับ gate ตัวอื่น<b>ในคอลัมน์เดียวกัน</b>
+    ด้วยเครื่องหมาย <code>+</code> · เส้นตั้งเชื่อมให้อัตโนมัติ<br>
+    ใช้ได้กับ gate อะไรก็ได้ ไม่ใช่แค่ ⊕ เช่น <code>CTRL:0 + H:1</code> = controlled-HAD</p>
+  </div>
+
+  <h2>ประตูลอจิกดิจิทัล “คลาสสิก” (Lec 05 slide 56–60)</h2>
+  <p class="meta">🔴 <b>คนละระบบกับสัญลักษณ์ควอนตัมด้านบน</b> — พวกนี้ไม่มีเส้น qubit, input กับ output
+  เป็นคนละเส้นกัน, และส่วนใหญ่ <b>irreversible</b> (จาก output ย้อนกลับไปหา input ไม่ได้)
+  สไลด์เอามาวางคู่วงจรควอนตัมเพื่อบอกว่า “วงจรควอนตัมชุดนี้ทำงานเทียบเท่าประตูตัวนี้”</p>
+  <div class="box warn">
+    <span class="tag">จุดที่ข้อสอบชอบสลับ</span>
+    <p style="margin:0;"><b>วงกลมเล็กที่ปลาย output (inverting bubble) = NOT ทับอีกที</b><br>
+    AND + bubble = <b>NAND</b> · OR + bubble = <b>NOR</b> · XOR + bubble = XNOR<br>
+    ทรงตัวถัง: <b>AND</b> หลังตรง ทรงตัว D · <b>OR</b> หลังเว้าเข้า ปลายแหลม ·
+    <b>XOR</b> = OR ที่มีเส้นโค้งซ้อนอีกเส้นด้านหลัง</p>
+  </div>
+  <div class="grid">
+    <div class="sym">
+      <div class="logicgate" data-gate="not" data-in="a" data-out="a"></div>
+      <h3>NOT (inverter)</h3>
+      <p class="meta">สามเหลี่ยม + bubble · <code>out = NOT a</code>
+      — ตัวเดียวในกลุ่มนี้ที่ <b>reversible</b> (ทำซ้ำสองครั้งได้ของเดิม)</p>
+      <span class="rev yes">REVERSIBLE</span>
+    </div>
+    <div class="sym">
+      <div class="logicgate" data-gate="and" data-in="a,b" data-out="c"></div>
+      <h3>AND</h3>
+      <p class="meta">ทรงตัว D (หลังตรง หน้าโค้ง) · <code>c = a AND b</code> — เป็น 1 เมื่อเป็น 1 ทั้งคู่</p>
+      <span class="rev no">IRREVERSIBLE</span>
+    </div>
+    <div class="sym">
+      <div class="logicgate" data-gate="or" data-in="a,b" data-out="c"></div>
+      <h3>OR</h3>
+      <p class="meta">หลังเว้า ปลายแหลม · <code>c = a OR b</code> — เป็น 0 เมื่อเป็น 0 ทั้งคู่เท่านั้น</p>
+      <span class="rev no">IRREVERSIBLE</span>
+    </div>
+    <div class="sym">
+      <div class="logicgate" data-gate="xor" data-in="a,b" data-out="c"></div>
+      <h3>XOR</h3>
+      <p class="meta">ทรง OR + เส้นโค้งซ้อนด้านหลัง · <code>c = a XOR b</code> — เป็น 1 เมื่อ<b>ต่างกัน</b>
+      · ตัวนี้คือสิ่งที่ ⊕ ของ CNOT ทำ</p>
+      <span class="rev no">IRREVERSIBLE</span>
+    </div>
+    <div class="sym">
+      <div class="logicgate" data-gate="nand" data-in="a,b" data-out="c"></div>
+      <h3>NAND</h3>
+      <p class="meta">AND + bubble · <code>c = NOT (a AND b)</code>
+      — <b>universal gate</b> ต่อ NAND อย่างเดียวสร้างลอจิกอะไรก็ได้</p>
+      <span class="rev no">IRREVERSIBLE</span>
+    </div>
+    <div class="sym">
+      <div class="logicgate" data-gate="nor" data-in="a,b" data-out="c"></div>
+      <h3>NOR</h3>
+      <p class="meta">OR + bubble · <code>c = NOT (a OR b)</code> — universal gate เช่นกัน</p>
+      <span class="rev no">IRREVERSIBLE</span>
+    </div>
+  </div>
+
+  <h2>6 ประตูลอจิกสร้างด้วยวงจรควอนตัม (Lec 05 slide 59–60)</h2>
+  <p class="meta">หน้าที่ออกสอบง่ายที่สุดของ Lec 05 — ทุกช่องเรียงสายบนลงล่างเป็น <b>a · b · c</b>
+  เสมอ · หัวใจคือ <b>Toffoli ทำ <code>c = c XOR (a AND b)</code></b> ดังนั้นป้าย “c = a AND b”
+  จะจริงก็ต่อเมื่อ <b>c เริ่มที่ |0⟩</b> — นั่นคือเหตุผลที่ 4 ช่องล่างต้องมี ▷ (scratch qubit)
+  ส่วน NOT กับ XOR ไม่ต้องใช้ scratch เพราะเขียนผลทับสาย input ได้เลย</p>
+  <div class="grid">
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-names="a,b,c" data-ops="X:0"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>a = NOT a</b> · <code>ops="X:0"</code><br>
+      ⊕ เดี่ยวไม่มี control · สาย b, c ไม่ได้ใช้ · เทียบเท่า inverter</p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-names="a,b,c" data-ops="CNOT:0,1"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>b = a XOR b</b> · <code>ops="CNOT:0,1"</code><br>
+      ● บน a, ⊕ บน b · สาย c ไม่ได้ใช้ · เทียบเท่า XOR</p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-names="a,b,c" data-init=",,0"
+           data-ops="WRITE:2; CCNOT:0,1,2"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>c = a AND b</b> ·
+      <code>ops="WRITE:2; CCNOT:0,1,2"</code><br>
+      Toffoli ตรงๆ — ● a, ● b, ⊕ c · ต้องมี scratch c = |0⟩</p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-names="a,b,c" data-init=",,0"
+           data-ops="WRITE:2; X:0,1; CCNOT:0,1,2; X:0,1,2"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>c = a OR b</b> ·
+      <code>ops="WRITE:2; X:0,1; CCNOT:0,1,2; X:0,1,2"</code><br>
+      De Morgan: พลิก a,b → AND → พลิกคืน a,b <b>และพลิก c ด้วย</b></p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-names="a,b,c" data-init=",,0"
+           data-ops="WRITE:2; CCNOT:0,1,2; X:2"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>c = a NAND b</b> ·
+      <code>ops="WRITE:2; CCNOT:0,1,2; X:2"</code><br>
+      AND แล้วต่อด้วย ⊕ เดี่ยวบน c (<b>ไม่มีเส้นตั้ง</b>) = NOT ทับผลลัพธ์</p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-names="a,b,c" data-init=",,0"
+           data-ops="WRITE:2; X:0,1; CCNOT:0,1,2; X:0,1"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>c = a NOR b</b> ·
+      <code>ops="WRITE:2; X:0,1; CCNOT:0,1,2; X:0,1"</code><br>
+      🔴 ต่างจาก OR <b>จุดเดียว</b>: คอลัมน์สุดท้าย<b>ไม่มี</b> ⊕ บนสาย c</p>
+    </div>
+  </div>
+
+  <h2>เทียบสไตล์: QCEngine ↔ IBM Qiskit (บท 0016 · Lec 04 slide 16)</h2>
+  <p class="meta">🔴 <b>ข้อสอบใช้สไตล์ QCEngine (คอลัมน์ซ้าย)</b> — ตารางนี้มีไว้กันสับสนเวลาเจอ
+  ไดอะแกรมแบบ IBM ในสไลด์ p16–p17 หรือในเน็ตเท่านั้น</p>
+  <table class="cmp">
+    <tr><th>สิ่งที่หมายถึง</th><th>QCEngine (ออกสอบ)</th><th>IBM / Qiskit</th></tr>
+    <tr><td>HAD</td><td>กล่องขาวขอบดำ <b>H</b></td><td>กล่อง<b>ฟ้า</b> H</td></tr>
+    <tr><td>PHASE ±45°</td><td>วงกลม φ + เลขมุมกำกับด้านบน</td><td>กล่อง<b>แดง</b> T / T†</td></tr>
+    <tr><td>NOT</td><td>⊕ (วงกลมกากบาท)</td><td>กล่อง<b>เขียว</b> X</td></tr>
+    <tr><td>PHASE(180°)</td><td>วงกลม φ + เลข 180</td><td>กล่อง<b>เขียว</b> Z</td></tr>
+    <tr><td>CNOT</td><td>● ต่อเส้นลงไป ⊕</td><td>เหมือนกัน (● กับ ⊕)</td></tr>
+    <tr><td>READ</td><td>ครึ่งวงกลม detector ⊐</td><td>กล่อง<b>ชมพู</b> ไอคอนหน้าปัดเข็มวัด</td></tr>
+    <tr><td>barrier</td><td><b>ไม่มี</b> (ไม่ใช่ gate)</td><td>เส้นประแนวตั้งพาดทุกสาย</td></tr>
+    <tr><td>สายที่ไม่ได้ใช้</td><td>ไม่วาด</td><td>วาดครบทุก qubit ที่เครื่องมี + สาย classical <code>c</code></td></tr>
+  </table>
+
+  <div class="footer">
+    <a href="glossary.html">📖 Glossary ศัพท์</a>
+    <p class="src" style="margin-top:.8rem;">ถ้าสัญลักษณ์ไหนหนูวาดไม่ตรงกับ slide เป๊ะ บอกได้เลยค่ะ
+    หนูอิงจาก slide Lec 02 หน้า 33, 58, 64, 92, 110 — จะปรับให้ตรงที่สุด
+    (หมายเหตุ: ROTX/ROTY สไลด์ไม่ได้โชว์สัญลักษณ์วงจรตรงๆ หนูวาดตามธรรมเนียม QCEngine ให้ก่อน
+    ถ้าอาจารย์ใช้แบบอื่นบอกหนูได้เลย)</p>
+  </div>
+
+</div>

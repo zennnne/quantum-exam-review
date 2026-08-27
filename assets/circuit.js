@@ -1,0 +1,341 @@
+/* ============================================================
+   circuit.js — component วาดวงจรควอนตัม (สไตล์ QCEngine ตามที่อาจารย์ใช้)
+   สร้างตอนบท 0011 — เดิมวาด SVG มือทุกครั้ง ทั้งใน lesson และ cheat sheet
+
+   วิธีใช้:
+   <div class="circuit"
+        data-wires="3"
+        data-wire-labels="0x1,0x2,0x4"     ป้ายซ้ายมือ (ไม่ใส่ก็ได้)
+        data-init="0,0,1"                  ค่าเริ่มต้นบนเส้น |0⟩ |0⟩ |1⟩ (ไม่ใส่ก็ได้)
+        data-names="alice,ep,bob"          ชื่อ qubit หน้าป้าย (ไม่ใส่ก็ได้ — เพิ่มตอนบท 0014)
+        data-groups="0-1:entangle; 2-4:prep payload:45°"   กล่องมีชื่อคร่อมคอลัมน์ (0-based)
+        data-out="0-2:abs(a); 3:sign(a)"   ปีกกา + ป้ายเอาต์พุตฝั่งขวา (คร่อมสาย, 0-based)
+        data-ops="H:0; CNOT:0,1; READ:0"></div>
+
+   ops ที่รองรับ (คั่นด้วย ; — แต่ละ op = 1 คอลัมน์, ใช้ "_" เป็นช่องว่าง):
+     ใช้ + เชื่อมถ้าต้องการหลาย gate ใน "คอลัมน์เดียวกัน"  เช่น  H:0 + H:1
+
+     H:w              Hadamard
+     X:w[,w2,...]     NOT (⊕) — ใส่หลายสายได้ = ⊕ หลายตัวในคอลัมน์เดียว
+     P:w:45           PHASE 45° (φ)
+     Z:w              Z gate (กล่อง Z)
+     RNOT:w           root-of-NOT
+     CNOT:c,t         control c → target t (⊕)
+     CZ:a,b[,c,...]   ●—● สมมาตร (ใส่กี่สายก็ได้ — Lec 05 มีแบบ 3 จุด)
+     CP:a,b:45        CPHASE(45°) φ—φ
+     CCNOT:c1,c2,t    Toffoli
+     CTRL:c[,c2,...]  จุดควบคุม ● ล้วน — ใช้คู่กับ gate ตัวอื่นใน "คอลัมน์เดียวกัน" ผ่าน +
+                      เส้นตั้งเชื่อมทุกอย่างในคอลัมน์นั้นวาดให้อัตโนมัติ (เพิ่มตอนบท Lec 05)
+                        NOT ที่มี 3 control : "CTRL:0,1,3 + X:2"
+                        multi-target CNOT   : "CTRL:3 + X:0,1,2"
+                        control คุม gate อื่น: "CTRL:0 + H:1"
+     SWAP:a,b         ×—×
+     CSWAP:c,a,b      control c + swap a,b
+     READ:w           detector (อ่านค่า)
+     WRITE:w          สัญลักษณ์ write ▷ หัวสาย (เส้นก่อนหน้านี้จะจางลงอัตโนมัติ)
+     BOX:wlo,whi:?:2  กล่องโปร่งคร่อมสาย wlo..whi มีข้อความข้างใน (เพิ่มตอนบท 0021)
+                      พารามิเตอร์ที่ 4 = กว้างกี่คอลัมน์ (ไม่ใส่ = 1) — ต้องเว้น "_" ต่อท้ายให้ครบ
+     CC:src,tgt       ควบคุมด้วยบิตคลาสสิก = ลูกศรประฟ้าจากสาย src ลงไปที่ gate บนสาย tgt
+                      ใช้คู่กับ gate ในคอลัมน์เดียวกันเสมอ เช่น  "CC:1,2 + X:2"
+
+   หมายเหตุ: หลัง READ:w เส้นสาย w จะกลายเป็นเส้นจางอัตโนมัติ (= qubit ถูกทำลายแล้ว)
+   ============================================================ */
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  var GAP = 40, TOP = 24, COLW = 52, PAD_R = 18;
+
+  function el(tag, a) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in a) e.setAttribute(k, a[k]);
+    return e;
+  }
+  function txt(x, y, s, size, weight, anchor) {
+    var t = el("text", {
+      x: x, y: y, "font-size": size || 13, "font-weight": weight || 700,
+      "text-anchor": anchor || "middle", fill: "#1a1a1a"
+    });
+    t.textContent = s;
+    return t;
+  }
+
+  /* ---------- ชิ้นส่วนพื้นฐาน ---------- */
+  function box(g, x, y, label) {
+    g.appendChild(el("rect", { x: x - 13, y: y - 13, width: 26, height: 26,
+      fill: "#fff", stroke: "#1a1a1a", "stroke-width": 2 }));
+    g.appendChild(txt(x, y + 5, label, 13, 800));
+  }
+  function ctrl(g, x, y) {
+    g.appendChild(el("circle", { cx: x, cy: y, r: 6, fill: "#1a1a1a" }));
+  }
+  function xor(g, x, y) {
+    g.appendChild(el("circle", { cx: x, cy: y, r: 11, fill: "#fff",
+      stroke: "#1a1a1a", "stroke-width": 2.2 }));
+    g.appendChild(el("line", { x1: x - 11, y1: y, x2: x + 11, y2: y,
+      stroke: "#1a1a1a", "stroke-width": 2.2 }));
+    g.appendChild(el("line", { x1: x, y1: y - 11, x2: x, y2: y + 11,
+      stroke: "#1a1a1a", "stroke-width": 2.2 }));
+  }
+  function phi(g, x, y) {
+    g.appendChild(el("circle", { cx: x, cy: y, r: 10, fill: "#fff",
+      stroke: "#1a1a1a", "stroke-width": 2.2 }));
+    g.appendChild(txt(x, y + 5, "φ", 13, 700));
+  }
+  function cross(g, x, y) {
+    var d = 8;
+    g.appendChild(el("line", { x1: x - d, y1: y - d, x2: x + d, y2: y + d,
+      stroke: "#1a1a1a", "stroke-width": 2.6 }));
+    g.appendChild(el("line", { x1: x - d, y1: y + d, x2: x + d, y2: y - d,
+      stroke: "#1a1a1a", "stroke-width": 2.6 }));
+  }
+  function detector(g, x, y) {
+    g.appendChild(el("path", { d: "M" + x + "," + (y - 12) + " A12,12 0 0 1 " + x + "," + (y + 12),
+      fill: "#efe9fb", stroke: "#1a1a1a", "stroke-width": 1.8 }));
+    g.appendChild(el("line", { x1: x, y1: y - 12, x2: x, y2: y + 12,
+      stroke: "#1a1a1a", "stroke-width": 1.8 }));
+  }
+  /* สัญลักษณ์ write ▷ — วงกลมเล็กสีฟ้า + สามเหลี่ยมเปิด (QCEngine วางไว้หัวสาย) */
+  function write(g, x, y) {
+    g.appendChild(el("circle", { cx: x - 13, cy: y, r: 3.2, fill: "#fff",
+      stroke: "#29a3d9", "stroke-width": 2 }));
+    g.appendChild(el("path", { d: "M" + (x - 8) + "," + (y - 11) + " L" + (x + 7) + "," + y +
+      " L" + (x - 8) + "," + (y + 11), fill: "none", stroke: "#1a1a1a", "stroke-width": 2 }));
+  }
+
+  /* ควบคุมด้วยบิตคลาสสิก — ลูกศรประสีฟ้าชี้ลงจากสายที่ถูก READ ไปยัง gate */
+  function cclassic(g, x, ySrc, yTgt) {
+    var C = "#29a3d9", top = ySrc + 5, bot = yTgt - 15;
+    g.appendChild(el("circle", { cx: x, cy: ySrc, r: 4.5, fill: C }));
+    g.appendChild(el("line", { x1: x, y1: top, x2: x, y2: bot,
+      stroke: C, "stroke-width": 2.6, "stroke-dasharray": "3 4", "stroke-linecap": "round" }));
+    g.appendChild(el("path", { d: "M" + (x - 5) + "," + bot + " L" + (x + 5) + "," + bot +
+      " L" + x + "," + (bot + 7) + " Z", fill: C }));
+  }
+
+  /* กล่องโปร่งคร่อมหลายสาย (เช่นกล่อง "?" ของโจทย์ abs) — เพิ่มตอนบท 0021 */
+  function wideBox(g, x, yTop, yBot, label, span) {
+    var w = (span || 1) * COLW - 10;
+    var y = yTop - 17, h = (yBot - yTop) + 34;
+    g.appendChild(el("rect", { x: x - COLW / 2 + 5, y: y, width: w, height: h,
+      rx: 6, fill: "#fff", stroke: "#1a1a1a", "stroke-width": 2.4 }));
+    g.appendChild(txt(x - COLW / 2 + 5 + w / 2, (yTop + yBot) / 2 + 11, label, 30, 800));
+  }
+
+  /* ปีกกา } ฝั่งขวา สำหรับป้ายเอาต์พุต — เพิ่มตอนบท 0021 */
+  function brace(g, x, y1, y2) {
+    var r = 6, ym = (y1 + y2) / 2;
+    g.appendChild(el("path", {
+      d: "M" + x + "," + y1 + " q" + r + ",0 " + r + "," + r +
+         " V" + (ym - r) + " q0," + r + " " + r + "," + r +
+         " q-" + r + ",0 -" + r + "," + r +
+         " V" + (y2 - r) + " q0," + r + " -" + r + "," + r,
+      fill: "none", stroke: "#1a1a1a", "stroke-width": 1.8 }));
+  }
+
+  function link(g, x, ys, thick) {
+    var a = Math.min.apply(null, ys), b = Math.max.apply(null, ys);
+    g.appendChild(el("line", { x1: x, y1: a, x2: x, y2: b,
+      stroke: "#1a1a1a", "stroke-width": thick || 2.4 }));
+  }
+
+  /* ---------- วาด op หนึ่งตัว ---------- */
+  function drawOp(g, name, ws, arg, x, yOf, angleY, arg2) {
+    var y = ws.map(yOf);
+    switch (name) {
+      case "H": box(g, x, y[0], "H"); break;
+      case "Z": box(g, x, y[0], "Z"); break;
+      case "RNOT": box(g, x, y[0], "√X"); break;
+      case "X": y.forEach(function (yy) { xor(g, x, yy); }); break;
+      case "CTRL": y.forEach(function (yy) { ctrl(g, x, yy); }); break;
+      case "P":
+        phi(g, x, y[0]);
+        if (arg) g.appendChild(txt(x, angleY, arg + "°", 11, 700));
+        break;
+      case "CNOT": link(g, x, y); ctrl(g, x, y[0]); xor(g, x, y[1]); break;
+      case "CZ":
+        link(g, x, y, 3); y.forEach(function (yy) { ctrl(g, x, yy); }); break;
+      case "CP":
+        link(g, x, y); phi(g, x, y[0]); phi(g, x, y[1]);
+        if (arg) g.appendChild(txt(x, angleY, arg + "°", 11, 700));
+        break;
+      case "CCNOT":
+        link(g, x, y); ctrl(g, x, y[0]); ctrl(g, x, y[1]); xor(g, x, y[2]); break;
+      case "SWAP": link(g, x, y); cross(g, x, y[0]); cross(g, x, y[1]); break;
+      case "CSWAP":
+        link(g, x, y); ctrl(g, x, y[0]); cross(g, x, y[1]); cross(g, x, y[2]); break;
+      case "READ": detector(g, x, y[0]); break;
+      case "WRITE": write(g, x, y[0]); break;
+      case "BOX":
+        wideBox(g, x, y[0], y[y.length - 1], arg || "?", parseInt(arg2, 10) || 1); break;
+      case "CC": cclassic(g, x, y[0], y[1]); break;
+      case "_": break;
+      default: console.warn("circuit.js: ไม่รู้จัก op", name);
+    }
+  }
+
+  function build(node) {
+    var nw = parseInt(node.dataset.wires || "2", 10);
+    var wlabels = node.dataset.wireLabels ? node.dataset.wireLabels.split(",") : null;
+    var init = node.dataset.init ? node.dataset.init.split(",") : null;
+    var ops = (node.dataset.ops || "").split(";")
+      .map(function (s) { return s.trim(); }).filter(Boolean);
+
+    var names = node.dataset.names ? node.dataset.names.split(",") : null;
+    var groups = node.dataset.groups
+      ? node.dataset.groups.split(";").map(function (s) { return s.trim(); }).filter(Boolean)
+      : null;
+
+    var outs = node.dataset.out
+      ? node.dataset.out.split(";").map(function (t) { return t.trim(); }).filter(Boolean)
+        .map(function (spec) {
+          var p = spec.split(":");
+          var r = p[0].split("-");
+          return { a: parseInt(r[0], 10),
+                   b: parseInt(r[1] !== undefined ? r[1] : r[0], 10),
+                   label: (p[1] || "").trim() };
+        })
+      : null;
+    var outW = 0;
+    if (outs) {
+      var longest = 0;
+      outs.forEach(function (o) { longest = Math.max(longest, o.label.length); });
+      outW = 20 + longest * 7.2;
+    }
+
+    var nameW = names ? 44 : 0;
+    var labW = wlabels ? 46 : 0;
+    var initW = init ? 26 : 0;
+    var x0 = nameW + labW + initW + 22;
+    var W = x0 + ops.length * COLW + PAD_R + outW;
+    var OY = groups ? 40 : 0;              // ที่ว่างด้านบนสำหรับป้ายชื่อกล่อง
+    var H = TOP + OY + (nw - 1) * GAP + 30;
+    var angleY = groups ? 42 : 10;
+
+    var svg = el("svg", { width: W, height: H, viewBox: "0 0 " + W + " " + H,
+      role: "img", "aria-label": node.dataset.alt || "วงจรควอนตัม" });
+    var yOf = function (i) { return TOP + OY + i * GAP; };
+    var xOf = function (j) { return x0 + j * COLW; };
+
+    /* กล่องมีชื่อกำกับ (entangle / prep payload / ...) — วาดก่อนเส้นสาย จะได้อยู่ชั้นล่างสุด */
+    if (groups) {
+      groups.forEach(function (spec) {
+        var p = spec.split(":");
+        var r = p[0].split("-");
+        var a = parseInt(r[0], 10), b = parseInt(r[1] !== undefined ? r[1] : r[0], 10);
+        var gx = xOf(a) - COLW / 2 + 5, gw = (b - a) * COLW + COLW - 10;
+        var gy = 22, gh = H - gy - 12;
+        svg.appendChild(el("rect", { x: gx, y: gy, width: gw, height: gh,
+          rx: 12, fill: "#eef1f5" }));
+        svg.appendChild(el("path", {                    // วงเล็บโค้งสีเขียวน้ำเงิน บน+ล่าง
+          d: "M" + gx + "," + (gy + 12) + " q0,-12 12,-12 H" + (gx + gw - 12) +
+             " q12,0 12,12 M" + gx + "," + (gy + gh - 12) + " q0,12 12,12 H" +
+             (gx + gw - 12) + " q12,0 12,-12",
+          fill: "none", stroke: "#17808f", "stroke-width": 1.8 }));
+        var gt = txt(gx + gw / 2, 15, p[1] || "", 12, 700);
+        gt.setAttribute("fill", "#17808f");
+        svg.appendChild(gt);
+        if (p[2]) svg.appendChild(txt(gx + gw / 2, gy + 16, p[2], 11, 800));
+      });
+    }
+
+    /* หาจุด write / read ของแต่ละสาย → ช่วงนอกนั้นวาดเป็นเส้นจาง */
+    var wCol = [], rCol = [];
+    ops.forEach(function (col, j) {
+      col.split("+").forEach(function (spec) {
+        var q = spec.trim().split(":");
+        var nm = q[0].trim().toUpperCase();
+        var w = parseInt((q[1] || "").split(",")[0], 10);
+        if (isNaN(w)) return;
+        if (nm === "WRITE") wCol[w] = j;
+        if (nm === "READ") rCol[w] = j;
+      });
+    });
+
+    function wire(x1, x2, y, faint) {
+      if (x2 <= x1) return;
+      svg.appendChild(el("line", { x1: x1, y1: y, x2: x2, y2: y,
+        stroke: faint ? "#c9ced6" : "#1a1a1a", "stroke-width": faint ? 1.5 : 2 }));
+    }
+
+    for (var i = 0; i < nw; i++) {
+      var y = yOf(i);
+      var xs = nameW + labW + initW + 4, xe = W - 6 - outW;
+      var wc = wCol[i], rc = rCol[i];
+      var solidA = wc === undefined ? xs : xOf(wc) - 14;
+      var solidB = rc === undefined ? xe : xOf(rc) + 13;
+      wire(xs, solidA, y, true);
+      wire(solidA, solidB, y, false);
+      wire(solidB, xe, y, true);
+      if (names && names[i]) {
+        var tn = txt(nameW - 4, y + 4, names[i].trim(), 12, 800, "end");
+        tn.setAttribute("fill", "#1a1a1a");
+        svg.appendChild(tn);
+      }
+      if (wlabels && wlabels[i]) {
+        var t = txt(nameW + labW - 6, y + 4, wlabels[i].trim(), 11, 700, "end");
+        t.setAttribute("fill", "#4a4a4a");
+        svg.appendChild(t);
+      }
+      if (init && init[i] !== undefined && init[i].trim() !== "") {
+        var t2 = txt(nameW + labW + 12, y - 5, "|" + init[i].trim() + "⟩", 11, 400);
+        t2.setAttribute("fill", "#666");
+        svg.appendChild(t2);
+      }
+    }
+
+    /* ปีกกา + ป้ายเอาต์พุตฝั่งขวา */
+    if (outs) {
+      var bx = W - outW + 4;
+      outs.forEach(function (o) {
+        var ya = yOf(o.a), yb = yOf(o.b);
+        if (yb > ya) brace(svg, bx, ya, yb);
+        var t3 = txt(bx + 16, (ya + yb) / 2 + 5, o.label, 13, 800, "start");
+        svg.appendChild(t3);
+      });
+    }
+
+    ops.forEach(function (col, j) {
+      // "+" = หลาย gate ในคอลัมน์เดียวกัน เช่น "H:0 + H:1"
+      var specs = col.split("+").map(function (spec) {
+        var parts = spec.trim().split(":");
+        return {
+          name: parts[0].trim().toUpperCase(),
+          ws: (parts[1] || "").split(",")
+            .map(function (s) { return parseInt(s.trim(), 10); })
+            .filter(function (v) { return !isNaN(v); }),
+          arg: (parts[2] || "").trim(),
+          arg2: (parts[3] || "").trim()
+        };
+      });
+
+      /* มี CTRL ในคอลัมน์ = control หนึ่ง/หลายจุดคุม gate อื่นในคอลัมน์เดียวกัน
+         → ลากเส้นตั้งเส้นเดียวคลุมทุกสายที่เกี่ยวข้อง (วาดก่อน gate จะได้อยู่ใต้สัญลักษณ์)
+         CC (ลูกศรคลาสสิก) กับ WRITE/READ ไม่นับ เพราะไม่ได้อยู่ในเส้นควบคุมเดียวกัน */
+      if (specs.some(function (s) { return s.name === "CTRL"; })) {
+        var linked = [];
+        specs.forEach(function (s) {
+          if (s.name === "CC" || s.name === "WRITE" || s.name === "READ") return;
+          s.ws.forEach(function (w) { linked.push(yOf(w)); });
+        });
+        if (linked.length > 1) link(svg, xOf(j), linked);
+      }
+
+      specs.forEach(function (s) {
+        drawOp(svg, s.name, s.ws, s.arg, xOf(j), yOf, angleY, s.arg2);
+      });
+    });
+
+    node.innerHTML = "";
+    node.appendChild(svg);
+    if (node.dataset.cap) {
+      var c = document.createElement("div");
+      c.className = "cap";
+      c.innerHTML = node.dataset.cap;
+      node.appendChild(c);
+    }
+  }
+
+  function init() { document.querySelectorAll(".circuit").forEach(build); }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else { init(); }
+})();

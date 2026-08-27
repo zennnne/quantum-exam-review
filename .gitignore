@@ -1,0 +1,16 @@
+slides/
+assignment/
+.claude/
+.playwright-mcp/
+
+learning-records/
+digest/
+exam/tickets/
+EXAM-REVIEW-SPEC.md
+MISSION.md
+NOTES.md
+RESOURCES.md
+LESSON-PLAN-Lec05.md
+reference/gotchas.md
+assets/component-gallery.html
+lessons/

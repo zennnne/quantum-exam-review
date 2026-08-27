@@ -1,0 +1,76 @@
+/* ============================================================
+   exam.css — ทับ style.css + lesson-bits.css เฉพาะส่วนที่ exam/ ต้องการ
+   (nav หลายหน้า, ตารางพับการ์ดบนมือถือ, วงจรคงขนาดจริง)
+   ห้ามแก้ style.css / lesson-bits.css เดิม — ทุกอย่างที่นี่ scope เฉพาะ exam/
+   ============================================================ */
+
+/* ---------- hub: การ์ดลิงก์ ---------- */
+.linkgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));
+  gap:.9rem; margin:1.4rem 0; }
+.linkgrid a { display:block; border:1px solid var(--rule); border-radius:10px;
+  background:#fff; padding:1rem 1.1rem; text-decoration:none; color:var(--ink); }
+.linkgrid a b { display:block; color:var(--accent); font-size:1.02rem; margin-bottom:.25rem; }
+.linkgrid a small { color:var(--ink-soft); }
+.linkgrid a:hover { border-color:var(--accent); }
+
+/* ---------- multi-page shell (review.html) ---------- */
+.page { display:none; }
+.page.active { display:block; }
+
+/* แท็บ (จอกว้าง) */
+.exam-tabs { display:flex; flex-wrap:wrap; gap:.4rem; margin:0 0 2rem;
+  position:sticky; top:0; background:var(--paper); padding:.7rem 0; z-index:5;
+  border-bottom:2px solid var(--rule); }
+.exam-tabs button { font:inherit; font-size:.85rem; font-weight:700; cursor:pointer;
+  border:1px solid var(--rule); background:#fff; color:var(--ink); border-radius:999px;
+  padding:.4rem .9rem; }
+.exam-tabs button.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* dropdown (จอแคบ) */
+.exam-dropdown { display:none; width:100%; font:inherit; font-size:1rem; font-weight:700;
+  color:var(--ink); background:#fff; border:1px solid var(--rule); border-radius:10px;
+  padding:.6rem .8rem; margin:0 0 1.6rem; position:sticky; top:0; z-index:5; }
+
+@media (max-width:46rem) {
+  .exam-tabs { display:none; }
+  .exam-dropdown { display:block; }
+}
+
+/* ปุ่ม "บทถัดไป" ท้ายทุก page */
+.next-btn, .hub-link-btn {
+  display:inline-block; font:inherit; font-weight:700; cursor:pointer;
+  margin-top:2.4rem; padding:.7rem 1.2rem; border-radius:10px;
+  border:1px solid var(--accent); background:var(--accent-dim); color:var(--accent);
+  text-decoration:none;
+}
+.next-btn:hover, .hub-link-btn:hover { background:var(--accent); color:#fff; }
+
+/* ---------- วงจร/SVG: คงขนาดจริง เลื่อนดูแนวนอน ห้ามย่อ ---------- */
+.scrollx { overflow-x:auto; }
+.scrollx .circuit svg, .scrollx .crow, .scrollx svg { max-width:none !important; }
+.scroll-hint { display:none; font-size:.8rem; color:var(--ink-soft); text-align:right;
+  margin:0 0 .3rem; }
+@media (max-width:46rem) { .scroll-hint { display:block; } }
+
+/* ---------- ตารางหลายคอลัมน์ → พับการ์ดแนวตั้งบนจอแคบ ----------
+   ต้องใช้คู่กับ <thead>/<tbody> และ data-label บน <td> ทุกใบ:
+   <table class="cmp"><thead><tr><th>...</th></tr></thead>
+   <tbody><tr><td data-label="...">...</td></tr></tbody></table>       */
+@media (max-width:34rem) {
+  table.cmp thead { display:none; }
+  table.cmp, table.cmp tbody, table.cmp tr, table.cmp td { display:block; width:100%; }
+  table.cmp tr { border:1px solid var(--rule); border-radius:10px; background:#fff;
+    margin:0 0 .8rem; padding:.3rem .8rem; }
+  table.cmp td { display:flex; justify-content:space-between; gap:.8rem; text-align:right;
+    border:0; border-bottom:1px solid var(--rule); padding:.55rem 0; }
+  table.cmp td:last-child { border-bottom:0; }
+  table.cmp td::before { content:attr(data-label); font-weight:800; color:var(--accent);
+    text-align:left; }
+}
+
+/* ---------- หน้า pitfalls ---------- */
+.pitfall-list { list-style:none; padding:0; margin:0 0 2rem; }
+.pitfall-list li { border:1px solid var(--rule); border-radius:10px; background:#fff;
+  padding:.7rem 1rem; margin:.5rem 0; }
+.pitfall-list li a { font-weight:700; }
+.pitfall-empty { color:var(--ink-soft); font-size:.95rem; }

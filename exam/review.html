@@ -1,0 +1,155 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สรุปอ่านสอบ — Quantum Programming Lec 01–05</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/lesson-bits.css">
+<link rel="stylesheet" href="exam.css">
+<script defer src="../assets/quiz.js"></script>
+<script defer src="../assets/circles.js"></script>
+<script defer src="../assets/circuit.js"></script>
+<script defer src="../assets/logicgate.js"></script>
+<script defer src="../assets/bars.js"></script>
+<div class="wrap">
+
+  <p class="kicker">Exam Review · Lec01–05</p>
+  <h1>สรุปอ่านสอบ — ไฟล์เดียวจบ</h1>
+  <p class="lead">อ่านตัวเต็มมาหมดแล้ว ที่นี่กระชับเป็นค่าตั้งต้น — จุดที่เคยยากมี "สิทธิ์ยาวได้": <b>Bloch sphere</b> (Lec02) ·
+  <b>teleportation ครึ่งหลัง</b> (Lec04) · <b>Toffoli + ประตูลอจิก</b> (Lec05)</p>
+
+  <select class="exam-dropdown" aria-label="เลือกหน้า">
+    <option value="lec01">Lec01 · QPU คืออะไร</option>
+    <option value="lec02">Lec02 · Qubit เดี่ยว &amp; Bloch sphere</option>
+    <option value="lec03">Lec03 · Multi-qubit &amp; Entanglement</option>
+    <option value="lec04">Lec04 · Teleportation</option>
+    <option value="lec05">Lec05 · Arithmetic &amp; Logic</option>
+    <option value="code">โค้ด ↔ วงจร</option>
+    <option value="pitfalls">Pitfalls</option>
+  </select>
+
+  <nav class="exam-tabs">
+    <button type="button" data-target="lec01">Lec01</button>
+    <button type="button" data-target="lec02">Lec02</button>
+    <button type="button" data-target="lec03">Lec03</button>
+    <button type="button" data-target="lec04">Lec04</button>
+    <button type="button" data-target="lec05">Lec05</button>
+    <button type="button" data-target="code">โค้ด↔วงจร</button>
+    <button type="button" data-target="pitfalls">Pitfalls</button>
+  </nav>
+
+  <!-- ==== LEC01 ==== -->
+  <section class="page" data-page="lec01">
+    <p class="kicker">Lec01</p>
+    <h2>QPU คืออะไร</h2>
+    <div class="box why"><span class="tag">สถานะ</span>
+      <p>ยังไม่มีเนื้อหา — ticket 03 (<code class="code">/teach</code>) จะเติมส่วนนี้</p></div>
+    <button type="button" class="next-btn" data-target="lec02">บทถัดไป: Lec02 →</button>
+  </section>
+
+  <!-- ==== LEC02 ==== -->
+  <section class="page" data-page="lec02">
+    <p class="kicker">Lec02</p>
+    <h2>Qubit เดี่ยว &amp; Bloch sphere</h2>
+    <div class="box why"><span class="tag">สถานะ</span>
+      <p>ยังไม่มีเนื้อหา — ticket 03 เติมช่วงต้น · ticket 04 เติม Bloch sphere + ที่เหลือ</p></div>
+    <button type="button" class="next-btn" data-target="lec03">บทถัดไป: Lec03 →</button>
+  </section>
+
+  <!-- ==== LEC03 ==== -->
+  <section class="page" data-page="lec03">
+    <p class="kicker">Lec03 · ทวนให้ครบ ไม่ปูใหม่</p>
+    <h2>Multi-qubit &amp; Entanglement</h2>
+    <div class="box why"><span class="tag">สถานะ</span>
+      <p>ยังไม่มีเนื้อหา — ticket 05 เติม circle notation + operator pairs</p></div>
+    <!-- LEC03-B -->
+    <div class="box why"><span class="tag">สถานะ (ต่อ)</span>
+      <p>ยังไม่มีเนื้อหา — ticket 06 เติมส่วน gate หลาย qubit ต่อจากตรงนี้</p></div>
+    <button type="button" class="next-btn" data-target="lec04">บทถัดไป: Lec04 →</button>
+  </section>
+
+  <!-- ==== LEC04 ==== -->
+  <section class="page" data-page="lec04">
+    <p class="kicker">Lec04 · สิทธิ์ "ยาวได้" ทั้งหน้า</p>
+    <h2>Teleportation</h2>
+    <div class="box why"><span class="tag">สถานะ</span>
+      <p>ยังไม่มีเนื้อหา — ticket 07 จะเติมส่วนนี้ (ใบใหญ่สุด เสี่ยงแตกเป็น 07a/07b)</p></div>
+    <button type="button" class="next-btn" data-target="lec05">บทถัดไป: Lec05 →</button>
+  </section>
+
+  <!-- ==== LEC05 ==== -->
+  <section class="page" data-page="lec05">
+    <p class="kicker">Lec05</p>
+    <h2>Arithmetic &amp; Logic</h2>
+    <div class="box why"><span class="tag">สถานะ</span>
+      <p>ยังไม่มีเนื้อหา — ticket 08 จะเติมส่วนนี้</p></div>
+    <button type="button" class="next-btn" data-target="code">บทถัดไป: โค้ด↔วงจร →</button>
+  </section>
+
+  <!-- ==== CODE ==== -->
+  <section class="page" data-page="code">
+    <p class="kicker">รวมไว้ที่เดียว</p>
+    <h2>โค้ด ↔ สัญลักษณ์วงจร</h2>
+    <p class="lead">ทุกหัวข้อในสรุปที่มีโค้ด จะมีลิงก์ "→ ดูโค้ด" เด้งมาที่แถวของตัวเองในตารางนี้</p>
+    <table class="cmp">
+      <thead><tr><th>คำสั่ง (QCEngine / QASM)</th><th>สัญลักษณ์วงจร</th><th>ทำอะไร</th></tr></thead>
+      <tbody id="code-table-body">
+        <!-- แถวจากใบอื่นแทรกที่นี่ — ทุกแถวต้องมี id="code-xxx" ให้หน้าอื่นลิงก์กลับได้ -->
+      </tbody>
+    </table>
+    <button type="button" class="next-btn" data-target="pitfalls">บทถัดไป: Pitfalls →</button>
+  </section>
+
+  <!-- ==== PITFALLS ==== -->
+  <section class="page" data-page="pitfalls">
+    <p class="kicker">ทวนรอบสุดท้าย</p>
+    <h2>Pitfalls</h2>
+    <p class="lead">ลิสต์ลิงก์กลับไปจุดจริงในเนื้อหา — ไม่เขียนเนื้อซ้ำที่นี่</p>
+
+    <h2 id="pitfalls-misconception">จุดที่คนมักพลาด</h2>
+    <ul class="pitfall-list" id="pitfalls-misconception-list">
+      <li class="pitfall-empty">ยังไม่มีรายการ — แต่ละ ticket เติมของตัวเองตอนเขียนหน้านั้น</li>
+    </ul>
+
+    <h2 id="pitfalls-slide-errors">สไลด์ผิดตรงไหน</h2>
+    <ul class="pitfall-list" id="pitfalls-slide-errors-list">
+      <li class="pitfall-empty">ยังไม่มีรายการ — แหล่ง: learning-records/0010-slide-errors-and-rotation-convention.md</li>
+    </ul>
+
+    <a href="index.html" class="hub-link-btn">← กลับไปหน้า Hub</a>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  var ORDER = ["lec01", "lec02", "lec03", "lec04", "lec05", "code", "pitfalls"];
+
+  function showPage(id) {
+    if (ORDER.indexOf(id) === -1) id = ORDER[0];
+    document.querySelectorAll(".page").forEach(function (sec) {
+      sec.classList.toggle("active", sec.dataset.page === id);
+    });
+    document.querySelectorAll(".exam-tabs button").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.target === id);
+    });
+    var sel = document.querySelector(".exam-dropdown");
+    if (sel) sel.value = id;
+    if (history.replaceState) history.replaceState(null, "", "#" + id);
+    else location.hash = id;
+    window.scrollTo(0, 0);
+  }
+  window.examShowPage = showPage;
+
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest(".exam-tabs button, .next-btn");
+    if (!btn) return;
+    e.preventDefault();
+    showPage(btn.dataset.target);
+  });
+  document.addEventListener("change", function (e) {
+    if (e.target.classList.contains("exam-dropdown")) showPage(e.target.value);
+  });
+
+  var start = (location.hash || "").replace("#", "");
+  showPage(start || ORDER[0]);
+})();
+</script>
