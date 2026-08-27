@@ -38,19 +38,250 @@
 
   <!-- ==== LEC01 ==== -->
   <section class="page" data-page="lec01">
-    <p class="kicker">Lec01</p>
-    <h2>QPU คืออะไร</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 03 (<code class="code">/teach</code>) จะเติมส่วนนี้</p></div>
+    <p class="kicker">Lec01 · ครึ่งหน้า อ่านจบใน 1 นาที</p>
+    <h2>QPU คืออะไร (และไม่ใช่อะไร)</h2>
+
+    <div class="box aha"><span class="tag">ประโยคแกนของคาบนี้</span>
+      <p>QPU <b>ไม่ใช่</b> “ตัวฆ่าคอมพิวเตอร์เดิม” (conventional computer killer) —
+      คุณค่าของมันคือ <b>ขยายชนิดของปัญหาที่คำนวณไหว</b> มีโจทย์บางกลุ่มที่ QPU ทำได้ง่าย
+      แต่คอมพิวเตอร์ธรรมดา<b>เท่าที่มนุษย์จะสร้างได้</b> ทำไม่ไหวเลย</p></div>
+
+    <h3>QPU = co-processor (หน่วยประมวลผลร่วม)</h3>
+    <p>ในมุมของโปรแกรมเมอร์ คอมพิวเตอร์ควอนตัมคือ
+    <span class="term" title="ชิปเสริมที่ CPU เรียกใช้เฉพาะงานที่มันถนัด">co-processor</span> ตัวหนึ่ง
+    เหมือนที่เคยมี FPU (คำนวณทศนิยม) · DSP (ประมวลผลสัญญาณ) · GPU (กราฟิกเรียลไทม์) มาก่อน</p>
+    <div class="analogy">
+      <div class="cell"><b>CPU</b><br>คุมโปรแกรมหลักทั้งหมด</div>
+      <div class="arrow">→</div>
+      <div class="cell"><b>QPU</b><br>รับเฉพาะงานที่ถนัด แล้วส่งผลกลับ</div>
+    </div>
+    <p>โค้ดส่วนใหญ่ยัง<b>รันบน CPU</b> · CPU เป็นคนสั่ง QPU ให้เริ่มเฉพาะงานที่เหมาะกับมัน แล้วค่อยดึงผลลัพธ์กลับมา
+    — คำว่า “QPU” จึงถูกใช้แทนคำว่าคอมพิวเตอร์ควอนตัมตลอดทั้งวิชา</p>
+    <p>ตอนนี้ยัง<b>ไม่มี QPU อเนกประสงค์เต็มรูปแบบ</b> ให้ใช้จริง เราจึงเรียนผ่าน
+    <b>simulator</b> คือ <code class="code">QCEngine</code> (รันในเบราว์เซอร์ ไม่ต้องลงโปรแกรม
+    และมี circle notation ให้ดูในตัว) — สัญลักษณ์วงจรทั้งวิชาจึงเป็นสไตล์ QCEngine ไม่ใช่ Qiskit</p>
+
+    <h3>QPU vs GPU — ประโยคชุดเดียวกันใช้ได้ทั้งคู่</h3>
+    <p>สไลด์ไล่คุณสมบัติของ QPU มาชุดหนึ่ง แล้วเฉลยตอนท้ายว่า
+    <b>เปลี่ยนคำว่า QPU เป็น GPU ทุกข้อก็ยังจริงหมด</b> — นี่คือ punchline ของคาบนี้
+    (แปลว่าความยากของการเขียนโปรแกรม QPU วิศวกรซอฟต์แวร์เคยเจอมาแล้วกับ GPU)</p>
+    <table class="cmp">
+      <thead><tr><th>คุณสมบัติที่สไลด์ไล่</th><th>จริงกับ QPU</th><th>จริงกับ GPU ด้วยไหม</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="คุณสมบัติ">แทบไม่มีโปรแกรมไหนรันบนมันล้วนๆ — CPU สั่งงานแล้วมารับผลทีหลัง</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">บางงานเหมาะมาก บางงานไม่เหมาะเลย</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">มีนาฬิกา (clock) แยกจาก CPU และมักต่ออุปกรณ์ภายนอกของตัวเอง</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">มีหน่วยความจำของตัวเอง ที่ CPU เข้าถึงได้ไม่คุ้ม</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">คำนวณเสร็จส่งกลับแค่ “ภาพฉาย” ของผล ข้อมูลภายในส่วนใหญ่ถูกทิ้ง</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">debug ยาก ต้องใช้เครื่องมือเฉพาะ · step ทีละบรรทัดแทบไม่ได้ ต้องแก้แล้วดูผล</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">optimize ให้รุ่นหนึ่งเร็วขึ้น อาจทำอีกรุ่นช้าลง</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+        <tr>
+          <td data-label="คุณสมบัติ">ตัวแรกๆ ใหญ่ แพง กินไฟ ต้องระบายความร้อนพิเศษ</td>
+          <td data-label="QPU">✓</td><td data-label="GPU">✓</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box warn"><span class="tag">misconception ยอดฮิตของคาบนี้</span>
+      <p><b>1.</b> “QPU มาแทน CPU / เร็วกว่าคอมธรรมดาทุกงาน” → ผิด มันเป็น co-processor ที่เก่ง<b>บางงาน</b>เท่านั้น</p>
+      <p><b>2.</b> “ต้องเก่งฟิสิกส์ควอนตัมก่อนถึงจะเขียนโปรแกรมได้” → ผิด สไลด์เทียบตรงๆ ว่า
+      ฟิสิกส์เบื้องหลังทรานซิสเตอร์ก็ยากพอกัน แต่เรียน C++ ไม่ต้องใช้สมการฟิสิกส์สักตัว</p>
+      <p><b>3.</b> “รันบน simulator = ได้ของจริง” → ผิด simulator รันบนคอมธรรมดา จึงจำลองได้แค่ระบบเล็กๆ
+      (และถ้าให้มันสุ่ม ก็ยังเป็นการสุ่มแบบคลาสสิกอยู่ดี — ดูกับดัก QRNG ใน Lec02)</p></div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">ข้อไหนอธิบาย “คุณค่าของ QPU” ได้ตรงกับสไลด์ Lec01 ที่สุด</div>
+      <button class="opt">ทำทุกอย่างที่คอมพิวเตอร์ธรรมดาทำได้ แต่เร็วกว่าหลายเท่า</button>
+      <button class="opt">ขยายชนิดของปัญหาที่คำนวณไหว โดยทำงานเป็น co-processor คู่กับ CPU</button>
+      <button class="opt">แทนที่ CPU ทั้งหมดในอนาคตอันใกล้</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — คำว่า “not a conventional computer killer” คือใจความของคาบนี้</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — สไลด์ย้ำว่า QPU ไม่ได้มาฆ่าคอมเดิม แต่มาขยายขอบเขตปัญหาที่แก้ไหว</div>
+    </div>
+
     <button type="button" class="next-btn" data-target="lec02">บทถัดไป: Lec02 →</button>
   </section>
 
   <!-- ==== LEC02 ==== -->
   <section class="page" data-page="lec02">
-    <p class="kicker">Lec02</p>
+    <p class="kicker">Lec02 · ทวน ไม่ปูใหม่</p>
     <h2>Qubit เดี่ยว &amp; Bloch sphere</h2>
-    <div class="box why"><span class="tag">สถานะ</span>
-      <p>ยังไม่มีเนื้อหา — ticket 03 เติมช่วงต้น · ticket 04 เติม Bloch sphere + ที่เหลือ</p></div>
+
+    <h3 id="lec02-qubit">1. bit vs qubit · bra-ket</h3>
+    <p>บิตคลาสสิกเป็นได้แค่ 0 หรือ 1 · qubit เก็บ <b>ส่วนผสม</b> ของทั้งสองไว้ เขียนด้วย
+    <span class="term" title="สัญกรณ์ ⟨bra∣ket⟩ ของ Dirac">bra-ket</span> ว่า
+    <b>∣0⟩</b> กับ <b>∣1⟩</b> (ket = เวกเตอร์สถานะ)</p>
+    <p class="eq">∣ψ⟩ = a∣0⟩ + b∣1⟩ &nbsp;·&nbsp; ∣a∣² + ∣b∣² = 1</p>
+    <div class="box warn"><span class="tag">misconception อันดับ 1</span>
+      <p>“superposition (การซ้อนทับ) = เป็น 0 <b>และ</b> 1 พร้อมกัน อ่านได้ทั้งคู่” → <b>ผิด</b><br>
+      มันคือ “ส่วนผสมที่<b>ยังไม่มีคำตอบ</b>” เหมือนเหรียญที่กำลังหมุนอยู่ ไม่ใช่เหรียญที่มีสองหน้าให้หยิบ
+      — และเมื่ออ่าน (READ) qubit 1 ตัว ได้ออกมาแค่ <b>1 บิตธรรมดา</b> เท่านั้น
+      qubit จึงไม่ใช่ “ที่เก็บข้อมูล 2 เท่าฟรี”</p></div>
+
+    <h3 id="lec02-amp">2. amplitude = magnitude + relative phase</h3>
+    <p>ค่า a, b เรียกว่า <b>amplitude</b> เป็น<b>จำนวนเชิงซ้อน</b> จึงมี <b>2 ลูกบิด</b> ต่อหนึ่งวง</p>
+    <table class="cmp">
+      <thead><tr><th>ลูกบิด</th><th>ความหมายเชิงภาพ</th><th>อ่าน (READ) แล้วเห็นไหม</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="ลูกบิด"><b>magnitude</b> (ขนาด ∣a∣)</td>
+          <td data-label="ความหมาย">ความยาวเข็ม / ขนาดวงในของ circle notation</td>
+          <td data-label="เห็นไหม">เห็น — โอกาสวัดได้ = ∣a∣²</td>
+        </tr>
+        <tr>
+          <td data-label="ลูกบิด"><b>relative phase</b> (เฟสสัมพัทธ์ θ)</td>
+          <td data-label="ความหมาย">ทิศของเข็ม (หมุน) — ไม่เปลี่ยนความยาว</td>
+          <td data-label="เห็นไหม">ไม่เห็นตอนวัดครั้งเดียว แต่เผยตัวตอน <b>interference</b> (การแทรกสอด)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="box mathref"><span class="tag">refresher จำนวนเชิงซ้อน</span>
+      <p>เขียนได้ 2 แบบ: <code class="code">a + bi</code> (พิกัดฉาก) หรือ
+      <code class="code">r·e^(iθ)</code> (พิกัดเชิงขั้ว) — แบบหลังคือแบบที่ตรงกับเข็มนาฬิกา:
+      <b>r = ความยาวเข็ม (magnitude)</b> · <b>θ = ทิศเข็ม (phase)</b><br>
+      ที่ต้องใช้จริงมีแค่: ∣r·e^(iθ)∣² = r² → <b>phase ไม่กระทบโอกาสวัด</b></p></div>
+    <div class="box aha"><span class="tag">global vs relative</span>
+      <p>หมุน<b>ทุกวง</b>ด้วยมุมเท่ากัน = global phase → วัดผลอย่างไรก็เหมือนเดิม <b>ไม่มีความหมาย</b><br>
+      หมุน<b>บางวงเทียบกับวงอื่น</b> = relative phase → <b>มีความหมาย</b>
+      นี่คือเหตุผลที่ PHASE หมุนแค่วง ∣1⟩ ก็พอ</p></div>
+
+    <h3 id="lec02-circle">3. circle notation</h3>
+    <p>1 วง = 1 สถานะฐาน · ในวงมีวงในสีทึบกับเข็มหนึ่งอัน — กติกาที่ออกสอบมี 3 ข้อ</p>
+    <ol>
+      <li><b>รัศมีวงใน = magnitude</b> · <b>พื้นที่วงใน = ความน่าจะเป็น</b> (∣a∣²) — จำเป็น “พื้นที่” ไม่ใช่ “รัศมี”</li>
+      <li><b>ทิศเข็ม = phase</b> · มุมบวก = <b>ทวนเข็มนาฬิกา</b> (convention ของวิชานี้)</li>
+      <li><b>normalization</b>: พื้นที่ของทุกวงรวมกัน = 1 เสมอ</li>
+    </ol>
+    <div class="scrollx">
+      <div class="crow" data-n="2" data-lab="เริ่มที่ ∣0⟩" data-mag="1,0" data-sub="100%,0%"></div>
+      <div class="crow" data-n="2" data-lab="หลัง HAD" data-mag="0.5,0.5" data-sub="50%,50%"></div>
+      <div class="crow" data-n="2" data-lab="H∣1⟩ = ∣−⟩ (เข็มวง ∣1⟩ ชี้ลง = เครื่องหมายลบ)" data-mag="0.5,0.5" data-phase="0,180" data-hl="1"></div>
+    </div>
+
+    <h3 id="lec02-not-had">4. NOT (X) และ HAD (H)</h3>
+    <p><b>NOT / X</b> — สลับวง ∣0⟩ ↔ ∣1⟩ (สลับทั้งขนาดและเข็ม) · เป็น
+    <span class="term" title="ทำสองครั้งกลับที่เดิม">its own inverse</span> (NOT·NOT = ไม่ทำอะไร)</p>
+    <p><b>HAD / H</b> — สร้าง superposition 50/50 จาก ∣0⟩ หรือ ∣1⟩ และเป็น its own inverse เหมือนกัน</p>
+    <p class="eq">H∣0⟩ = (∣0⟩ + ∣1⟩)/√2 &nbsp;·&nbsp; H∣1⟩ = (∣0⟩ − ∣1⟩)/√2</p>
+    <div class="box why"><span class="tag">ทำไม H∣1⟩ ต้องมีเครื่องหมายลบ — 3 เหตุผล</span>
+      <p><b>1. orthogonality (ความตั้งฉาก)</b> — ∣0⟩ กับ ∣1⟩ ตั้งฉากกัน ผลลัพธ์ H∣0⟩ กับ H∣1⟩ ก็ต้องตั้งฉากกันด้วย
+      ลอง inner product: (1·1 + 1·(−1))/2 = 0 ✓ ถ้าเป็นบวกทั้งคู่จะไม่ตั้งฉาก</p>
+      <p><b>2. reversibility (ย้อนกลับได้)</b> — ถ้า H∣0⟩ กับ H∣1⟩ ให้ผลเหมือนกันเป๊ะ ก็ย้อนกลับไม่ได้ว่ามาจากอะไร
+      เครื่องหมายลบคือสิ่งเดียวที่แยกสองเส้นทางนี้ออกจากกัน</p>
+      <p><b>3. interference</b> — พอ H อีกที เทอมบวกกับเทอมลบหักล้างกัน (destructive) เหลือ ∣0⟩ ตัวเดียว
+      → นี่คือเหตุผลที่ <b>H·H = ไม่ทำอะไร</b></p>
+      <p>ทั้งสามเรื่องนี้คือ “เครื่องหมายลบ = เข็มชี้ลง = −1 ในเวกเตอร์ = relative phase 180°” สิ่งเดียวกัน เล่า 3 ภาษา</p></div>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="1"
+           data-ops="WRITE:0; X:0; H:0; P:0:45; RNOT:0; Z:0; READ:0"
+           data-cap="สัญลักษณ์ที่ต้องจำ (ซ้าย→ขวา): WRITE ▷ · NOT/X ⊕ · HAD [H] · PHASE ⓕ พร้อมมุม · RNOT [√X] · Z [Z] · READ ครึ่งวงกลม"></div>
+    </div>
+
+    <h3 id="lec02-read-write">5. READ และ WRITE</h3>
+    <table class="cmp">
+      <thead><tr><th>คำสั่ง</th><th>ทำอะไร</th><th>ย้อนกลับได้ไหม</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="คำสั่ง"><b>READ</b></td>
+          <td data-label="ทำอะไร">วัด → สุ่มยุบเหลือ 0 หรือ 1 ตามความน่าจะเป็น · <b>ลบ phase ทิ้งทั้งหมด</b></td>
+          <td data-label="ย้อนกลับ"><b>ไม่ได้</b> — คำสั่งเดียวในวิชานี้ที่ irreversible (และเป็นตัวเดียวที่สุ่ม)</td>
+        </tr>
+        <tr>
+          <td data-label="คำสั่ง"><b>WRITE</b></td>
+          <td data-label="ทำอะไร">ตั้งค่า qubit ให้เป็น ∣0⟩ หรือ ∣1⟩ แบบแน่นอน — <b>ตั้งเป็น superposition ไม่ได้</b></td>
+          <td data-label="ย้อนกลับ">ไม่ได้ เพราะสร้างจาก READ</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="box aha"><span class="tag">WRITE สร้างจาก READ + NOT</span>
+      <p>WRITE ไม่ใช่คำสั่งพื้นฐานจริงๆ — วิธีทำคือ <b>READ ก่อน</b> (บังคับให้เป็น 0 หรือ 1 แน่ๆ)
+      แล้ว<b>ถ้าได้ค่าไม่ตรงที่ต้องการ ค่อย NOT</b> · ที่ WRITE ย้อนกลับไม่ได้ก็เพราะข้างในมี READ อยู่นี่เอง</p></div>
+
+    <h3 id="lec02-qrng">6. QRNG — โปรแกรมควอนตัมตัวแรก <a href="#code-qrng">→ ดูโค้ด</a></h3>
+    <p>วงจรสั้นที่สุดที่มีประโยชน์จริง: <b>WRITE(0) → HAD → READ</b> ได้บิตสุ่มแท้ 1 บิต
+    (ทำ 8 สายขนานกันก็ได้ random byte)</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="1" data-ops="WRITE:0; H:0; READ:0" data-cap="QRNG — เตรียม ∣0⟩ → HAD → READ"></div>
+    </div>
+    <table class="cmp">
+      <thead><tr><th>ประเด็น</th><th>PRNG (คลาสสิก)</th><th>QRNG (ควอนตัม)</th></tr></thead>
+      <tbody>
+        <tr><td data-label="ประเด็น">ที่มาของความสุ่ม</td>
+          <td data-label="PRNG">algorithm + seed (เช่น LCG)</td>
+          <td data-label="QRNG">กฎของธรรมชาติตอน READ — ไม่มี algorithm ไม่มี seed</td></tr>
+        <tr><td data-label="ประเด็น">รู้ seed แล้วทำนายได้ไหม</td>
+          <td data-label="PRNG">ได้ — ลำดับซ้ำเดิมเป๊ะ</td>
+          <td data-label="QRNG">ไม่ได้ แม้รู้ทุกอย่างเกี่ยวกับวงจร</td></tr>
+        <tr><td data-label="ประเด็น">ทำซ้ำได้ไหม</td>
+          <td data-label="PRNG">ได้ (ข้อดีตอน debug)</td>
+          <td data-label="QRNG">ไม่ได้</td></tr>
+      </tbody>
+    </table>
+    <div class="box warn"><span class="tag">กับดักที่ออกสอบง่ายที่สุด (สไลด์ p57)</span>
+      <p>รัน QRNG บน <b>simulator</b> ยังได้เลขจาก PRNG อยู่ดี! เพราะ simulator รันบนคอมคลาสสิก
+      — ต้องรันบน QPU จริงเท่านั้นถึงจะเป็นการสุ่มแท้</p></div>
+
+    <h3 id="lec02-phase">7. PHASE(θ)</h3>
+    <p>หมุนเข็ม<b>เฉพาะวง ∣1⟩</b> ไป θ องศา (ทวนเข็ม = บวก) · <b>ไม่มีผลกับ ∣0⟩ เลย</b>
+    และ<b>ไม่เปลี่ยนโอกาสวัด</b> เพราะขนาดวงเท่าเดิม</p>
+    <div class="scrollx">
+      <div class="crow" data-n="2" data-lab="∣+⟩ ก่อน PHASE" data-mag="0.5,0.5"></div>
+      <div class="crow" data-n="2" data-lab="หลัง PHASE(45°) — หมุนแค่วง ∣1⟩" data-mag="0.5,0.5" data-phase="0,45" data-hl="1"></div>
+    </div>
+    <div class="box warn"><span class="tag">counter-example ที่ต้องจำ</span>
+      <p>PHASE เป็น <b>reversible แต่ไม่ใช่ its own inverse</b> — PHASE(45°) สองที = PHASE(90°) ไม่ใช่กลับที่เดิม
+      ต้องย้อนด้วย <b>PHASE(−θ)</b><br>
+      ข้อยกเว้น: <b>PHASE(180°) = Z</b> ตัวนี้ its own inverse (เพราะ 180+180 = 360 = ครบรอบ)</p></div>
+    <p>สถานะที่มีชื่อ 4 ตัว สร้างจาก HAD แล้วต่อ PHASE: ∣+⟩ (0°) · ∣−⟩ (180°) · ∣+Y⟩ (+90°, เข็มชี้ซ้าย) ·
+    ∣−Y⟩ (−90°, เข็มชี้ขวา)</p>
+
+    <h3 id="lec02-nocloning">8. no-cloning — คำสั่งที่หายไป</h3>
+    <div class="box aha"><span class="tag">the missing operation</span>
+      <p><b>COPY ไม่มีในโลกควอนตัม</b> — ก๊อป qubit ที่เรา<b>ไม่รู้ค่า</b>ของมันไม่ได้เลย
+      (จะรู้ค่าต้อง READ ซึ่งทำลาย state ไปแล้ว)</p>
+      <p>ผลที่ตามมาซึ่งจะเจอทั้งวิชา: ทำ backup state ไว้กันพลาดไม่ได้ ·
+      teleportation (Lec04) จึงเป็นการ “ย้าย” ไม่ใช่ “ก๊อป” ต้นทางต้องเสียไป ·
+      และข้อจำกัดนี้กลับกลายเป็น<b>อาวุธ</b>ของ QKD คือถ้ามีสปายมาดักอ่าน จะทิ้งร่องรอยไว้เสมอ</p></div>
+
+    <div class="quiz" data-answer="2">
+      <div class="q">ทำ PHASE(90°) ต่อกัน 2 ครั้งบน ∣+⟩ แล้วอ่านผล จะได้อะไร</div>
+      <button class="opt">กลับมาเป็น ∣+⟩ เหมือนเดิม เพราะ gate ควอนตัมเป็น its own inverse</button>
+      <button class="opt">โอกาสวัดได้ 1 เพิ่มขึ้นเป็น 100%</button>
+      <button class="opt">กลายเป็น ∣−⟩ (เฟสรวม 180°) แต่โอกาสวัดยัง 50/50 เท่าเดิม</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — PHASE บวกมุมสะสม และไม่แตะขนาดวงเลย โอกาสจึงไม่ขยับ</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — PHASE ไม่ใช่ its own inverse (มุมสะสมเป็น 180°) และ phase ไม่เคยเปลี่ยนโอกาสวัด</div>
+    </div>
+    <div class="quiz" data-answer="0">
+      <div class="q">คำสั่งใดใน Lec02 ที่ <b>ย้อนกลับไม่ได้</b> และลบ phase ทิ้ง</div>
+      <button class="opt">READ</button>
+      <button class="opt">HAD</button>
+      <button class="opt">PHASE(θ)</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — READ เป็น op เดียวที่ irreversible และเป็นตัวเดียวที่สุ่มด้วย</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — HAD กับ PHASE ย้อนกลับได้ทั้งคู่ (H ด้วย H เอง, PHASE ด้วย PHASE(−θ))</div>
+    </div>
+
+    <!-- LEC02-B -->
     <button type="button" class="next-btn" data-target="lec03">บทถัดไป: Lec03 →</button>
   </section>
 
@@ -93,6 +324,16 @@
       <thead><tr><th>คำสั่ง (QCEngine / QASM)</th><th>สัญลักษณ์วงจร</th><th>ทำอะไร</th></tr></thead>
       <tbody id="code-table-body">
         <!-- แถวจากใบอื่นแทรกที่นี่ — ทุกแถวต้องมี id="code-xxx" ให้หน้าอื่นลิงก์กลับได้ -->
+        <tr id="code-qrng">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(1);   // เตรียม 1 qubit เป็น |0⟩
+qc.write(0);   // WRITE ค่า 0
+qc.had();      // HAD (ไม่ระบุ qubit = ทำทุกตัว)
+qc.read();     // READ ได้บิตสุ่มแท้</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-ops="WRITE:0; H:0; READ:0"></div></td>
+          <td data-label="ทำอะไร"><b>QRNG</b> — สุ่มบิตแท้ 1 บิต (50/50)<br>
+          ทำหลายสายพร้อมกัน = random byte · ⚠️ บน simulator ยังเป็น PRNG อยู่<br>
+          <a href="#lec02">↩ กลับไปหัวข้อ Lec02</a></td>
+        </tr>
       </tbody>
     </table>
     <button type="button" class="next-btn" data-target="pitfalls">บทถัดไป: Pitfalls →</button>
@@ -106,12 +347,24 @@
 
     <h2 id="pitfalls-misconception">จุดที่คนมักพลาด</h2>
     <ul class="pitfall-list" id="pitfalls-misconception-list">
-      <li class="pitfall-empty">ยังไม่มีรายการ — แต่ละ ticket เติมของตัวเองตอนเขียนหน้านั้น</li>
+      <li><a href="#lec01">Lec01 · QPU คืออะไร</a> — “QPU มาแทน CPU / เร็วกว่าทุกงาน” ผิด มันคือ co-processor ที่เก่งบางงาน</li>
+      <li><a href="#lec01">Lec01 · QPU คืออะไร</a> — “ต้องเก่งฟิสิกส์ก่อนถึงเขียนโปรแกรมได้” ผิด (สไลด์เทียบกับ C++ กับทรานซิสเตอร์)</li>
+      <li><a href="#lec02">Lec02 · ข้อ 1 bit vs qubit</a> — “superposition = เป็น 0 และ 1 พร้อมกัน อ่านได้ทั้งคู่” ผิด · qubit 1 ตัวอ่านได้ 1 บิตเท่านั้น</li>
+      <li><a href="#lec02">Lec02 · ข้อ 2 amplitude</a> — “phase เปลี่ยน → โอกาสวัดเปลี่ยน” ผิด phase ไม่แตะ magnitude² · กับดักหลักของ Lec02</li>
+      <li><a href="#lec02">Lec02 · ข้อ 3 circle notation</a> — จำผิดว่า “รัศมี = ความน่าจะเป็น” ของจริงคือ <b>พื้นที่</b></li>
+      <li><a href="#lec02">Lec02 · ข้อ 5 READ/WRITE</a> — “WRITE ตั้ง superposition ได้” ผิด ตั้งได้แค่ ∣0⟩ / ∣1⟩</li>
+      <li><a href="#lec02">Lec02 · ข้อ 6 QRNG</a> — “รัน QRNG บน simulator = สุ่มแท้” ผิด simulator ยังใช้ PRNG</li>
+      <li><a href="#lec02">Lec02 · ข้อ 7 PHASE</a> — “gate ควอนตัมทุกตัวเป็น its own inverse” ผิด PHASE(θ) ต้องย้อนด้วย PHASE(−θ)</li>
+      <li><a href="#lec02">Lec02 · ข้อ 8 no-cloning</a> — “ก๊อป qubit เก็บไว้ก่อนแล้วค่อยวัด” ทำไม่ได้ ไม่มีคำสั่ง COPY</li>
     </ul>
 
     <h2 id="pitfalls-slide-errors">สไลด์ผิดตรงไหน</h2>
     <ul class="pitfall-list" id="pitfalls-slide-errors-list">
-      <li class="pitfall-empty">ยังไม่มีรายการ — แหล่ง: learning-records/0010-slide-errors-and-rotation-convention.md</li>
+      <li><a href="#lec02">Lec02 · สไลด์ p71</a> — เขียนว่า “The Z-axis is a horizontal axis” <b>ผิด</b> · Z คือแกน<b>ตั้ง</b> (∣0⟩→∣1⟩) ขัดกับประโยคถัดไปของสไลด์เอง</li>
+      <li><a href="#lec02">Lec02 · สไลด์ p69</a> — เขียนว่า “ROTX(π/2) เอียง ∣0⟩ ไป ∣+⟩” <b>ผิด</b> · ของจริง ROTY(π/2)∣0⟩ = ∣+⟩ ส่วน ROTX(π/2)∣0⟩ = ∣−Y⟩ (ใจความที่ออกสอบไม่เปลี่ยน: ทั้งคู่ให้ 50/50 ต่างกันที่ phase)</li>
+      <li><a href="#lec02">Lec02 · สไลด์ p66</a> — ระบายไฮไลต์แค่ ∣3⟩ ∣5⟩ ∣7⟩ ตกวง ∣1⟩ ไป · ของจริง PHASE กระทบครึ่งหนึ่ง = 4 วง (เป็นแค่การระบายสีตกหล่น ไม่ใช่เนื้อหาผิด)</li>
+      <li><b>convention ที่ต้องยึดทุกบท</b> — มุมบวก = <b>ทวนเข็มนาฬิกา</b> (ยืนยันจากสไลด์ p64/p66) สามัญสำนึกว่า “ตามเข็ม” ผิด</li>
+      <li><b>วิธีรับมือตอนสอบ</b> — ถ้าข้อสอบอ้างสไลด์ตรงๆ ให้ <b>ตอบตามสไลด์</b> แต่รู้ของจริงไว้เผื่อโจทย์ถามเชิงเข้าใจ</li>
     </ul>
 
     <a href="index.html" class="hub-link-btn">← กลับไปหน้า Hub</a>
