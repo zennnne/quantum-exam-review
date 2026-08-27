@@ -1968,6 +1968,58 @@ if (send_had == recv_had)      // ฐานตรงกัน
           🎯 <b>HAD ตรงกันแต่ค่าไม่ตรง = มีสปาย</b> (โอกาสจับได้ 25% ต่อ qubit ที่ตรวจ)<br>
           <a href="#lec02-spy">↩ กลับไปหัวข้อ Lec02 ข้อ 12</a></td>
         </tr>
+        <tr id="code-add-b">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(6);
+var a = qint.new(4, 'a');   // register 4 บิต
+var b = qint.new(2, 'b');   // register 2 บิต
+a.write(1);
+b.write(3);
+
+a.add(b);        // a += b  (ทับลงบน a ไม่สร้าง register ใหม่)
+// a.subtract(b) = ชุด gate เดิมรันย้อนลำดับ</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="6" data-names="a,a,a,a,b,b"
+            data-wire-labels="0x1,0x2,0x4,0x8,0x1,0x2"
+            data-ops="CTRL:0,1,2,4 + X:3; CTRL:0,1,4 + X:2; CCNOT:0,4,1; CNOT:4,0; CTRL:1,2,5 + X:3; CCNOT:1,5,2; CNOT:5,1"
+            data-out="0-3:a + b"
+            data-alt="วงจร a += b 6 สาย"></div></td>
+          <td data-label="ทำอะไร"><b><code class="code">a += b</code></b> — บวก quantum integer สองตัวเข้าด้วยกัน<br>
+            = เอาวงจร increment ของ <code class="code">a</code> มาซ้ำ <b>1 รอบต่อบิตของ b</b> โดยพ่วง control จากบิตนั้นเข้าไปทุก gate<br>
+            รอบของ <code class="code">b·0x2</code> เริ่มที่ <code class="code">a·0x2</code> (เลื่อนขึ้น 1 บิตตามน้ำหนัก)<br>
+            ⚠️ <code class="code">c = a + b</code> ทำไม่ได้ (เสีย reversibility + ละเมิด no-cloning)<br>
+            <a href="#lec05">↩ กลับไปหัวข้อ Lec05</a></td>
+        </tr>
+        <tr id="code-subtract-1">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(4);
+var a = qint.new(4, 'a');
+a.write(5);
+
+a.subtract(1);   // −1  = วงจร increment กลับลำดับ
+// a.add(1);     // +1  = ลำดับปกติ</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x4,0x8"
+            data-ops="X:0; CNOT:0,1; CCNOT:0,1,2; CTRL:0,1,2 + X:3"
+            data-out="0-3:a − 1"
+            data-alt="วงจร decrement 4 qubit"></div></td>
+          <td data-label="ทำอะไร"><b>decrement (−1)</b> — <b>วงจรเดียวกับ increment แต่กลับลำดับ gate ทั้งหมด</b><br>
+            increment ไล่จาก control เยอะสุด → น้อยสุด (จบที่ <code class="code">X</code> บน <code class="code">0x1</code>) ·
+            decrement ไล่กลับหลัง เริ่มที่ <code class="code">X</code> บน <code class="code">0x1</code><br>
+            เป็นการทดเลข (carry/borrow) แบบเดียวกับเลขคณิตปกติ · ล้นช่วงแล้ว wrap รอบ mod 16<br>
+            <a href="#lec05">↩ กลับไปหัวข้อ Lec05</a></td>
+        </tr>
+        <tr id="code-not-mask">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// อยากทำงานเฉพาะตอน b == 1 (คือ 01₂)
+b.not(~1);          // พลิกทุกบิตของ b ยกเว้น 0x1
+a.add(3, b);        // ใช้ทุกบิตของ b เป็น condition ได้เลย
+b.not(~1);          // พลิกกลับคืนให้ b เป็นค่าเดิม</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="3" data-names="b,b,a"
+            data-wire-labels="0x1,0x2,target"
+            data-ops="X:1; CTRL:0,1 + X:2; X:1"
+            data-alt="วงจรใช้ NOT เป็น mask ก่อนใช้ control"></div></td>
+          <td data-label="ทำอะไร"><b>ใช้ NOT เป็น mask</b> — control (●) อ่านได้แค่เงื่อนไข “บิตนี้เป็น 1”
+            แต่เงื่อนไขจริงมักมีเลข 0 ปนอยู่ (<code class="code">b == 1</code> คือ <code class="code">01₂</code>)<br>
+            ทริก: พลิกบิตที่ควรเป็น 0 ให้เป็น 1 ก่อน → เงื่อนไขกลายเป็น “ทุกบิตเป็น 1” → ใช้ทุกสายเป็น control ได้<br>
+            🔴 ใช้เสร็จต้อง <b>พลิกกลับคืน</b> เสมอ ไม่งั้น <code class="code">b</code> เพี้ยน<br>
+            <a href="#lec05">↩ กลับไปหัวข้อ Lec05</a></td>
+        </tr>
       </tbody>
     </table>
     <button type="button" class="next-btn" data-target="pitfalls">บทถัดไป: Pitfalls →</button>
@@ -2011,6 +2063,15 @@ if (send_had == recv_had)      // ฐานตรงกัน
       <li><a href="#lec03">Lec03 · CNOT + Bell pair</a> — คิดว่า CNOT เดี่ยวๆ สร้าง entanglement · ต้องมี HAD ทำให้ control เป็น superposition ก่อน</li>
       <li><a href="#lec03">Lec03 · Bell’s theorem</a> — คิดว่าละเมิด Bell inequality = ส่งข้อมูลเร็วกว่าแสงได้ · เลือกผลไม่ได้ จึงเป็นแค่ shared randomness</li>
       <li><a href="#lec03">Lec03 · CNOT บนวงจร</a> — คิดว่า ● ต้องอยู่เส้นบนเสมอ · สไลด์ p41–42 วาง ● ไว้เส้นล่าง ให้ดูที่รูปสัญลักษณ์ ไม่ใช่ตำแหน่ง</li>
+      <li><a href="#lec05-abs-trap">Lec05 · abs(−4)</a> — เห็น <code class="code">abs(−4) = −4</code> แล้วคิดว่าเป็นบั๊ก · เป็น<b>คำตอบที่ถูก</b> (+4 ล้นช่วง 3 บิต) · คำตอบผิดที่มักเลือกคือ <code class="code">011</code> เพราะ<b>ลืม +1</b> หลัง flip</li>
+      <li><a href="#lec05-scratch">Lec05 · scratch qubit</a> — คิดว่า scratch คือการ <b>copy</b> ค่าไว้ · จริงๆ มัน <b>entangled</b> กับ output เสมอ จึง READ ทิ้งไม่ได้ และไม่กลับเป็น <code class="code">|0⟩</code> เอง</li>
+      <li><a href="#lec05">Lec05 · uncomputing</a> — คิดว่า uncompute จะล้างคำตอบหายไปด้วย · ลำดับต้องเป็น <b>compute → use → uncompute</b> · ที่หายคือ scratch ไม่ใช่ผลที่ “ใช้” ไปแล้ว (uncompute ทันทีหลัง compute ต่างหากที่ล้างคำตอบทิ้ง)</li>
+      <li><a href="#lec05-no-c-equals">Lec05 · <code class="code">c = a + b</code></a> — เขียนบวกแบบภาษาคลาสสิก · ผิดทั้ง 2 กติกา (ทับค่าเดิมใน c = ไม่ reversible · ถ้าทำได้จะถอด <code class="code">b = c − a</code> ได้ = ก๊อป qubit) ต้องใช้ <code class="code">+=</code></li>
+      <li><a href="#lec05">Lec05 · ลำดับ gate ของ increment</a> — ไล่จากบิตต่ำขึ้นบิตสูง · ต้องไล่จาก gate ที่มี <b>control เยอะสุดลงไปน้อยสุด</b> ไม่งั้นเงื่อนไข carry อ่านค่าที่เปลี่ยนไปแล้ว · <code class="code">decrement</code> = ชุดเดิม<b>กลับหลัง</b> ไม่ใช่วงจรใหม่ <a href="#code-subtract-1">→ ดูโค้ด</a></li>
+      <li><a href="#lec05">Lec05 · <code class="code">a.add(12)</code></a> — สลับลำดับ <code class="code">X:2</code> กับ <code class="code">CNOT:2,3</code> · สลับแล้วได้ 1→5 ซึ่งผิด · และอย่าลืมว่า register 4 บิต <b>wrap mod 16</b> (5 + 12 = 1)</li>
+      <li><a href="#lec05">Lec05 · <code class="code">b²</code></a> — กระจายกำลังสองแล้ว<b>ตกเทอมคู่</b> หรือเขียน <code class="code">bᵢ²</code> ทิ้งไว้ · กุญแจคือ <code class="code">bᵢ² = bᵢ</code> → เทอมเดี่ยว <code class="code">2^(2i)·bᵢ</code> + เทอมคู่ <code class="code">2^(i+j+1)·bᵢbⱼ</code> (i&lt;j) · เช็กเร็วด้วยการแทนค่า b = 5 → 25</li>
+      <li><a href="#lec05">Lec05 · Toffoli</a> — คิดว่า Toffoli “เท่ากับ” NAND ทุกประการ · Toffoli ทำ <code class="code">c = c XOR (a AND b)</code> จึงได้ <code class="code">c = f(a,b)</code> <b>ก็ต่อเมื่อ c เริ่มที่ <code class="code">|0⟩</code></b> (ที่มาของ scratch ในตาราง 6 ประตู) และ a, b ยังอยู่ครบ = reversible</li>
+      <li><a href="#lec05">Lec05 · <code class="code">b.not(~1)</code></a> — ใช้ mask แล้ว<b>ลืมพลิกกลับคืน</b> → ค่าใน b เพี้ยนไปทั้ง superposition <a href="#code-not-mask">→ ดูโค้ด</a></li>
     </ul>
 
     <h2 id="pitfalls-slide-errors">สไลด์ผิดตรงไหน</h2>
