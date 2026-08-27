@@ -247,9 +247,9 @@
           d: "M" + gx + "," + (gy + 12) + " q0,-12 12,-12 H" + (gx + gw - 12) +
              " q12,0 12,12 M" + gx + "," + (gy + gh - 12) + " q0,12 12,12 H" +
              (gx + gw - 12) + " q12,0 12,-12",
-          fill: "none", stroke: "#17808f", "stroke-width": 1.8 }));
+          fill: "none", stroke: "#116370", "stroke-width": 1.8 }));
         var gt = txt(gx + gw / 2, 15, p[1] || "", 12, 700);
-        gt.setAttribute("fill", "#17808f");
+        gt.setAttribute("fill", "#116370");
         svg.appendChild(gt);
         if (p[2]) svg.appendChild(txt(gx + gw / 2, gy + 16, p[2], 11, 800));
       });

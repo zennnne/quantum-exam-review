@@ -1709,7 +1709,7 @@
     <div class="part"><h2><span class="n">2</span> ครึ่งหลัง — เอาแค่ไอเดีย</h2></div>
     <p class="lead">4 หัวข้อนี้ต่อยอดจากของข้างบน จับแก่นให้ได้ก็พอ ไม่ต้องเดินวงจรทีละสเต็ป</p>
 
-    <h3>Quantum-Conditional Execution</h3>
+    <h3 id="lec05-cond">Quantum-Conditional Execution</h3>
     <p>คลาสสิก: CPU ต้อง<b>อ่านค่า</b>ก่อน แล้วค่อยตัดสินใจว่าจะรัน logic หรือไม่ · QPU: ค่าหนึ่ง<b>เป็นทั้งเซ็ตและไม่เซ็ตพร้อมกันได้</b> → operation ที่ขึ้นกับค่านั้นจึง<b>ทั้งรันและไม่รันพร้อมกันใน superposition</b> — ใช้ได้ถึงระดับรัน digital logic ก้อนใหญ่แบบมีเงื่อนไข</p>
     <div class="box aha"><span class="tag">ทริกที่ต้องจำ — <code class="code">b.not(~1)</code></span>
       <p>ปัญหา: control (●) อ่านได้แค่ "บิตนี้เป็น 1" · แต่เงื่อนไข <code class="code">b == 1</code> คือ <code class="code">01₂</code> ซึ่งมีเลข 0 ปนอยู่</p>
@@ -1727,7 +1727,7 @@
       <p>ผลข้างเคียง: scratch จะ <b>entangled (พัวพัน)</b> กับ output register เสมอ — ไม่ใช่สำเนาแยกอิสระ · จึง READ ทิ้งไม่ได้ (จะทำลาย output ที่มันช่วยสร้าง) และมันแทบไม่เคยกลับไป <code class="code">|0⟩</code> เอง</p>
     </div>
 
-    <h3>Uncomputing</h3>
+    <h3 id="lec05-uncompute">Uncomputing</h3>
     <p class="eq">compute → use → uncompute</p>
     <p class="scroll-hint">← เลื่อนดูได้</p>
     <div class="scrollx">
@@ -1745,7 +1745,7 @@
 
     <div class="part"><h2><span class="n">3</span> Toffoli &amp; ประตูลอจิก 6 ตัว</h2></div>
 
-    <h3>Toffoli = NAND ของโลกควอนตัม</h3>
+    <h3 id="lec05-toffoli">Toffoli = NAND ของโลกควอนตัม</h3>
     <p>ในโลกดิจิทัล มี NAND ตัวเดียวก็สร้าง AND/OR/NOT/XOR ได้หมด · ในโลกควอนตัมตัวที่รับบทนี้คือ <b>multiple-condition CNOT = Toffoli</b> — เหมือน NAND ตรงที่<b>เพิ่ม/ลดจำนวน condition input ได้</b></p>
     <div class="circuit" data-wires="3" data-names="a,b,c"
          data-ops="CCNOT:0,1,2"
@@ -1840,6 +1840,30 @@ qc.read();     // READ ได้บิตสุ่มแท้</pre></td>
           <td data-label="ทำอะไร"><b>QRNG</b> — สุ่มบิตแท้ 1 บิต (50/50)<br>
           ทำหลายสายพร้อมกัน = random byte · ⚠️ บน simulator ยังเป็น PRNG อยู่<br>
           <a href="#lec02">↩ กลับไปหัวข้อ Lec02</a></td>
+        </tr>
+        <tr id="code-spy">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// Alice สุ่ม 2 บิตลับด้วย QRNG
+var send_val = random_bit();
+var send_had = random_bit();
+
+qc.reset(1);
+qc.write(0);
+if (send_val) qc.not();     // ⊕
+if (send_had) qc.had();     // [H]
+// ---- ส่งข้ามสายไปหา Bob (สปายอาจดักตรงนี้) ----
+var recv_had = random_bit();
+if (recv_had) qc.had();     // [H] ของ Bob
+var recv_val = qc.read();
+
+if (send_had == recv_had)      // ฐานตรงกัน
+  if (send_val != recv_val)    // แต่ค่าไม่ตรง
+    qc.print('Caught a spy!');</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-wire-labels="qubit"
+            data-ops="WRITE:0; X:0; H:0; BOX:0,0:SPY:1; H:0; READ:0"></div></td>
+          <td data-label="ทำอะไร"><b>Quantum Spy Hunter (QKD)</b> — ⊕ และ H ตัวแรกทำตามบิตสุ่มของ Alice ·
+          H ตัวหลังทำตามบิตสุ่มของ Bob<br>
+          🎯 <b>HAD ตรงกันแต่ค่าไม่ตรง = มีสปาย</b> (โอกาสจับได้ 25% ต่อ qubit ที่ตรวจ)<br>
+          <a href="#lec02-spy">↩ กลับไปหัวข้อ Lec02 ข้อ 12</a></td>
         </tr>
         <tr id="code-qint">
           <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">qc.reset(3);
@@ -1943,30 +1967,6 @@ var b_result = b.read();</pre></td>
             ได้ 0 → อีกตัวเป็น 85%/15% · ได้ 1 → 15%/85%<br>
             ⚠️ ตัวหนังสือสไลด์ p115/116 เขียน 70/30 ผิด<br>
             <a href="#lec03">↩ กลับไปหัวข้อ Lec03</a></td>
-        </tr>
-        <tr id="code-spy">
-          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// Alice สุ่ม 2 บิตลับด้วย QRNG
-var send_val = random_bit();
-var send_had = random_bit();
-
-qc.reset(1);
-qc.write(0);
-if (send_val) qc.not();     // ⊕
-if (send_had) qc.had();     // [H]
-// ---- ส่งข้ามสายไปหา Bob (สปายอาจดักตรงนี้) ----
-var recv_had = random_bit();
-if (recv_had) qc.had();     // [H] ของ Bob
-var recv_val = qc.read();
-
-if (send_had == recv_had)      // ฐานตรงกัน
-  if (send_val != recv_val)    // แต่ค่าไม่ตรง
-    qc.print('Caught a spy!');</pre></td>
-          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-wire-labels="qubit"
-            data-ops="WRITE:0; X:0; H:0; BOX:0,0:SPY:1; H:0; READ:0"></div></td>
-          <td data-label="ทำอะไร"><b>Quantum Spy Hunter (QKD)</b> — ⊕ และ H ตัวแรกทำตามบิตสุ่มของ Alice ·
-          H ตัวหลังทำตามบิตสุ่มของ Bob<br>
-          🎯 <b>HAD ตรงกันแต่ค่าไม่ตรง = มีสปาย</b> (โอกาสจับได้ 25% ต่อ qubit ที่ตรวจ)<br>
-          <a href="#lec02-spy">↩ กลับไปหัวข้อ Lec02 ข้อ 12</a></td>
         </tr>
         <tr id="code-teleport-qasm">
           <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">OPENQASM 2.0;
@@ -2162,17 +2162,28 @@ b.not(~1);          // พลิกกลับคืนให้ b เป็น
 
     <h2 id="pitfalls-slide-errors">สไลด์ผิดตรงไหน</h2>
     <ul class="pitfall-list" id="pitfalls-slide-errors-list">
-      <li><a href="#lec02-bloch">Lec02 · สไลด์ p71</a> — เขียนว่า “The Z-axis is a horizontal axis” <b>ผิด</b> · Z คือแกน<b>ตั้ง</b> (∣0⟩→∣1⟩) ขัดกับประโยคถัดไปของสไลด์เอง</li>
-      <li><a href="#lec02-bloch">Lec02 · สไลด์ p69</a> — เขียนว่า “ROTX(π/2) เอียง ∣0⟩ ไป ∣+⟩” <b>ผิด</b> · ของจริง ROTY(π/2)∣0⟩ = ∣+⟩ ส่วน ROTX(π/2)∣0⟩ = ∣−Y⟩ (ใจความที่ออกสอบไม่เปลี่ยน: ทั้งคู่ให้ 50/50 ต่างกันที่ phase)</li>
-      <li><a href="#lec02-bloch">Lec02 · สไลด์ p66</a> — ระบายไฮไลต์แค่ ∣3⟩ ∣5⟩ ∣7⟩ ตกวง ∣1⟩ ไป · ของจริง PHASE กระทบครึ่งหนึ่ง = 4 วง (เป็นแค่การระบายสีตกหล่น ไม่ใช่เนื้อหาผิด)</li>
       <li><b>convention ที่ต้องยึดทุกบท</b> — มุมบวก = <b>ทวนเข็มนาฬิกา</b> (ยืนยันจากสไลด์ p64/p66) สามัญสำนึกว่า “ตามเข็ม” ผิด</li>
       <li><b>วิธีรับมือตอนสอบ</b> — ถ้าข้อสอบอ้างสไลด์ตรงๆ ให้ <b>ตอบตามสไลด์</b> แต่รู้ของจริงไว้เผื่อโจทย์ถามเชิงเข้าใจ</li>
+      <li><a href="#lec02-bloch">Lec02 · สไลด์ p71</a> — เขียนว่า “The Z-axis is a horizontal axis” <b>ผิด</b> · Z คือแกน<b>ตั้ง</b> (∣0⟩→∣1⟩) ขัดกับประโยคถัดไปของสไลด์เอง</li>
+      <li><a href="#lec02-bloch">Lec02 · สไลด์ p69</a> — เขียนว่า “ROTX(π/2) เอียง ∣0⟩ ไป ∣+⟩” <b>ผิด</b> · ของจริง ROTY(π/2)∣0⟩ = ∣+⟩ ส่วน ROTX(π/2)∣0⟩ = ∣−Y⟩ (ใจความที่ออกสอบไม่เปลี่ยน: ทั้งคู่ให้ 50/50 ต่างกันที่ phase)</li>
       <li><a href="#lec03">Lec03 · PHASE ใน register</a> — สไลด์ Lec03 หน้า 66 (PHASE ที่ 0x1) แถวบนสุดระบายไฮไลต์แค่ |3⟩ |5⟩ |7⟩ <strong>ตกวง |1⟩ ไป</strong> — เป็นการระบายสีตกหล่น ไม่ใช่เนื้อหาผิด (zoom แล้วเข็มของ |1⟩ เอียงจริง) ของจริงต้องครบ 4 วงตามกฎ "PHASE แตะครึ่งหนึ่ง"</li>
       <li><a href="#lec03">Lec03 · สไลด์ p71</a> — เขียนว่าสัญลักษณ์ย่อของ CZ คือ (●—⊕) <b>ผิด</b> · นั่นคือ CNOT · CZ ของจริง = <b>●—●</b> (สไลด์ p70 ของอาจารย์เองวาด ●—● ไว้ชัด)</li>
       <li><a href="#lec03">Lec03 · swap test p94 กับ p97–99</a> — ไม่ใช่ error แต่เป็น <b>สอง convention</b>: p94 ใช้วงจร 5 ขั้น (0 = เหมือน) ส่วนโค้ด p97–99 เติม <code class="code">output.not()</code> (1 = เหมือน) — ดูโจทย์ก่อนตอบ</li>
       <li><a href="#lec03">Lec03 · สไลด์ p115/116</a> — ตัวหนังสือเขียนว่า b = 70%/30% <b>ผิด</b> · ของจริง <b>85%/15%</b> (ตรงกับคอมเมนต์โค้ด p113 และขนาดวงในรูปหน้าเดียวกัน)</li>
       <li><a href="#code-teleport-qasm">Lec04 · กล่องโค้ด QASM</a> — สไลด์พิมพ์ <code class="code">include "qulib1.inc";</code> <b>ผิด</b> · ของจริงคือ <code class="code">qelib1.inc</code> (quantum experience library) — <b>ตอนสอบตอบตามสไลด์</b> แต่รู้ของจริงไว้</li>
       <li><a href="#lec04">Lec04 · prep payload สองเวอร์ชัน</a> — ไม่ใช่ error แต่เป็น <b>สองชุดในสไลด์เดียว</b>: วงจรฉบับหนังสือ p15 ใช้ H → φ(45°) → H ส่วนโค้ด QASM p6 ใช้ <code class="code">x → h → t</code> · verify ต้องเป็นชุดย้อนกลับของ prep ที่ใช้ — <b>ดูรูปที่โจทย์ให้มาก่อนตอบ</b></li>
+      <li><a href="#lec04">Lec04 · สไลด์ p12 (ผังกล่อง-ลูกศร)</a> — ผังนี้เป็นผังของ <b>superdense coding</b> ไม่ใช่ teleportation ·
+        ในผังให้ <b>Alice แก้ qubit แล้ว Bob วัด</b> ซึ่งกลับด้านกับเนื้อหาในหน้าเดียวกัน (ของจริง Alice วัดได้ 2 บิต แล้ว Bob แก้)
+        — <b>ห้ามใช้ผังนี้ไล่ลำดับขั้น teleportation</b></li>
+      <li><a href="#code-teleport-fix">Lec04 · สไลด์ p39 คำว่า “บิตแรก/บิตที่สอง”</a> — <b>กำกวม</b> ไม่ได้บอกว่าบิตไหนคือบิตแรก ·
+        <b>โค้ดในรูปเป็นตัวตัดสิน</b>: <code class="code">bit_n</code> (ผล READ ของ ep) คุม NOT · <code class="code">bit_p</code> (ผล READ ของ alice) คุม PHASE(180)
+        — และโค้ด p37 อ่าน <code class="code">bit_p</code> ก่อน ดังนั้น “บิตแรก” ในประโยคนี้ ≠ <code class="code">bit_p</code></li>
+      <li><a href="#lec05-toffoli">Lec05 · สไลด์ NAND</a> — เขียนว่า NAND คือ <code class="code">NOT(b AND b)</code> <b>ผิด</b> ·
+        ของจริง <code class="code">a NAND b = NOT(a AND b)</code> (ยืนยันจากรูปจริงแล้วว่าสไลด์พิมพ์แบบนั้นจริง ไม่ใช่ extract พลาด) — <b>ตอบตามสไลด์ตอนสอบ</b></li>
+      <li><a href="#lec05-uncompute">Lec05 · หัวเรื่อง “Upcomputing”</a> — พิมพ์ผิดจาก <b>“Uncomputing”</b> · เนื้อความหน้าถัดๆ ไปใช้ “uncomputing” ตลอด — คงตามสไลด์ไว้</li>
+      <li><a href="#lec05-cond">Lec05 · สไลด์ conditional execution</a> — เขียนว่า subtract 3 จะไปเซ็ต qubit <b>lowest-weight</b> · ขัดกับโค้ด
+        <code class="code">a.bits(0x4)</code> ที่ใช้ qubit <b>น้ำหนักสูงสุด</b> (บิตเครื่องหมาย) เป็นเงื่อนไข · คำว่า “top bit” ก็กำกวมเพราะสายบนสุดในรูปคือ 0x1 (LSB)
+        — ตอบตามสไลด์ แต่ของจริงคือ highest-weight (0x4)</li>
     </ul>
 
     <a href="index.html" class="hub-link-btn">← กลับไปหน้า Hub</a>

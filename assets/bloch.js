@@ -26,8 +26,8 @@
   var AX = Math.cos(TILT), AY = Math.sin(TILT);
   var PADX = 62, PADY = 34;
 
-  var INK = "#1a1a1a", SOFT = "#9aa0a6", RULE = "#c9cdd4";
-  var ACCENT = "#6a3fb5", HLC = "#e07a3f", FACE = "#f7f5fb";
+  var INK = "#1a1a1a", SOFT = "#697078", RULE = "#c9cdd4";
+  var ACCENT = "#6a3fb5", HLC = "#b4531b", FACE = "#f7f5fb";
 
   function el(tag, a) {
     var e = document.createElementNS(NS, tag);

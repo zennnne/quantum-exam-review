@@ -39,7 +39,7 @@
     var svg = svgEl("svg", { width: size, height: size + 2 });
     svg.appendChild(svgEl("circle", {
       cx: c, cy: c, r: r, fill: "#fff",
-      stroke: hl ? "#e07a3f" : "#1a1a1a",
+      stroke: hl ? "#b4531b" : "#1a1a1a",
       "stroke-width": hl ? 2.2 : 1.5
     }));
     if (mag > 0) {

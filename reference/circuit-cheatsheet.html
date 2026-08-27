@@ -585,6 +585,54 @@
     ใช้ได้กับ gate อะไรก็ได้ ไม่ใช่แค่ ⊕ เช่น <code>CTRL:0 + H:1</code> = controlled-HAD</p>
   </div>
 
+  <h2>กล่องระดับสูง — เลขคณิตทั้งชุดในกล่องเดียว (Lec 05 slide 2–32, 43–54)</h2>
+  <p class="meta">พอวงจรใหญ่ขึ้น สไลด์เลิกวาด gate ทีละตัว แล้ววาดเป็น<b>กล่องโปร่งคร่อมสาย</b>แทน
+  · กล่องไม่ใช่ gate ใหม่ — ข้างในคือ multi-control NOT ชุดเดิมนั่นแหละ
+  · <b>อ่านจากสายที่กล่องคร่อม</b>: คร่อมสายไหนบ้าง = ทำกับ register ตัวไหน</p>
+  <div class="grid">
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-names="a,," data-ops="BOX:0,2:+1:2; _"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>increment (a += 1)</b><br>
+      กล่อง <b>+1</b> คร่อมทุกสายของ a · ข้างในคือ multi-control NOT ไล่จาก control <b>เยอะสุดลงน้อยสุด</b><br>
+      <b>decrement</b> = กล่อง <b>−1</b> = ชุดเดิม<b>กลับลำดับ</b> ไม่ใช่วงจรใหม่</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;"><code>data-ops="BOX:0,2:+1:2"</code></p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x1,0x2" data-names="a,,b," data-ops="BOX:0,1:+b:2; _"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>a += b</b><br>
+      กล่อง <b>+b</b> คร่อม<b>เฉพาะสายของ a</b> ส่วน b วิ่งผ่านไปเฉยๆ = b ไม่ถูกทำลาย<br>
+      🔴 <code>c = a + b</code> เขียนแบบนี้ไม่ได้ (ทับค่าเดิม = ไม่ reversible)</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;"><code>data-ops="BOX:0,1:+b:2"</code></p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="3" data-wire-labels="0x1,0x2,0x4" data-names="a,," data-ops="BOX:0,2:−a:2; _"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>negate (a = −a)</b><br>
+      กล่อง <b>−a</b> = two’s complement — <b>พลิกทุกบิตแล้ว +1</b><br>
+      กับดัก: <code>abs(−4) = −4</code> เพราะ +4 ล้นช่วง 3 บิต (ไม่ใช่บั๊ก)</p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;"><code>data-ops="BOX:0,2:−a:2"</code></p>
+    </div>
+    <div class="sym">
+      <div class="circuit" data-wires="4" data-wire-labels="0x1,0x2,0x4,0x1" data-names="a,,,scratch" data-ops="BOX:0,3:|a|:2; BOX:0,3:abs†:2"></div>
+      <p class="meta" style="margin:.4rem 0 0;"><b>abs + uncompute</b><br>
+      กล่อง <b>|a|</b> ต้องคร่อมสาย <b>scratch</b> ด้วย เพราะต้องพักเครื่องหมายเดิมไว้<br>
+      กล่องเดิมที่มี <b>†</b> = ทำย้อนกลับล้าง scratch ให้กลับเป็น |0⟩ · ลำดับคือ
+      <b>compute → use → uncompute</b></p>
+      <span class="rev yes">REVERSIBLE</span>
+      <p class="meta" style="margin-top:.5rem;"><code>data-ops="BOX:0,3:|a|:2"</code> · <code>BOX:0,3:abs†:2</code></p>
+    </div>
+  </div>
+  <div class="box warn">
+    <span class="tag">อ่านกล่องยังไงไม่ให้พลาด</span>
+    <p style="margin:0;"><b>1)</b> กล่องคร่อมสายไหนบ้าง → นั่นคือ register ที่ถูกกระทำ ·
+    <b>2)</b> ป้ายในกล่องบอก “ทำอะไร” ไม่ได้บอก “ทำยังไง” ·
+    <b>3)</b> มี <b>†</b> = ย้อนกลับของกล่องชื่อเดียวกัน<br>
+    ⚠️ กล่องพื้นเทา + ชื่อ<b>ด้านบน</b> (หัวข้อก่อนหน้า) คนละอย่างกับกล่องโปร่งพวกนี้ —
+    อันนั้นแค่<b>จัดกลุ่ม</b> gate ที่วาดไว้แล้ว อันนี้<b>ซ่อน</b> gate ไว้ข้างใน</p>
+  </div>
+
   <h2>ประตูลอจิกดิจิทัล “คลาสสิก” (Lec 05 slide 56–60)</h2>
   <p class="meta">🔴 <b>คนละระบบกับสัญลักษณ์ควอนตัมด้านบน</b> — พวกนี้ไม่มีเส้น qubit, input กับ output
   เป็นคนละเส้นกัน, และส่วนใหญ่ <b>irreversible</b> (จาก output ย้อนกลับไปหา input ไม่ได้)
