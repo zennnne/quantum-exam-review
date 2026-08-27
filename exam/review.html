@@ -9,6 +9,7 @@
 <script defer src="../assets/circuit.js"></script>
 <script defer src="../assets/logicgate.js"></script>
 <script defer src="../assets/bars.js"></script>
+<script defer src="../assets/bloch.js"></script>
 <div class="wrap">
 
   <p class="kicker">Exam Review · Lec01–05</p>
@@ -282,6 +283,326 @@
     </div>
 
     <!-- LEC02-B -->
+
+    <h3 id="lec02-matrix">9. เมทริกซ์ของ gate — X = HZH และ Z = HXH</h3>
+    <p>gate 1 qubit ทุกตัวเขียนเป็น<b>เมทริกซ์ 2×2</b> ได้ · การ “ต่อ gate” = การ<b>คูณเมทริกซ์</b>
+    โดย<b>ตัวที่ทำก่อนอยู่ขวาสุด</b> (อ่านวงจรซ้าย→ขวา แต่เขียนสูตรขวา→ซ้าย)</p>
+    <p class="eq">H =
+      <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+      <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> &nbsp;·&nbsp;
+      Z = <span class="mat"><span>1</span><span>0</span><span>0</span><span>−1</span></span> &nbsp;·&nbsp;
+      X = <span class="mat"><span>0</span><span>1</span><span>1</span><span>0</span></span>
+    </p>
+
+    <div class="work">
+      <div class="step"><b>X = H Z H</b> — คูณคู่ในสุดก่อน</div>
+      <div class="step"><span class="lbl">1)</span> Z·H =
+        <span class="mat"><span>1</span><span>0</span><span>0</span><span>−1</span></span> ·
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>−1</span><span>1</span></span>
+        <span style="color:#3a5aa0;">(แถวล่างโดน −1 คูณ → สลับเครื่องหมายทั้งแถว)</span></div>
+      <div class="step"><span class="lbl">2)</span> H·(ZH) =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> ·
+        <span class="mat"><span>1</span><span>1</span><span>−1</span><span>1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1−1</span><span>1+1</span><span>1+1</span><span>1−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>0</span><span>2</span><span>2</span><span>0</span></span></div>
+      <div class="step"><span class="lbl">3)</span> ดึง ½ เข้าไป =
+        <span class="mat"><span>0</span><span>1</span><span>1</span><span>0</span></span> = <b>X</b> ✔</div>
+    </div>
+
+    <div class="work">
+      <div class="step"><b>Z = H X H</b> — สลับที่ H กับ Z ก็ได้อีกสมการ (สไลด์ p86–90)</div>
+      <div class="step"><span class="lbl">1)</span> X·H =
+        <span class="mat"><span>0</span><span>1</span><span>1</span><span>0</span></span> ·
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>−1</span><span>1</span><span>1</span></span>
+        <span style="color:#3a5aa0;">(X = สลับสองแถว)</span></div>
+      <div class="step"><span class="lbl">2)</span> H·(XH) =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> ·
+        <span class="mat"><span>1</span><span>−1</span><span>1</span><span>1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1+1</span><span>−1+1</span><span>1−1</span><span>−1−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>2</span><span>0</span><span>0</span><span>−2</span></span></div>
+      <div class="step"><span class="lbl">3)</span> ดึง ½ เข้าไป =
+        <span class="mat"><span>1</span><span>0</span><span>0</span><span>−1</span></span> = <b>Z</b> ✔</div>
+    </div>
+
+    <div class="box aha"><span class="tag">อ่านเป็นภาษาคน — ไม่ต้องท่องเมทริกซ์</span>
+      <p><b>H คือตัวสลับมุมมองระหว่างแกน X กับแกน Z</b> (ดูข้อ 11) · เอา H ประกบหน้า-หลัง gate ตัวไหน
+      gate นั้นจะเปลี่ยนไปทำงานบนอีกแกนหนึ่งทันที<br>
+      ผลที่ใช้ได้จริง: <b>QPU ที่ไม่มีปุ่ม NOT ก็ยังพลิกบิตได้</b> ด้วย
+      <code class="code">had() → phase(180) → had()</code></p></div>
+
+    <h3 id="lec02-rnot">10. RNOT (√NOT) — gate ที่โลกคลาสสิกไม่มีวันมี</h3>
+    <p>“ครึ่งหนึ่งของการพลิกบิต” ไม่มีความหมายในโลกบิต แต่มีจริงในควอนตัม เพราะ qubit เดินผ่าน
+    superposition ได้ · <b>RNOT ทีเดียว = หยุดครึ่งทางระหว่าง ∣0⟩ กับ ∣1⟩ (50/50)</b> ·
+    ทำสองที = NOT เต็มตัว</p>
+    <p class="eq">√NOT =
+      <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+      <span class="mat"><span>1+<i>i</i></span><span>1−<i>i</i></span><span>1−<i>i</i></span><span>1+<i>i</i></span></span>
+      &nbsp;·&nbsp; สัญลักษณ์วงจร = กล่อง <b>√X</b></p>
+    <div class="work">
+      <div class="step"><b>ตรวจว่า “ทำสองที = NOT” จริงไหม</b> — กุญแจคือ <b><i>i</i>² = −1</b></div>
+      <div class="step"><span class="lbl">1)</span> ช่องบนซ้าย = ¼[(1+<i>i</i>)² + (1−<i>i</i>)²]
+        · (1+<i>i</i>)² = 1+2<i>i</i>−1 = <b>2<i>i</i></b> · (1−<i>i</i>)² = 1−2<i>i</i>−1 = <b>−2<i>i</i></b>
+        → รวม = <b>0</b></div>
+      <div class="step"><span class="lbl">2)</span> ช่องบนขวา = ¼[(1+<i>i</i>)(1−<i>i</i>) + (1−<i>i</i>)(1+<i>i</i>)]
+        = ¼[2 + 2] = <b>1</b></div>
+      <div class="step"><span class="lbl">3)</span> เมทริกซ์สมมาตร → ช่องล่างได้ 1 กับ 0 เหมือนกัน →
+        <span class="mat"><span>0</span><span>1</span><span>1</span><span>0</span></span> = <b>NOT</b> ✔</div>
+    </div>
+    <div class="work">
+      <div class="step"><b>RNOT = H · PHASE(90°) · H</b> — หน้าตาเดียวกับ X = HZH เป๊ะ แค่เปลี่ยน 180° เป็น 90°</div>
+      <div class="step"><span class="lbl">1)</span> P(90)·H =
+        <span class="mat"><span>1</span><span>0</span><span>0</span><span><i>i</i></span></span> ·
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">√2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span><i>i</i></span><span>−<i>i</i></span></span></div>
+      <div class="step"><span class="lbl">2)</span> H·(P(90)H) =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1</span><span>1</span><span>1</span><span>−1</span></span> ·
+        <span class="mat"><span>1</span><span>1</span><span><i>i</i></span><span>−<i>i</i></span></span> =
+        <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+        <span class="mat"><span>1+<i>i</i></span><span>1−<i>i</i></span><span>1−<i>i</i></span><span>1+<i>i</i></span></span>
+        = <b>√NOT</b> ✔</div>
+      <div class="step"><span class="lbl">3)</span> ทำสองที: RNOT·RNOT = H·P(90)·<b>H·H</b>·P(90)·H
+        → ตรงกลาง <b>H·H = ไม่ทำอะไร หายไป</b> → = H·P(180)·H = HZH = <b>NOT</b> ✔</div>
+    </div>
+    <div class="box warn"><span class="tag">🪤 จุดที่ต่างจาก NOT</span>
+      <p><b>NOT เป็น its own inverse แต่ RNOT ไม่ใช่</b> — ทำสองทีได้ NOT ไม่ใช่กลับที่เดิม ·
+      ตัวย้อนคือ <b>RNOT⁻¹ = H · PHASE(−90°) · H</b><br>
+      และ <b>RNOT ทีเดียวแล้ว READ ได้ 1 ที่ 50%</b> (ไม่ใช่ 0% และไม่ใช่ 100%)</p></div>
+
+    <h3 id="lec02-bloch">11. Bloch sphere — qubit ทั้งตัวในลูกศรอันเดียว</h3>
+    <p class="lead">หัวข้อนี้เขียนยาวกว่าข้ออื่นตั้งใจ เพราะเป็นจุดที่งงกันมากที่สุดของคาบนี้ —
+    อ่านช้าๆ ทีละหัวข้อย่อยได้เลย</p>
+
+    <p><b>ทำไมต้องมีเครื่องมือนี้อีกอัน?</b> circle notation เก่งตอนมีหลาย qubit (2ᴺ วง)
+    แต่ตอนมี qubit เดียว มันเปลืองพื้นที่ไปหน่อย — เพราะ qubit เดียว<b>มีลูกบิดจริงๆ แค่ 2 ตัว</b>
+    ของอย่างนี้วาดเป็น<b>จุดบนทรงกลม</b> ได้พอดี (ลูกโลกก็ใช้ 2 ตัวเลข: ละติจูด + ลองจิจูด)</p>
+
+    <div class="box why"><span class="tag">ทำไม state อยู่บน “ผิว” ทรงกลม ไม่ใช่ข้างใน</span>
+      <p>เริ่มจาก ∣ψ⟩ = a∣0⟩ + b∣1⟩ → a, b เป็นจำนวนเชิงซ้อน = <b>4 ตัวเลขอิสระ</b>
+      แล้วโดนหักออก 2 ข้อ:</p>
+      <p><b>1. normalization</b> ∣a∣² + ∣b∣² = 1 บังคับอยู่แล้ว → หายไป 1 ตัว<br>
+      <b>2. global phase ไม่มีความหมาย</b> (ข้อ 2) → หมุนทั้งคู่พร้อมกันเท่าไรก็เป็น state เดิม → หายไปอีก 1 ตัว</p>
+      <p>เหลือ <b>2 ตัวเลข</b> พอดี = <b>θ (ความสูง) + φ (ลองจิจูด)</b> ซึ่งก็คือ<b>ผิว</b>ของทรงกลมเป๊ะๆ
+      — ไม่มี “ระยะจากจุดศูนย์กลาง” ให้เล่นเลย เพราะ normalization ล็อกความยาวลูกศรไว้ที่ 1 ตลอด<br>
+      <span style="color:#3a5aa0;">(จุดข้างในทรงกลมมีความหมายจริง เรียก mixed state แต่ไม่อยู่ในขอบเขตวิชานี้)</span></p>
+      <p class="eq">∣ψ⟩ = cos(θ/2)∣0⟩ + e<sup><i>i</i>φ</sup> sin(θ/2)∣1⟩</p>
+    </div>
+
+    <h4>11.1 แกนทั้งสามคืออะไร</h4>
+    <div class="scrollx">
+      <div class="bloch" data-theta="0" data-phi="0"
+           data-lab="จุดอ้างอิงทั้ง 6 บนทรงกลม"
+           data-alt="Bloch sphere แสดงแกน X Y Z และจุด ∣0⟩ ∣1⟩ ∣+⟩ ∣−⟩ ∣+Y⟩ ∣−Y⟩ ลูกศรชี้ที่ ∣0⟩"
+           data-cap="ลูกศรม่วง = state ปัจจุบัน (รูปนี้อยู่ที่ ∣0⟩ ขั้วเหนือ) · เส้นประ = เส้นศูนย์สูตร (ครึ่งหลังเป็นเส้นประ)"></div>
+    </div>
+    <table class="cmp">
+      <thead><tr><th>แกน</th><th>ขั้วบวก / ขั้วลบ</th><th>คุมอะไร</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="แกน"><b>Z</b> — แกน<b>ตั้ง</b> ⚠️</td>
+          <td data-label="ขั้ว">บน = <b>∣0⟩</b> · ล่าง = <b>∣1⟩</b></td>
+          <td data-label="คุมอะไร"><b>ความสูง (θ) = โอกาสวัด</b> · P(0) = cos²(θ/2) · P(1) = sin²(θ/2)</td>
+        </tr>
+        <tr>
+          <td data-label="แกน"><b>X</b> — แกนนอน (ยื่นเข้าหาเรา)</td>
+          <td data-label="ขั้ว">+X = <b>∣+⟩</b> · −X = <b>∣−⟩</b></td>
+          <td data-label="คุมอะไร">อยู่บนเส้นศูนย์สูตร → 50/50 ทั้งคู่ ต่างกันแค่ phase (0° กับ 180°)</td>
+        </tr>
+        <tr>
+          <td data-label="แกน"><b>Y</b> — แกนนอน (ซ้าย-ขวา)</td>
+          <td data-label="ขั้ว">+Y = <b>∣+Y⟩</b> · −Y = <b>∣−Y⟩</b></td>
+          <td data-label="คุมอะไร">บนเส้นศูนย์สูตรเหมือนกัน → 50/50 · phase +90° กับ −90°</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><b>อ่านลูกศรเป็น 2 ตัวเลขเสมอ:</b> <b>θ</b> = มุมกดลงจากขั้วเหนือ (ความสูง → <b>โอกาสวัด</b>) ·
+    <b>φ</b> = หันไปทางไหนรอบแกนตั้ง (ลองจิจูด → <b>relative phase</b>)</p>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx blochrow">
+      <div class="bloch" data-r="66" data-theta="0" data-phi="0" data-lab="∣0⟩ (θ=0°)"
+           data-alt="ลูกศรชี้ขั้วเหนือ" data-cap="วัดได้ 0 · 100%"></div>
+      <div class="bloch" data-r="66" data-theta="180" data-phi="0" data-lab="∣1⟩ (θ=180°)"
+           data-alt="ลูกศรชี้ขั้วใต้" data-cap="วัดได้ 1 · 100%"></div>
+      <div class="bloch" data-r="66" data-theta="90" data-phi="0" data-lab="∣+⟩ (θ=90°, φ=0°)"
+           data-alt="ลูกศรชี้แกน X บวก" data-cap="50/50 · เข็มวง ∣1⟩ ชี้ขึ้น"></div>
+      <div class="bloch" data-r="66" data-theta="90" data-phi="180" data-lab="∣−⟩ (θ=90°, φ=180°)"
+           data-alt="ลูกศรชี้แกน X ลบ" data-cap="50/50 · เข็มวง ∣1⟩ ชี้ลง (−1)"></div>
+      <div class="bloch" data-r="66" data-theta="90" data-phi="90" data-lab="∣+Y⟩ (θ=90°, φ=+90°)"
+           data-alt="ลูกศรชี้แกน Y บวก" data-cap="50/50 · เข็มหมุน +90°"></div>
+      <div class="bloch" data-r="66" data-theta="90" data-phi="270" data-lab="∣−Y⟩ (θ=90°, φ=−90°)"
+           data-alt="ลูกศรชี้แกน Y ลบ" data-cap="50/50 · เข็มหมุน −90°"></div>
+    </div>
+    <div class="box aha"><span class="tag">insight ที่ออกสอบบ่อย</span>
+      <p><b>ทุกจุดบนเส้นศูนย์สูตรวัดได้ 50/50 เท่ากันหมด</b> — ∣+⟩ ∣−⟩ ∣+Y⟩ ∣−Y⟩ แยกกันไม่ออกด้วย READ
+      ครั้งเดียว ต่างกันแค่ φ (phase) ซึ่งจะเผยตัวก็ต่อเมื่อมี gate มาทำ interference ทีหลัง</p></div>
+
+    <h4>11.2 gate = การหมุน (นี่คือหัวใจ)</h4>
+    <p>บนทรงกลม gate ทุกตัวของ 1 qubit คือ <b>“หมุนลูกศรรอบแกนหนึ่ง เป็นมุมหนึ่ง”</b> เท่านั้นเอง
+    · ทิศบวก = <b>ทวนเข็มนาฬิกาเมื่อมองจากปลายแกนบวกย้อนลงมา</b> (กฎมือขวา)</p>
+    <table class="cmp">
+      <thead><tr><th>gate</th><th>หมุนรอบแกน</th><th>โอกาสวัดเปลี่ยนไหม</th><th>อุปมามือ (สไลด์ p72)</th></tr></thead>
+      <tbody>
+        <tr><td data-label="gate"><b>ROTX(θ)</b></td>
+          <td data-label="แกน">แกน <b>X</b> (นอน)</td>
+          <td data-label="โอกาส"><b>เปลี่ยน</b> — ลูกศรไต่ขึ้นลงระหว่างขั้ว</td>
+          <td data-label="อุปมา">เอียงมือ <b>ไปหน้า / มาหลัง</b></td></tr>
+        <tr><td data-label="gate"><b>ROTY(θ)</b></td>
+          <td data-label="แกน">แกน <b>Y</b> (นอน)</td>
+          <td data-label="โอกาส"><b>เปลี่ยน</b></td>
+          <td data-label="อุปมา">เอียงมือ <b>ซ้าย / ขวา</b></td></tr>
+        <tr><td data-label="gate"><b>PHASE(θ) = ROTZ(θ)</b></td>
+          <td data-label="แกน">แกน <b>Z</b> (ตั้ง)</td>
+          <td data-label="โอกาส"><b>ไม่เปลี่ยน</b> — ลูกศรอยู่ละติจูดเดิมตลอด</td>
+          <td data-label="อุปมา">หมุนมือ <b>รอบตัวเอง</b> (มืออยู่ที่เดิม แค่หันคนละทาง)</td></tr>
+        <tr><td data-label="gate"><b>X (NOT)</b></td>
+          <td data-label="แกน">แกน X · <b>180°</b></td>
+          <td data-label="โอกาส">เปลี่ยน — ∣0⟩ ↔ ∣1⟩ (พลิกขั้ว)</td>
+          <td data-label="อุปมา">ตีลังกาหน้า-หลังครึ่งรอบ</td></tr>
+        <tr><td data-label="gate"><b>Z = PHASE(180°)</b></td>
+          <td data-label="แกน">แกน Z · <b>180°</b></td>
+          <td data-label="โอกาส">ไม่เปลี่ยน — ∣+⟩ ↔ ∣−⟩</td>
+          <td data-label="อุปมา">หมุนรอบตัวเองครึ่งรอบ</td></tr>
+        <tr><td data-label="gate"><b>HAD</b></td>
+          <td data-label="แกน">แกนเฉียง <b>(X+Z)/√2</b> · 180°</td>
+          <td data-label="โอกาส">เปลี่ยน — ∣0⟩ ↔ ∣+⟩ , ∣1⟩ ↔ ∣−⟩</td>
+          <td data-label="อุปมา"><b>สลับแกน X ↔ Z เข้าหากัน</b></td></tr>
+        <tr><td data-label="gate"><b>RNOT (√X)</b></td>
+          <td data-label="แกน">แกน X · <b>90°</b> (ครึ่งทางของ NOT)</td>
+          <td data-label="โอกาส">เปลี่ยน — ∣0⟩ → เส้นศูนย์สูตร (50/50)</td>
+          <td data-label="อุปมา">ตีลังกาแค่ครึ่งของครึ่งรอบ</td></tr>
+      </tbody>
+    </table>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx blochrow">
+      <div class="bloch" data-r="70" data-theta="90" data-phi="0" data-hl="y"
+           data-lab="ROTY(90°) บน ∣0⟩ → ∣+⟩" data-alt="หมุนรอบแกน Y ได้ ∣+⟩"
+           data-cap="หมุนรอบ <b>แกน Y</b> (ส้ม) · ลูกศรไต่ลงมาเส้นศูนย์สูตร → 50/50"></div>
+      <div class="bloch" data-r="70" data-theta="90" data-phi="270" data-hl="x"
+           data-lab="ROTX(90°) บน ∣0⟩ → ∣−Y⟩" data-alt="หมุนรอบแกน X ได้ ∣−Y⟩"
+           data-cap="หมุนรอบ <b>แกน X</b> (ส้ม) · ก็ 50/50 เหมือนกัน <b>แต่ phase ต่าง</b>"></div>
+      <div class="bloch" data-r="70" data-theta="90" data-phi="90" data-hl="z"
+           data-lab="PHASE(90°) บน ∣+⟩ → ∣+Y⟩" data-alt="หมุนรอบแกน Z ได้ ∣+Y⟩"
+           data-cap="หมุนรอบ <b>แกน Z</b> (ส้ม) · ลูกศรอยู่ละติจูดเดิม → <b>โอกาสวัดไม่ขยับ</b>"></div>
+    </div>
+    <div class="box aha"><span class="tag">เห็นด้วยตาว่าทำไม PHASE ไม่เปลี่ยนโอกาสวัด</span>
+      <p>แกน Z คือแกนตั้ง หมุนรอบมันแล้วลูกศร<b>อยู่ละติจูดเดิมเสมอ</b> — สูงเท่าเดิม = θ เท่าเดิม =
+      magnitude เท่าเดิม = โอกาสวัดเท่าเดิม เปลี่ยนแค่ “หันไปทางไหน” (φ)<br>
+      ส่วน ROTX / ROTY หมุนรอบแกนนอน ลูกศรเลย<b>ไต่ขึ้นลงระหว่างสองขั้ว</b> → θ เปลี่ยน → โอกาสเปลี่ยน<br>
+      ⇒ กลุ่มที่เปลี่ยนโอกาสวัดได้: <b>HAD · NOT · ROTX · ROTY</b> · กลุ่มที่ไม่เปลี่ยน: <b>PHASE / ROTZ</b></p></div>
+    <div class="box why"><span class="tag">ทำไม H ถึงสลับ X กับ Z ได้ (ย้อนไปข้อ 9)</span>
+      <p>HAD คือการหมุน 180° รอบ<b>แกนเฉียงที่อยู่กึ่งกลางระหว่างแกน X กับแกน Z</b> พอดี
+      ผลของมันคือ<b>สลับแกน X ↔ Z</b> · เพราะงั้น “หมุนรอบ Z” (= Z gate) เมื่อเอา H ประกบหน้า-หลัง
+      ก็กลายเป็น “หมุนรอบ X” (= X gate) เป๊ะ → <b>X = HZH</b> โดยไม่ต้องท่องเมทริกซ์เลย</p></div>
+
+    <div class="box warn"><span class="tag">⚠️ สไลด์ Lec02 เขียนพลาด 2 จุดในหัวข้อนี้</span>
+      <p><b>1) p71 “The Z-axis is a horizontal axis” — ผิด</b> · Z คือแกน<b>ตั้ง</b> (∣0⟩ ขั้วเหนือ → ∣1⟩ ขั้วใต้)
+      มีแค่ X กับ Y ที่เป็นแกนนอน — ถ้า Z นอนจริง ประโยคถัดไปของสไลด์เอง (“ลูกศรอยู่ละติจูดเดิม
+      → magnitude ไม่เปลี่ยน”) จะขัดกันทันที</p>
+      <p><b>2) p69 “ROTX(π/2) เอียง ∣0⟩ ไปเป็น ∣+⟩” — สลับแกน</b> · ของจริง <b>ROTY(π/2)∣0⟩ = ∣+⟩</b>
+      ส่วน <b>ROTX(π/2)∣0⟩ = ∣−Y⟩</b><br>
+      แต่ใจความที่ออกสอบไม่เปลี่ยน: <b>ทั้งคู่ให้ 50/50 เหมือนกัน ต่างกันแค่ phase</b></p>
+      <p><b>วิธีรับมือตอนสอบ:</b> ถ้าโจทย์อ้างสไลด์ตรงๆ ให้<b>ตอบตามสไลด์</b> แต่รู้ของจริงไว้เผื่อโจทย์ถามเชิงเข้าใจ</p></div>
+
+    <h4>11.3 ความสัมพันธ์กับ circle notation</h4>
+    <p>สองภาพนี้เล่าเรื่องเดียวกันคนละภาษา — แปลไปมาได้ตรงๆ</p>
+    <table class="cmp">
+      <thead><tr><th>Bloch sphere</th><th>circle notation</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Bloch">ลูกศร 1 อันบนผิวทรงกลม</td>
+          <td data-label="circle">วง 2 วง (∣0⟩ กับ ∣1⟩)</td></tr>
+        <tr><td data-label="Bloch"><b>θ</b> = ความสูงของลูกศร</td>
+          <td data-label="circle"><b>พื้นที่ทึบของสองวง</b> — สูงขึ้น = วง ∣0⟩ ใหญ่ขึ้น</td></tr>
+        <tr><td data-label="Bloch"><b>φ</b> = ลองจิจูด (หันไปทางไหน)</td>
+          <td data-label="circle"><b>มุมเข็มของวง ∣1⟩ เทียบกับวง ∣0⟩</b> (relative phase)</td></tr>
+        <tr><td data-label="Bloch">หมุนรอบแกน Z (PHASE)</td>
+          <td data-label="circle">เข็มวง ∣1⟩ หมุน แต่ขนาดวงเท่าเดิม</td></tr>
+        <tr><td data-label="Bloch">หมุนรอบแกน X / Y (ROTX/ROTY, HAD, NOT)</td>
+          <td data-label="circle"><b>ย้ายพื้นที่ทึบ</b>ระหว่างสองวง</td></tr>
+        <tr><td data-label="Bloch">🔴 ใช้ได้กับ <b>1 qubit เท่านั้น</b></td>
+          <td data-label="circle">🔴 ขยายไป N qubit ได้ (<b>2ᴺ วง</b>) — นี่คือเหตุผลที่ Lec03 ขึ้นไปใช้ circle notation ล้วน</td></tr>
+      </tbody>
+    </table>
+    <div class="scrollx">
+      <div class="crow" data-n="2" data-lab="∣+⟩ = θ 90° · φ 0°" data-mag="0.5,0.5" data-sub="50%,50%"></div>
+      <div class="crow" data-n="2" data-lab="∣+Y⟩ = θ 90° · φ +90° (เข็มวง ∣1⟩ หมุน 90°)" data-mag="0.5,0.5" data-phase="0,90" data-hl="1"></div>
+      <div class="crow" data-n="2" data-lab="∣−⟩ = θ 90° · φ 180° (เข็มชี้ลง = −1)" data-mag="0.5,0.5" data-phase="0,180" data-hl="1"></div>
+    </div>
+
+    <div class="quiz" data-answer="1">
+      <div class="q">qubit อยู่ที่ ∣+Y⟩ แล้วโดน PHASE(180°) ต่อ · หลังจากนั้น READ จะได้ 0 กี่ %</div>
+      <button class="opt">100% เพราะ PHASE(180°) ดันลูกศรกลับขึ้นขั้วเหนือ</button>
+      <button class="opt">50% เพราะ PHASE หมุนรอบแกน Z ลูกศรยังอยู่บนเส้นศูนย์สูตรเหมือนเดิม</button>
+      <button class="opt">0% เพราะเฟส 180° ทำให้ amplitude ของ ∣0⟩ หักล้างหมด</button>
+      <div class="fb ok" data-for="ok">ถูกต้อง — หมุนรอบแกนตั้ง = ละติจูดเท่าเดิม (∣+Y⟩ → ∣−Y⟩) โอกาสวัดไม่ขยับเลย</div>
+      <div class="fb no" data-for="no">ยังไม่ใช่ — PHASE = ROTZ หมุนรอบแกน<b>ตั้ง</b> ลูกศรอยู่ละติจูดเดิม → 50/50 เหมือนเดิม (แค่ย้ายจาก ∣+Y⟩ ไป ∣−Y⟩)</div>
+    </div>
+    <details class="recall"><summary>🧠 ลองเล่าเองก่อนเปิด — “ทำไม PHASE เปลี่ยนโอกาสวัดไม่ได้ ทั้งที่ ROTX เปลี่ยนได้ ทั้งที่หมุนเหมือนกัน”</summary>
+      <p>บน Bloch sphere qubit คือลูกศร 1 อัน · <b>ความสูง (θ) คุม magnitude → คุมโอกาสวัด</b><br>
+      PHASE หมุนรอบ <b>แกน Z ซึ่งเป็นแกนตั้ง</b> → ลูกศรอยู่ละติจูดเดิมตลอด ความสูงไม่ขยับ = โอกาสไม่ขยับ
+      เปลี่ยนแค่ทิศที่หัน (φ = relative phase)<br>
+      ROTX / ROTY หมุนรอบ<b>แกนนอน</b> → ลูกศรไต่ขึ้นลงระหว่างขั้วเหนือ (∣0⟩) กับขั้วใต้ (∣1⟩) ความสูงเปลี่ยน
+      = โอกาสวัดเปลี่ยน<br>
+      แปลเป็น circle notation: PHASE หมุนเข็มของวง ∣1⟩ เฉยๆ ไม่ย้ายพื้นที่ทึบ · ROTX/ROTY ย้ายพื้นที่ทึบระหว่างสองวง</p>
+    </details>
+
+    <h3 id="lec02-spy">12. Quantum Spy Hunter — capstone ของ Lec02 <a href="#code-spy">→ ดูโค้ด</a></h3>
+    <p>เอา <b>no-cloning</b> มาทำเป็นอาวุธ: สายบิตธรรมดา สปายก๊อปผ่านไปเงียบๆ ได้ ·
+    แต่สายควอนตัม <b>สปายก๊อปไม่ได้ ทำได้แค่ READ แล้วส่งตัวใหม่ต่อ</b> — และ READ ยุบ state ทิ้งร่องรอยเสมอ</p>
+    <p class="scroll-hint">← เลื่อนดูได้</p>
+    <div class="scrollx">
+      <div class="circuit" data-wires="1" data-wire-labels="qubit"
+           data-groups="0-2:Alice เตรียม; 3-3:สปาย; 4-5:Bob อ่าน"
+           data-ops="WRITE:0; X:0; H:0; BOX:0,0:SPY:1; H:0; READ:0"
+           data-alt="วงจร Quantum Spy Hunter"
+           data-cap="⊕ ทำ<b>ถ้า send_val = 1</b> · H ตัวแรกทำ<b>ถ้า send_had = 1</b> (ทั้งสองบิตมาจาก QRNG ของ Alice) · กล่อง SPY = สปาย READ แล้วส่ง qubit ตัวใหม่ต่อ · H ตัวหลังทำ<b>ถ้า recv_had = 1</b> (บิตสุ่มของ Bob) แล้วค่อย READ ได้ recv_val"></div>
+    </div>
+    <p>ผลของ 2 บิตสุ่มฝั่ง Alice: qubit ที่ส่งเป็น 1 ใน 4 สถานะ <b>∣0⟩ ∣1⟩ ∣+⟩ ∣−⟩</b> โดยไม่บอกใครว่าตัวไหน ·
+    <b>สปายไม่รู้ว่า Alice ใส่ HAD ไหม</b> เลยไม่รู้ว่าควรอ่านในฐานไหน → เดามั่ว → ส่งของผิดต่อบ่อยๆ</p>
+    <p>หลังส่งครบ Alice กับ Bob คุยกันผ่านสายธรรมดาได้เลย (ไม่ต้องเข้ารหัส) แต่<b>คุยแค่ว่าตาไหน HAD ตรงกัน
+    ไม่บอกค่าจริง</b> — แล้วเทียบผลตามตารางนี้</p>
+    <table class="cmp">
+      <thead><tr><th>send_had = recv_had ?</th><th>send_val = recv_val ?</th><th>ตัดสินยังไง</th><th>ทำไม</th></tr></thead>
+      <tbody>
+        <tr><td data-label="HAD ตรงกัน?"><b>ตรง</b></td>
+          <td data-label="ค่าตรงกัน?"><b>ตรง</b></td>
+          <td data-label="ตัดสิน">✅ ปกติ — <b>เก็บบิตนี้ไปทำกุญแจได้</b></td>
+          <td data-label="ทำไม">Bob ถอดถูกฐาน ผลจึงตรง (ถ้ามีสปายก็แค่บังเอิญเดาถูก ตานี้จับไม่ได้)</td></tr>
+        <tr><td data-label="HAD ตรงกัน?"><b>ตรง</b></td>
+          <td data-label="ค่าตรงกัน?"><b>ไม่ตรง</b></td>
+          <td data-label="ตัดสิน">🚨 <b>Caught a spy!</b></td>
+          <td data-label="ทำไม"><b>ถ้าไม่มีใครยุ่ง HAD ตรงกันแล้วค่าต้องตรง 100%</b> · ไม่ตรง = มีคนไป READ กลางทาง</td></tr>
+        <tr><td data-label="HAD ตรงกัน?">ไม่ตรง</td>
+          <td data-label="ค่าตรงกัน?">ตรง</td>
+          <td data-label="ตัดสิน">🗑️ ทิ้ง — สรุปอะไรไม่ได้</td>
+          <td data-label="ทำไม">คนละฐาน ผลเป็นการสุ่ม 50/50 อยู่แล้ว ตรงกันก็แค่ฟลุก</td></tr>
+        <tr><td data-label="HAD ตรงกัน?">ไม่ตรง</td>
+          <td data-label="ค่าตรงกัน?">ไม่ตรง</td>
+          <td data-label="ตัดสิน">🗑️ ทิ้ง — สรุปอะไรไม่ได้</td>
+          <td data-label="ทำไม">เหตุผลเดียวกัน — ไม่ตรงเป็นเรื่องปกติเมื่อคนละฐาน <b>ห้ามเอามาฟ้องว่ามีสปาย</b></td></tr>
+      </tbody>
+    </table>
+    <div class="box aha"><span class="tag">🎯 ประโยคที่ต้องจำไปสอบ</span>
+      <p><b>ถ้า HAD ตรงกัน แต่ค่าไม่ตรงกัน → มีสปาย!</b><br>
+      โอกาสจับสปายได้ต่อ qubit 1 ตัวที่เอามาตรวจ = <b>25%</b> (ต้อง HAD ตรงกัน ~50% × สปายทำค่าเพี้ยน ~50%)
+      → ตรวจ n ตัว โอกาสที่สปายจะรอด = 0.75ⁿ ยิ่งตรวจเยอะยิ่งเข้าใกล้ศูนย์</p></div>
+    <div class="box warn"><span class="tag">🪤 กับดักของตารางนี้</span>
+      <p>แถวที่ <b>HAD ไม่ตรงกัน</b> ต้อง<b>ทิ้งทุกกรณี</b> — เอามาสรุปว่า “ค่าไม่ตรง = มีสปาย” ไม่ได้เด็ดขาด
+      เพราะคนละฐานยังไงผลก็มั่ว 50/50 อยู่แล้ว</p></div>
+
     <button type="button" class="next-btn" data-target="lec03">บทถัดไป: Lec03 →</button>
   </section>
 
@@ -1623,6 +1944,30 @@ var b_result = b.read();</pre></td>
             ⚠️ ตัวหนังสือสไลด์ p115/116 เขียน 70/30 ผิด<br>
             <a href="#lec03">↩ กลับไปหัวข้อ Lec03</a></td>
         </tr>
+        <tr id="code-spy">
+          <td data-label="คำสั่ง (QCEngine / QASM)"><pre class="code-blk">// Alice สุ่ม 2 บิตลับด้วย QRNG
+var send_val = random_bit();
+var send_had = random_bit();
+
+qc.reset(1);
+qc.write(0);
+if (send_val) qc.not();     // ⊕
+if (send_had) qc.had();     // [H]
+// ---- ส่งข้ามสายไปหา Bob (สปายอาจดักตรงนี้) ----
+var recv_had = random_bit();
+if (recv_had) qc.had();     // [H] ของ Bob
+var recv_val = qc.read();
+
+if (send_had == recv_had)      // ฐานตรงกัน
+  if (send_val != recv_val)    // แต่ค่าไม่ตรง
+    qc.print('Caught a spy!');</pre></td>
+          <td data-label="สัญลักษณ์วงจร"><div class="circuit" data-wires="1" data-wire-labels="qubit"
+            data-ops="WRITE:0; X:0; H:0; BOX:0,0:SPY:1; H:0; READ:0"></div></td>
+          <td data-label="ทำอะไร"><b>Quantum Spy Hunter (QKD)</b> — ⊕ และ H ตัวแรกทำตามบิตสุ่มของ Alice ·
+          H ตัวหลังทำตามบิตสุ่มของ Bob<br>
+          🎯 <b>HAD ตรงกันแต่ค่าไม่ตรง = มีสปาย</b> (โอกาสจับได้ 25% ต่อ qubit ที่ตรวจ)<br>
+          <a href="#lec02-spy">↩ กลับไปหัวข้อ Lec02 ข้อ 12</a></td>
+        </tr>
       </tbody>
     </table>
     <button type="button" class="next-btn" data-target="pitfalls">บทถัดไป: Pitfalls →</button>
@@ -1645,6 +1990,16 @@ var b_result = b.read();</pre></td>
       <li><a href="#lec02">Lec02 · ข้อ 6 QRNG</a> — “รัน QRNG บน simulator = สุ่มแท้” ผิด simulator ยังใช้ PRNG</li>
       <li><a href="#lec02">Lec02 · ข้อ 7 PHASE</a> — “gate ควอนตัมทุกตัวเป็น its own inverse” ผิด PHASE(θ) ต้องย้อนด้วย PHASE(−θ)</li>
       <li><a href="#lec02">Lec02 · ข้อ 8 no-cloning</a> — “ก๊อป qubit เก็บไว้ก่อนแล้วค่อยวัด” ทำไม่ได้ ไม่มีคำสั่ง COPY</li>
+      <li><a href="#lec02-matrix">Lec02 · ข้อ 9 เมทริกซ์</a> — คูณผิดลำดับ · <b>gate ที่ทำก่อนต้องอยู่ขวาสุด</b> (วงจรอ่านซ้าย→ขวา แต่สูตรคูณขวา→ซ้าย)</li>
+      <li><a href="#lec02-rnot">Lec02 · ข้อ 10 RNOT</a> — คิดว่า RNOT เป็น its own inverse เหมือน NOT · ทำสองที<b>ได้ NOT</b> ไม่ใช่กลับที่เดิม (ตัวย้อนคือ H·PHASE(−90°)·H)</li>
+      <li><a href="#lec02-rnot">Lec02 · ข้อ 10 RNOT</a> — เดาว่า RNOT ทีเดียวแล้ว READ ได้ 1 ที่ 0% หรือ 100% · ของจริง <b>50%</b> (หยุดครึ่งทางพอดี)</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — จำสลับว่า <b>ROTX/ROTY แกนไหน</b> · ROTY(90°)∣0⟩ = ∣+⟩ ส่วน ROTX(90°)∣0⟩ = ∣−Y⟩</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — คิดว่า PHASE เปลี่ยนโอกาสวัดได้ · หมุนรอบ<b>แกนตั้ง</b> = ละติจูดเดิม = โอกาสเท่าเดิม</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — คิดว่า state อยู่<b>ข้างใน</b>ทรงกลมได้ · normalization ล็อกความยาวลูกศร = 1 → อยู่บน<b>ผิว</b>เสมอ</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — เอาทรงกลมไปวาด 2 qubit · <b>ใช้ได้กับ 1 qubit เท่านั้น</b> หลายตัวต้อง circle notation (2ᴺ วง)</li>
+      <li><a href="#lec02-bloch">Lec02 · ข้อ 11 Bloch sphere</a> — คิดว่า ∣+⟩ ∣−⟩ ∣+Y⟩ ∣−Y⟩ วัดแล้วต่างกัน · <b>50/50 เหมือนกันหมด</b> ต่างแค่ phase</li>
+      <li><a href="#lec02-spy">Lec02 · ข้อ 12 Spy Hunter</a> — สรุปว่า “ค่าไม่ตรง = มีสปาย” · ต้อง <b>HAD ตรงกันด้วย</b> ถ้าฐานไม่ตรงให้<b>ทิ้ง</b>ทุกกรณี</li>
+      <li><a href="#lec02-spy">Lec02 · ข้อ 12 Spy Hunter</a> — คิดว่าสปายก๊อป qubit ผ่านไปเงียบๆ ได้ · no-cloning บังคับให้ต้อง READ = ทิ้งร่องรอย</li>
       <li><a href="#lec03">Lec03 · 2ᴺ วง</a> — เข้าใจผิดว่า 2 qubit วาด 2 วงต่อ qubit; ของจริง N qubit = 2ᴺ วง (เคส 2 qubit ที่ได้ 4 เท่ากันเป็นเรื่องบังเอิญ)</li>
       <li><a href="#lec03">Lec03 · operator pairs</a> — สลับกันระหว่าง "NOT ขยับของ" กับ "PHASE ไม่ขยับของ"; PHASE ไม่เปลี่ยนความน่าจะเป็นเลย</li>
       <li><a href="#lec03">Lec03 · PHASE ครึ่งหนึ่ง</a> — คิดว่า PHASE แตะทุกวง; แตะเฉพาะครึ่งที่บิตนั้น = 1 เสมอ ไม่ว่า register ใหญ่แค่ไหน</li>
@@ -1660,9 +2015,9 @@ var b_result = b.read();</pre></td>
 
     <h2 id="pitfalls-slide-errors">สไลด์ผิดตรงไหน</h2>
     <ul class="pitfall-list" id="pitfalls-slide-errors-list">
-      <li><a href="#lec02">Lec02 · สไลด์ p71</a> — เขียนว่า “The Z-axis is a horizontal axis” <b>ผิด</b> · Z คือแกน<b>ตั้ง</b> (∣0⟩→∣1⟩) ขัดกับประโยคถัดไปของสไลด์เอง</li>
-      <li><a href="#lec02">Lec02 · สไลด์ p69</a> — เขียนว่า “ROTX(π/2) เอียง ∣0⟩ ไป ∣+⟩” <b>ผิด</b> · ของจริง ROTY(π/2)∣0⟩ = ∣+⟩ ส่วน ROTX(π/2)∣0⟩ = ∣−Y⟩ (ใจความที่ออกสอบไม่เปลี่ยน: ทั้งคู่ให้ 50/50 ต่างกันที่ phase)</li>
-      <li><a href="#lec02">Lec02 · สไลด์ p66</a> — ระบายไฮไลต์แค่ ∣3⟩ ∣5⟩ ∣7⟩ ตกวง ∣1⟩ ไป · ของจริง PHASE กระทบครึ่งหนึ่ง = 4 วง (เป็นแค่การระบายสีตกหล่น ไม่ใช่เนื้อหาผิด)</li>
+      <li><a href="#lec02-bloch">Lec02 · สไลด์ p71</a> — เขียนว่า “The Z-axis is a horizontal axis” <b>ผิด</b> · Z คือแกน<b>ตั้ง</b> (∣0⟩→∣1⟩) ขัดกับประโยคถัดไปของสไลด์เอง</li>
+      <li><a href="#lec02-bloch">Lec02 · สไลด์ p69</a> — เขียนว่า “ROTX(π/2) เอียง ∣0⟩ ไป ∣+⟩” <b>ผิด</b> · ของจริง ROTY(π/2)∣0⟩ = ∣+⟩ ส่วน ROTX(π/2)∣0⟩ = ∣−Y⟩ (ใจความที่ออกสอบไม่เปลี่ยน: ทั้งคู่ให้ 50/50 ต่างกันที่ phase)</li>
+      <li><a href="#lec02-bloch">Lec02 · สไลด์ p66</a> — ระบายไฮไลต์แค่ ∣3⟩ ∣5⟩ ∣7⟩ ตกวง ∣1⟩ ไป · ของจริง PHASE กระทบครึ่งหนึ่ง = 4 วง (เป็นแค่การระบายสีตกหล่น ไม่ใช่เนื้อหาผิด)</li>
       <li><b>convention ที่ต้องยึดทุกบท</b> — มุมบวก = <b>ทวนเข็มนาฬิกา</b> (ยืนยันจากสไลด์ p64/p66) สามัญสำนึกว่า “ตามเข็ม” ผิด</li>
       <li><b>วิธีรับมือตอนสอบ</b> — ถ้าข้อสอบอ้างสไลด์ตรงๆ ให้ <b>ตอบตามสไลด์</b> แต่รู้ของจริงไว้เผื่อโจทย์ถามเชิงเข้าใจ</li>
       <li><a href="#lec03">Lec03 · PHASE ใน register</a> — สไลด์ Lec03 หน้า 66 (PHASE ที่ 0x1) แถวบนสุดระบายไฮไลต์แค่ |3⟩ |5⟩ |7⟩ <strong>ตกวง |1⟩ ไป</strong> — เป็นการระบายสีตกหล่น ไม่ใช่เนื้อหาผิด (zoom แล้วเข็มของ |1⟩ เอียงจริง) ของจริงต้องครบ 4 วงตามกฎ "PHASE แตะครึ่งหนึ่ง"</li>

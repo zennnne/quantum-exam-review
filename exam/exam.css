@@ -74,3 +74,12 @@
   padding:.7rem 1rem; margin:.5rem 0; }
 .pitfall-list li a { font-weight:700; }
 .pitfall-empty { color:var(--ink-soft); font-size:.95rem; }
+
+/* ---------- Bloch sphere (assets/bloch.js) ---------- */
+.bloch { text-align:center; margin:1.1rem 0; }
+.bloch svg { display:block; margin:0 auto; max-width:100%; height:auto; }
+.bloch .lab { font-size:.8rem; font-weight:800; color:var(--accent);
+  letter-spacing:.02em; margin-bottom:.2rem; }
+.bloch .cap { font-size:.85rem; color:var(--ink-soft); margin-top:.4rem; }
+.blochrow { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin:1.1rem 0; }
+.blochrow .bloch { margin:0; }
