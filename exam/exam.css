@@ -83,3 +83,14 @@
 .bloch .cap { font-size:.85rem; color:var(--ink-soft); margin-top:.4rem; }
 .blochrow { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin:1.1rem 0; }
 .blochrow .bloch { margin:0; }
+
+/* ไฮไลต์ชั่วคราวตอนกดลิงก์ข้ามหน้ามาลงที่แถว/หัวข้อปลายทาง */
+.anchor-hit { animation: anchorFlash 1.6s ease-out; }
+.anchor-hit > td { background: var(--accent-dim); }
+@keyframes anchorFlash {
+  0%, 60% { background: var(--accent-dim); }
+  100%    { background: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anchor-hit { animation: none; }
+}

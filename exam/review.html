@@ -38,7 +38,7 @@
   </nav>
 
   <!-- ==== LEC01 ==== -->
-  <section class="page" data-page="lec01">
+  <section class="page" id="lec01" data-page="lec01">
     <p class="kicker">Lec01 · ครึ่งหน้า อ่านจบใน 1 นาที</p>
     <h2>QPU คืออะไร (และไม่ใช่อะไร)</h2>
 
@@ -124,7 +124,7 @@
   </section>
 
   <!-- ==== LEC02 ==== -->
-  <section class="page" data-page="lec02">
+  <section class="page" id="lec02" data-page="lec02">
     <p class="kicker">Lec02 · ทวน ไม่ปูใหม่</p>
     <h2>Qubit เดี่ยว &amp; Bloch sphere</h2>
 
@@ -607,7 +607,7 @@
   </section>
 
   <!-- ==== LEC03 ==== -->
-  <section class="page" data-page="lec03">
+  <section class="page" id="lec03" data-page="lec03">
     <p class="kicker">Lec03 · ทวนให้ครบ ไม่ปูใหม่</p>
     <h2>Multi-qubit &amp; Entanglement</h2>
     <p class="lead">ครึ่งแรก: register หลาย qubit เขียนเป็นวงยังไง และ gate 1 qubit ทำงานใน register ยังไง (<span class="term" title="การจับคู่วงที่ต่างกันเท่าน้ำหนักบิต">operator pairs</span>) — กลไกกลางของทั้งคาบ</p>
@@ -1312,7 +1312,7 @@
   </section>
 
   <!-- ==== LEC04 ==== -->
-  <section class="page" data-page="lec04">
+  <section class="page" id="lec04" data-page="lec04">
     <p class="kicker">Lec04 · สิทธิ์ "ยาวได้" ทั้งหน้า</p>
     <h2>Teleportation</h2>
     <p class="lead">ย้าย <span class="term" title="สถานะควอนตัม = magnitude + relative phase ครบทั้งชุด">state (สถานะ)</span> ของ qubit หนึ่งไปโผล่ที่อีก qubit หนึ่ง โดยไม่ได้ส่งตัว qubit ไปไหนเลย — ใช้ <b>คู่ entangled 1 คู่ + บิตคลาสสิก 2 บิต</b> เท่านั้น</p>
@@ -1576,7 +1576,7 @@
   </section>
 
   <!-- ==== LEC05 ==== -->
-  <section class="page" data-page="lec05">
+  <section class="page" id="lec05" data-page="lec05">
     <p class="kicker">Lec05</p>
     <h2>Arithmetic &amp; Logic</h2>
     <p class="lead">แกนของคาบนี้: เอาเลขคณิตแบบดิจิทัลมาทำบน qubit register ที่อยู่ใน superposition (การซ้อนทับ) โดยไม่ละเมิดกฎ 2 ข้อของ QPU — แล้วปิดท้ายด้วยการแปลง logic gate ดิจิทัลทั้ง 6 ตัวให้เป็นวงจรควอนตัม</p>
@@ -1823,7 +1823,7 @@
   </section>
 
   <!-- ==== CODE ==== -->
-  <section class="page" data-page="code">
+  <section class="page" id="code" data-page="code">
     <p class="kicker">รวมไว้ที่เดียว</p>
     <h2>โค้ด ↔ สัญลักษณ์วงจร</h2>
     <p class="lead">ทุกหัวข้อในสรุปที่มีโค้ด จะมีลิงก์ "→ ดูโค้ด" เด้งมาที่แถวของตัวเองในตารางนี้</p>
@@ -1974,7 +1974,7 @@ if (send_had == recv_had)      // ฐานตรงกัน
   </section>
 
   <!-- ==== PITFALLS ==== -->
-  <section class="page" data-page="pitfalls">
+  <section class="page" id="pitfalls" data-page="pitfalls">
     <p class="kicker">ทวนรอบสุดท้าย</p>
     <h2>Pitfalls</h2>
     <p class="lead">ลิสต์ลิงก์กลับไปจุดจริงในเนื้อหา — ไม่เขียนเนื้อซ้ำที่นี่</p>
@@ -2035,7 +2035,7 @@ if (send_had == recv_had)      // ฐานตรงกัน
 (function () {
   var ORDER = ["lec01", "lec02", "lec03", "lec04", "lec05", "code", "pitfalls"];
 
-  function showPage(id) {
+  function showPage(id, keepScroll) {
     if (ORDER.indexOf(id) === -1) id = ORDER[0];
     document.querySelectorAll(".page").forEach(function (sec) {
       sec.classList.toggle("active", sec.dataset.page === id);
@@ -2047,7 +2047,7 @@ if (send_had == recv_had)      // ฐานตรงกัน
     if (sel) sel.value = id;
     if (history.replaceState) history.replaceState(null, "", "#" + id);
     else location.hash = id;
-    window.scrollTo(0, 0);
+    if (!keepScroll) window.scrollTo(0, 0);
   }
   window.examShowPage = showPage;
 
@@ -2061,7 +2061,29 @@ if (send_had == recv_had)      // ฐานตรงกัน
     if (e.target.classList.contains("exam-dropdown")) showPage(e.target.value);
   });
 
+  // ลิงก์ข้ามหน้า: <a href="#code-xxx"> ต้องสลับ .page ให้ด้วย ไม่ใช่แค่เปลี่ยน hash
+  function goToAnchor(id) {
+    if (!id) return false;
+    if (ORDER.indexOf(id) !== -1) { showPage(id); return true; }
+    var target = document.getElementById(id);
+    if (!target) return false;
+    var page = target.closest(".page");
+    if (page && page.dataset.page) showPage(page.dataset.page, true);
+    if (history.replaceState) history.replaceState(null, "", "#" + id);
+    target.scrollIntoView({ block: "center" });
+    target.classList.add("anchor-hit");
+    setTimeout(function () { target.classList.remove("anchor-hit"); }, 1600);
+    return true;
+  }
+
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a || a.closest(".exam-tabs")) return;
+    var id = a.getAttribute("href").slice(1);
+    if (goToAnchor(id)) e.preventDefault();
+  });
+
   var start = (location.hash || "").replace("#", "");
-  showPage(start || ORDER[0]);
+  if (!goToAnchor(start)) showPage(ORDER[0]);
 })();
 </script>
