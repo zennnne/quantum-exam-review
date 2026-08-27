@@ -104,8 +104,7 @@ var GATES = [
     attrs: { wires: "3", ops: "CSWAP:0,1,2" },
     why: "● หนึ่งตัวคุม × สองตัว = สลับสองสายนั้นเมื่อ control เป็น 1" },
   { id: "mcnot", g: 2, kind: "c", name: "multi-control NOT",
-    attrs: { wires: "4", "wire-labels": "0x1,0x2,0x4,0x1", names: "a,,,scratch",
-             ops: "CTRL:0,1,3 + X:2" },
+    attrs: { wires: "4", ops: "CTRL:0,1,3 + X:2" },
     why: "● ตั้งแต่ 3 ตัวขึ้นไปคุม ⊕ ตัวเดียว = พลิกเมื่อ control เป็น 1 พร้อมกันหมด" },
   { id: "cc", g: 2, kind: "c", name: "CC (control ด้วยบิตคลาสสิก)",
     attrs: { wires: "2", ops: "READ:0; CC:0,1 + X:1" },
@@ -191,7 +190,9 @@ function drillQuestion(pool, avoidId) {
 function drillFigure(item) {
   var s = '<div class="' + (item.kind === "c" ? "circuit" : "logicgate") + '"';
   for (var k in item.attrs) s += ' data-' + k + '="' + item.attrs[k] + '"';
-  s += ' data-alt="' + item.name + '"></div>';
+  /* 🔴 อย่าใส่ชื่อ gate ลง data-alt — มันกลายเป็น aria-label ของ SVG = เฉลยหลุด
+     ทั้งสองทิศทาง (โจทย์ก็รูป ตัวเลือกก็รูป) จึงใช้ป้ายกลางๆ */
+  s += ' data-alt="รูปสัญลักษณ์ gate"></div>';
   return '<div class="scrollx">' + s + "</div>";
 }
 

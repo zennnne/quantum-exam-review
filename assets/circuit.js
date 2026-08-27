@@ -14,6 +14,9 @@
 
    ops ที่รองรับ (คั่นด้วย ; — แต่ละ op = 1 คอลัมน์, ใช้ "_" เป็นช่องว่าง):
      ใช้ + เชื่อมถ้าต้องการหลาย gate ใน "คอลัมน์เดียวกัน"  เช่น  H:0 + H:1
+     ⚠ ต้องมีเว้นวรรคขนาบ + เสมอ ("H:0 + H:1" ไม่ใช่ "H:0+H:1")
+       เพราะ + ที่ติดกับตัวอักษรถือเป็นข้อความปกติ — ทำให้ label ของ BOX
+       อย่าง "BOX:0,2:+1:2" (กล่อง +1) ใช้งานได้
 
      H:w              Hadamard
      X:w[,w2,...]     NOT (⊕) — ใส่หลายสายได้ = ⊕ หลายตัวในคอลัมน์เดียว
@@ -46,6 +49,9 @@
 (function () {
   var NS = "http://www.w3.org/2000/svg";
   var GAP = 40, TOP = 24, COLW = 52, PAD_R = 18;
+  /* ตัวคั่น gate ใน "คอลัมน์เดียวกัน" = เครื่องหมาย + ที่มีเว้นวรรคขนาบสองข้าง
+     (ต้องมีช่องว่าง ไม่งั้น label ของ BOX อย่าง "BOX:0,2:+1:2" จะโดนหั่นกลางคัน) */
+  var COLSEP = /\s+\+\s+/;
 
   function el(tag, a) {
     var e = document.createElementNS(NS, tag);
@@ -252,7 +258,7 @@
     /* หาจุด write / read ของแต่ละสาย → ช่วงนอกนั้นวาดเป็นเส้นจาง */
     var wCol = [], rCol = [];
     ops.forEach(function (col, j) {
-      col.split("+").forEach(function (spec) {
+      col.split(COLSEP).forEach(function (spec) {
         var q = spec.trim().split(":");
         var nm = q[0].trim().toUpperCase();
         var w = parseInt((q[1] || "").split(",")[0], 10);
@@ -307,7 +313,7 @@
 
     ops.forEach(function (col, j) {
       // "+" = หลาย gate ในคอลัมน์เดียวกัน เช่น "H:0 + H:1"
-      var specs = col.split("+").map(function (spec) {
+      var specs = col.split(COLSEP).map(function (spec) {
         var parts = spec.trim().split(":");
         return {
           name: parts[0].trim().toUpperCase(),
